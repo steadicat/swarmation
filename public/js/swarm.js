@@ -89,13 +89,14 @@ Swarmation.Player.prototype = {
     
     move: function(direction) {
         Swarmation.Board.clearPixel(this._x, this._y);
+        sendAction('clearPixel', { x: this._x, y: this._y });
 
         switch (direction) {
         case 'left':
-			this._x -= 10;
+            this._x -= 10;
             break;
         case 'up':
-			this._y -= 10;           
+            this._y -= 10;           
             break;
         case 'right':
             this._x += 10;           
@@ -104,7 +105,7 @@ Swarmation.Player.prototype = {
             this._y += 10;           
             break;
         }
-		Swarmation.Board.drawPixel(this._x, this._y);
+        Swarmation.Board.drawPixel(this._x, this._y);
     },
     
     useCurrentPower: function() {
@@ -130,6 +131,9 @@ Swarmation.Player.prototype = {
 
     $('#board').bind('newPixel', function(event, data) {
         Swarmation.Board.newPixel(data.x, data.y);
+    });
+    $('#board').bind('clearPixel', function(event, data) {
+        Swarmation.Board.clearPixel(data.x, data.y);
     });
 
     $(document).bind('keydown', 'left', function(e) {
