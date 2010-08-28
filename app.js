@@ -40,3 +40,4 @@ app.get('/', function(req, res){
 // Only listen on $ node app.js
 
 if (!module.parent) app.listen(3000);
+console.log('Server now listening on port 3000...');
