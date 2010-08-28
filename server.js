@@ -4,7 +4,9 @@
  */
 
 var express = require('express'),
-    connect = require('connect');
+    connect = require('connect'),
+    io = require('./contrib/Socket.IO-node');
+
 
 var app = module.exports = express.createServer();
 
@@ -28,6 +30,14 @@ app.configure('production', function(){
 });
 
 // Routes
+
+// IO
+var socket = new io.listen(app, { resource: 'socket' });
+
+socket.on('connection', function(client) {
+    client.on('message', function(m) { console.log(m); });
+    client.on('disconnect', function() { console.log('disconnect'); });
+});
 
 // Only listen on $ node app.js
 
