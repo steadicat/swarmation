@@ -1,6 +1,6 @@
-io.setPath('/socket');
+io.setPath('/socket/');
 
-socket = new io.Socket('swarmation.com');
+socket = new io.Socket('', { transports: ['websocket', 'xhr-multipart', 'xhr-polling', 'htmlfile']});
 socket.connect();
 socket.on('message', function(data) {
     if (data.event == 'newPixel') {
