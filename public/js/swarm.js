@@ -39,14 +39,14 @@ Swarmation.Board = {
         context.stroke();
     },
 
-    // Draw a pixel based on a click event
-    drawPixel: function(px, py) {
-        var coords = Swarmation.Board.getCoords(px, py);
-        Swarmation.Board.getContext().fillRect(coords.x, coords.y, 9, 9);
-        sendAction('newPixel', { x: coords.x, y: coords.y });     
+    // Draw a pixel and broadcasts location
+    drawPixel: function(x, y) {
+        //var coords = Swarmation.Board.getCoords(px, py);
+        Swarmation.Board.getContext().fillRect(x, y, 9, 9);
+        sendAction('newPixel', { x: x, y: y });     
     },
 
-    // Draw a pixel at the given coordinates (already adjusted)
+    // Draw a pixel at the given coordinates DOESN'T BROADCAST
     newPixel: function(x, y) {
         Swarmation.Board.getContext().fillRect(x, y, 9, 9);
     },
@@ -84,26 +84,27 @@ Swarmation.Player.prototype = {
     },
     
     draw: function() {
-        Swarmation.Board.newPixel(this._x, this._y);
+        Swarmation.Board.drawPixel(this._x, this._y);
     },
     
     move: function(direction) {
         Swarmation.Board.clearPixel(this._x, this._y);
-        console.log('move' + direction);
+
         switch (direction) {
         case 'left':
-            Swarmation.Board.newPixel(this._x - 10, this._y);
+			this._x -= 10;
             break;
         case 'up':
-            Swarmation.Board.newPixel(this._x, this._y - 10);           
+			this._y -= 10;           
             break;
         case 'right':
-            Swarmation.Board.newPixel(this._x + 10, this._y);           
+            this._x += 10;           
             break;
         case 'down':
-            Swarmation.Board.newPixel(this._x, this._y + 10);           
+            this._y += 10;           
             break;
         }
+		Swarmation.Board.drawPixel(this._x, this._y);
     },
     
     useCurrentPower: function() {
