@@ -29,14 +29,6 @@ app.configure('production', function(){
 
 // Routes
 
-app.get('/', function(req, res){
-    res.render('index.jade', {
-        locals: {
-            title: 'Swarmation :: The Pixel Game'
-        }
-    });
-});
-
 // Only listen on $ node app.js
 
 var port = parseInt(process.argv[2], 10) || 80;
