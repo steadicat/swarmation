@@ -24,6 +24,11 @@
         var x = Math.floor((e.pageX - offset.left - 4) / 10) * 10 + 1;
         var y = Math.floor((e.pageY - offset.top - 4) / 10) * 10 + 1;
         context.fillRect(x, y, 9, 9);
+        $('#board').trigger('newPixel', [x, y]);
+    });
+
+    $('#board').bind('receivePixel', function(event, x, y) {
+        context.fillRect(x, y, 9, 9);
     });
     
     $('#reset').click(function(e) {

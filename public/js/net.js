@@ -2,7 +2,12 @@ io.setPath('/socket');
 
 socket = new io.Socket('localhost');
 socket.connect();
-socket.send('some data');
 socket.on('message', function(data) {
-    alert('got some data ' + data);
+    if (data.event == 'newPixel') {
+        $('#board').trigger('receivePixel', [data.x, data.y]);
+    }
+});
+
+$('#board').bind('newPixel', function(event, x, y) {
+    socket.send({ event: 'newPixel', x: x, y: y });
 });

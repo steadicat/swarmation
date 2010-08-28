@@ -5,6 +5,7 @@
 
 var express = require('express'),
     connect = require('connect'),
+    sys = require('sys'),
     io = require('./contrib/Socket.IO-node');
 
 
@@ -34,8 +35,14 @@ app.configure('production', function(){
 // IO
 var socket = new io.listen(app, { resource: 'socket' });
 
+var clients = [];
+
 socket.on('connection', function(client) {
-    client.on('message', function(m) { console.log(m); });
+    client.on('message', function(m) {
+        socket.clients.forEach(function(client) {
+            if (client) client.send(m);
+        });
+    });
     client.on('disconnect', function() { console.log('disconnect'); });
 });
 
