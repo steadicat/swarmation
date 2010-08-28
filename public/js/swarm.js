@@ -1,9 +1,17 @@
-(function($, undefined) {
+// New namespace
+var Swarmation = {};
 
-    var board = $('#board').get(0);
-    var context = board.getContext("2d");
-
-    var drawBoard = function() {
+Swarmation.Board = {
+    canvas: $('#board'),
+    
+    getContext: function() { 
+        return Swarmation.Board.canvas[0].getContext("2d"); 
+    },
+    
+    drawGrid: function() {
+		var board = Swarmation.Board.canvas[0];
+        var context = Swarmation.Board.getContext();
+        
         // Draw vertical lines
         for (var x = 0.5; x <= board.width; x += 10) {
             context.moveTo(x, 0);
@@ -18,34 +26,62 @@
 
         context.strokeStyle = "#ddd";
         context.stroke();
+    },
+
+    drawPixel: function(px, py) {
+        var offset = Swarmation.Board.canvas.offset();
+        var x = Math.floor((px - offset.left - 2) / 10) * 10 + 1;
+        var y = Math.floor((py - offset.top - 2) / 10) * 10 + 1;
+        Swarmation.Board.getContext().fillRect(x, y, 9, 9);
+        sendAction('newPixel', { x: x, y: y });     
+    },
+
+    newPixel: function(x, y) {
+        Swarmation.Board.getContext().fillRect(x, y, 9, 9);
+    },
+
+    clear: function() {
+        Swarmation.Board.canvas[0].width = Swarmation.Board.canvas[0].width;
+        Swarmation.Board.drawGrid();
     }
-    
+};
+
+(function($, undefined) {
+    // Bind events
     $('#board').mousedown(function(e) {
-        var offset = $(board).offset();
-        var x = Math.floor((e.pageX - offset.left - 4) / 10) * 10 + 1;
-        var y = Math.floor((e.pageY - offset.top - 4) / 10) * 10 + 1;
-        context.fillRect(x, y, 9, 9);
-        sendAction('newPixel', { x: x, y: y });
+        Swarmation.Board.drawPixel(e.pageX, e.pageY);
     });
 
     $('#board').bind('newPixel', function(event, data) {
-        context.fillRect(data.x, data.y, 9, 9);
-    });
-    
-    $('#reset').click(function(e) {
-        board.width = board.width;
-        drawBoard();
+        Swarmation.Board.newPixel(data.x, data.y);
     });
 
-    $(document).shortkeys({
-        'Left' : function() { console.log('left'); },
-        'Right': function() { console.log('right'); },
-        'Up'   : function() { console.log('up'); },
-        'Down' : function() { console.log('down'); },
-        'Space': function() { console.log('space'); }
-    }, {'Left': 37, 'Up': 38, 'Right': 39, 'Down': 40});
-    
+    $(document).bind('keydown', 'left', function(e) {
+        console.log('left');
+        return false;
+    });
+    $(document).bind('keydown', 'up', function(e) {
+        console.log('up');
+        return false;
+    });
+    $(document).bind('keydown', 'right', function(e) {
+        console.log('right');
+        return false;
+    });
+    $(document).bind('keydown', 'down', function(e) {
+        console.log('down');
+        return false;
+    });
+    $(document).bind('keydown', 'space', function(e) {
+        console.log('space');
+        return false;
+    });
+    $(document).bind('keydown', 'esc', function(e) {
+        Swarmation.Board.clear();
+        return false;
+    });
+
     // Run it
-    drawBoard();
+    Swarmation.Board.drawGrid();
 
-})(jQuery);
+})( jQuery );
