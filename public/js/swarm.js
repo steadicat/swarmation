@@ -9,6 +9,7 @@ Swarmation.Board = {
     },
     
     drawGrid: function() {
+		var board = Swarmation.Board.canvas[0];
         var context = Swarmation.Board.getContext();
         
         // Draw vertical lines
@@ -31,8 +32,12 @@ Swarmation.Board = {
         var offset = Swarmation.Board.canvas.offset();
         var x = Math.floor((px - offset.left - 2) / 10) * 10 + 1;
         var y = Math.floor((py - offset.top - 2) / 10) * 10 + 1;
-        Swarmation.Board.getContext.fillRect(x, y, 9, 9);
+        Swarmation.Board.getContext().fillRect(x, y, 9, 9);
         sendAction('newPixel', { x: x, y: y });     
+    },
+
+    newPixel: function(x, y) {
+        Swarmation.Board.getContext().fillRect(x, y, 9, 9);
     },
 
     clear: function() {
@@ -48,7 +53,7 @@ Swarmation.Board = {
     });
 
     $('#board').bind('newPixel', function(event, data) {
-        context.fillRect(data.x, data.y, 9, 9);
+        Swarmation.Board.newPixel(data.x, data.y);
     });
 
     $(document).bind('keydown', 'left', function(e) {
