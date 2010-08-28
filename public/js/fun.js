@@ -19,9 +19,7 @@ void setup() {
 void draw() {
   background(0xffeeeeee);
   drawGrid();  
-  noStroke();
-  fill(0xff000000);
-	rect(bx,by,9,9);
+	newPixel(bx,by);
 }
 
 void drawGrid() {
@@ -41,7 +39,10 @@ void placePixel() {
 }
 
 void newPixel(x,y) {
-
+  strokeWeight(2);
+  stroke(0xff007FFF);
+  fill(0xff89CFF0);
+	rect(x,y,9,9);
 }
 
 void keyPressed() {
