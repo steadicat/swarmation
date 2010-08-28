@@ -23,19 +23,19 @@ void draw() {
 }
 
 void drawGrid() {
-  stroke(0xffdddddd);
-  for (var x = 0.5; x <= width; x += 10) {
+	stroke(0xffdddddd);
+	for (var x = 0.5; x <= width; x += 10) {
 	  line(x, 0, x, height);
-  }
-  for (var y = 0.5; y <= height; y += 10) {
+	}
+	for (var y = 0.5; y <= height; y += 10) {
 	  line(0, y, width, y);
-  }
+	}
 }
 
 void placePixel() {
-  var x = floor(random(width)/10) * 10;
-  var y = floor(random(height)/10) * 10;
-  newPixel(x+1,y+1);
+  var x = floor(random(width)  / 10) * 10;
+  var y = floor(random(height) / 10) * 10;
+  newPixel(x + 1, y + 1);
 }
 
 void newPixel(x,y) {
@@ -56,5 +56,13 @@ void keyPressed() {
 		} else if (keyCode == DOWN) {
 		  by = by + 10;	
 		}
+  }
+}
+
+void mousePressed() {
+	console.log('mouse pressed');
+	if (!p) {
+		p = new Player(mouseX, mouseY)
+		p.draw();
 	}
 }

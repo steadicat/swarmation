@@ -8,7 +8,7 @@ Swarmation.Board = {
     
     // Get the canvas context for drawing
     getContext: function() { 
-        return Swarmation.Board.canvas[0].getContext("2d"); 
+        return Swarmation.Board.canvas[0].getContext('2d'); 
     },
 
     getCoords: function(px, py) {
@@ -172,6 +172,6 @@ Swarmation.Player.prototype = {
     });
 
     // Run it
-    Swarmation.Board.drawGrid();
+    //Swarmation.Board.drawGrid();
 
 })( jQuery );
