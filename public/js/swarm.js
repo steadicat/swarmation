@@ -37,13 +37,19 @@
         drawBoard();
     });
 
-    $(document).shortkeys({
-        'Left' : function() { console.log('left'); },
-        'Right': function() { console.log('right'); },
-        'Up'   : function() { console.log('up'); },
-        'Down' : function() { console.log('down'); },
-        'Space': function() { console.log('space'); }
-    }, {'Left': 37, 'Up': 38, 'Right': 39, 'Down': 40});
+    $('#board').keydown(function(e) {
+        if (e.keyCode == 37) { 
+			console.log('left'); 
+		} else if (e.keyCode == 38) {
+			console.log('up');
+		} else if (e.keyCode == 39) {
+			console.log('right');
+		} else if (e.keyCode == 40) {
+			console.log('down');
+		} else if (e.keyCode == 32) {
+			console.log('space');
+		}
+    });
     
     // Run it
     drawBoard();
