@@ -1,13 +1,17 @@
-io.setPath('/socket/');
+(function($, undefined) {
 
-socket = new io.Socket('swarmation.com', { transports: ['websocket', 'xhr-multipart', 'xhr-polling', 'htmlfile']});
-socket.connect();
-socket.on('message', function(data) {
-    if (data.event == 'newPixel') {
-        $('#board').trigger('receivePixel', [data.x, data.y]);
-    }
-});
+    io.setPath('/socket/');
 
-$('#board').bind('newPixel', function(event, x, y) {
-    socket.send({ event: 'newPixel', x: x, y: y });
-});
+    socket = new io.Socket('', { transports: ['websocket', 'xhr-multipart', 'xhr-polling', 'htmlfile']});
+    socket.connect();
+    socket.on('message', function(data) {
+        $('#board').trigger(data.type, data);
+    });
+
+    window.sendAction = function(type, data) {
+        data.type = type;
+        socket.send(data);
+    };
+
+})(jQuery);
+
