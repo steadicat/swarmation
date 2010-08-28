@@ -172,6 +172,6 @@ Swarmation.Player.prototype = {
     });
 
     // Run it
-    Swarmation.Board.drawGrid();
+    //Swarmation.Board.drawGrid();
 
 })( jQuery );
