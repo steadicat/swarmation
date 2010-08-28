@@ -1,15 +1,26 @@
 // New namespace
 var Swarmation = {};
 
+// The game board object
+// Follows the singleton pattern
 Swarmation.Board = {
     canvas: $('#board'),
     
+    // Get the canvas context for drawing
     getContext: function() { 
         return Swarmation.Board.canvas[0].getContext("2d"); 
     },
+
+    getCoords: function(px, py) {
+        var offset = Swarmation.Board.canvas.offset();
+        var x = Math.floor((px - offset.left - 2) / 10) * 10 + 1;
+        var y = Math.floor((py - offset.top - 2) / 10) * 10 + 1;
+        return { x: x, y: y };
+    },
     
+    // Draw the grid
     drawGrid: function() {
-		var board = Swarmation.Board.canvas[0];
+        var board = Swarmation.Board.canvas[0];
         var context = Swarmation.Board.getContext();
         
         // Draw vertical lines
@@ -28,28 +39,92 @@ Swarmation.Board = {
         context.stroke();
     },
 
+    // Draw a pixel based on a click event
     drawPixel: function(px, py) {
-        var offset = Swarmation.Board.canvas.offset();
-        var x = Math.floor((px - offset.left - 2) / 10) * 10 + 1;
-        var y = Math.floor((py - offset.top - 2) / 10) * 10 + 1;
-        Swarmation.Board.getContext().fillRect(x, y, 9, 9);
-        sendAction('newPixel', { x: x, y: y });     
+        var coords = Swarmation.Board.getCoords(px, py);
+        Swarmation.Board.getContext().fillRect(coords.x, coords.y, 9, 9);
+        sendAction('newPixel', { x: coords.x, y: coords.y });     
     },
 
+    // Draw a pixel at the given coordinates (already adjusted)
     newPixel: function(x, y) {
         Swarmation.Board.getContext().fillRect(x, y, 9, 9);
     },
 
+    // Erase a pixel at the given coordinates
+    clearPixel: function(x, y) {
+        var context = Swarmation.Board.getContext();
+        context.strokeStyle = "fff";
+        context.clearRect(x, y, 9, 9);
+    },
+
+    // Erase all pixels from the board
     clear: function() {
         Swarmation.Board.canvas[0].width = Swarmation.Board.canvas[0].width;
         Swarmation.Board.drawGrid();
     }
 };
 
+
+// The player object
+Swarmation.Player = function(startx, starty) {
+    var coords = Swarmation.Board.getCoords(startx, starty);
+    this.setLocation(coords.x, coords.y);
+    this.draw();
+};
+
+Swarmation.Player.prototype = {
+    setLocation: function(x, y) {
+        this._x = x;
+        this._y = y;
+    },
+    
+    getLocation: function() {
+        return { x: _x, y: _y };
+    },
+    
+    draw: function() {
+        Swarmation.Board.newPixel(this._x, this._y);
+    },
+    
+    move: function(direction) {
+        Swarmation.Board.clearPixel(this._x, this._y);
+        console.log('move' + direction);
+        switch (direction) {
+        case 'left':
+            Swarmation.Board.newPixel(this._x - 10, this._y);
+            break;
+        case 'up':
+            Swarmation.Board.newPixel(this._x, this._y - 10);           
+            break;
+        case 'right':
+            Swarmation.Board.newPixel(this._x + 10, this._y);           
+            break;
+        case 'down':
+            Swarmation.Board.newPixel(this._x, this._y + 10);           
+            break;
+        }
+    },
+    
+    useCurrentPower: function() {
+        console.log('Power!');
+    },
+    
+    checkFormation: function() {
+        //Might not use this
+    }
+};
+
 (function($, undefined) {
+    var player;
+    
     // Bind events
     $('#board').mousedown(function(e) {
-        Swarmation.Board.drawPixel(e.pageX, e.pageY);
+        if (player === undefined) {
+            player = new Swarmation.Player(e.pageX, e.pageY);
+        } else {
+            console.log('Already instantiated');
+        }
     });
 
     $('#board').bind('newPixel', function(event, data) {
@@ -57,23 +132,33 @@ Swarmation.Board = {
     });
 
     $(document).bind('keydown', 'left', function(e) {
-        console.log('left');
+        if (player !== undefined) {
+            player.move('left');
+        }
         return false;
     });
     $(document).bind('keydown', 'up', function(e) {
-        console.log('up');
+        if (player !== undefined) {
+            player.move('up');
+        }
         return false;
     });
     $(document).bind('keydown', 'right', function(e) {
-        console.log('right');
+        if (player !== undefined) {
+            player.move('right');
+        }
         return false;
     });
     $(document).bind('keydown', 'down', function(e) {
-        console.log('down');
+        if (player !== undefined) {
+            player.move('down');
+        }
         return false;
     });
     $(document).bind('keydown', 'space', function(e) {
-        console.log('space');
+        if (player !== undefined) {
+            player.useCurrentPower();
+        }
         return false;
     });
     $(document).bind('keydown', 'esc', function(e) {
