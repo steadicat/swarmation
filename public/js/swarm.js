@@ -35,6 +35,17 @@
         board.width = board.width;
         drawBoard();
     });
+    $('#reset').click(function(e) {
+        board.width = board.width;
+        drawBoard();
+    });
+
+    $(document).bind('keydown', 'left', function() { player.move('left') });
+    $(document).bind('keydown', 'right', function() { player.move('right') });
+    $(document).bind('keydown', 'up', function() { player.move('up') });
+    $(document).bind('keydown', 'down', function() { player.move('down') });
+
+    $(document).bind('keydown', 'space', function() { player.userPower() });
     
     // Run it
     drawBoard();
