@@ -41,12 +41,12 @@
     });
 
     $(document).shortkeys({
-        'Left':  function() { console.log('left'); },
+        'Left' : function() { console.log('left'); },
         'Right': function() { console.log('right'); },
-        'Up':    function() { console.log('up'); },
-        'Down':  function() { console.log('down'); },
+        'Up'   : function() { console.log('up'); },
+        'Down' : function() { console.log('down'); },
         'Space': function() { console.log('space'); }
-    });
+    }, {'Left': 37, 'Up': 38, 'Right': 39, 'Down': 40});
     
     // Run it
     drawBoard();
