@@ -15,7 +15,7 @@
             context.lineTo(board.width, y);
         }
 
-        context.strokeStyle = "#eee";
+        context.strokeStyle = "#ddd";
         context.stroke();
     }
     
