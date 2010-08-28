@@ -1,4 +1,5 @@
-(function() {
+(function($, undefined) {
+
     var board = $('#board').get(0);
     var context = board.getContext("2d");
 
@@ -24,17 +25,13 @@
         var x = Math.floor((e.pageX - offset.left - 4) / 10) * 10 + 1;
         var y = Math.floor((e.pageY - offset.top - 4) / 10) * 10 + 1;
         context.fillRect(x, y, 9, 9);
-        $('#board').trigger('newPixel', [x, y]);
+        sendAction('newPixel', { x: x, y: y });
     });
 
-    $('#board').bind('receivePixel', function(event, x, y) {
-        context.fillRect(x, y, 9, 9);
+    $('#board').bind('newPixel', function(event, data) {
+        context.fillRect(data.x, data.y, 9, 9);
     });
     
-    $('#reset').click(function(e) {
-        board.width = board.width;
-        drawBoard();
-    });
     $('#reset').click(function(e) {
         board.width = board.width;
         drawBoard();
@@ -49,4 +46,5 @@
     
     // Run it
     drawBoard();
-})();
+
+})(jQuery);
