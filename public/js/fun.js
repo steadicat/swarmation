@@ -19,7 +19,7 @@ void setup() {
 void draw() {
   background(0xffeeeeee);
   drawGrid();  
-	newPixel(bx,by);
+  newPixel(bx,by);
 }
 
 void drawGrid() {
@@ -33,7 +33,7 @@ void drawGrid() {
 }
 
 void placePixel() {
-	var x = floor(random(width)/10) * 10;
+  var x = floor(random(width)/10) * 10;
   var y = floor(random(height)/10) * 10;
   newPixel(x+1,y+1);
 }
