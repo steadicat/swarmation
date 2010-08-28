@@ -22,8 +22,8 @@
     
     $('#board').mousedown(function(e) {
         var offset = $(board).offset();
-        var x = Math.floor((e.pageX - offset.left - 4) / 10) * 10 + 1;
-        var y = Math.floor((e.pageY - offset.top - 4) / 10) * 10 + 1;
+        var x = Math.floor((e.pageX - offset.left - 2) / 10) * 10 + 1;
+        var y = Math.floor((e.pageY - offset.top - 2) / 10) * 10 + 1;
         context.fillRect(x, y, 9, 9);
         sendAction('newPixel', { x: x, y: y });
     });
@@ -37,20 +37,27 @@
         drawBoard();
     });
 
-    $('#board').keydown(function(e) {
-        if (e.keyCode == 37) { 
-			console.log('left'); 
-		} else if (e.keyCode == 38) {
-			console.log('up');
-		} else if (e.keyCode == 39) {
-			console.log('right');
-		} else if (e.keyCode == 40) {
-			console.log('down');
-		} else if (e.keyCode == 32) {
-			console.log('space');
-		}
+    $(document).bind('keydown', 'space', function(e) {
+        console.log('space');
+        return false;
     });
-    
+    $(document).bind('keydown', 'left', function(e) {
+        console.log('left');
+        return false;
+    });
+    $(document).bind('keydown', 'up', function(e) {
+        console.log('up');
+        return false;
+    });
+    $(document).bind('keydown', 'right', function(e) {
+        console.log('right');
+        return false;
+    });
+    $(document).bind('keydown', 'down', function(e) {
+        console.log('down');
+        return false;
+    });
+
     // Run it
     drawBoard();
 
