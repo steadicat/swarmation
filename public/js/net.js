@@ -1,6 +1,6 @@
 io.setPath('/socket');
 
-socket = new io.Socket('localhost');
+socket = new io.Socket('swarmation.com');
 socket.connect();
 socket.on('message', function(data) {
     if (data.event == 'newPixel') {
