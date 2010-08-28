@@ -19,9 +19,7 @@ void setup() {
 void draw() {
   background(0xffeeeeee);
   drawGrid();  
-  noStroke();
-  fill(0xff000000);
-	rect(bx,by,9,9);
+	newPixel(bx,by);
 }
 
 void drawGrid() {
@@ -35,15 +33,16 @@ void drawGrid() {
 }
 
 void placePixel() {
-    var x = floor(random(width)  / 10) * 10;
-    var y = floor(random(height) / 10) * 10;
-    newPixel(x + 1, y + 1);
+  var x = floor(random(width)  / 10) * 10;
+  var y = floor(random(height) / 10) * 10;
+  newPixel(x + 1, y + 1);
 }
 
 void newPixel(x,y) {
-    noStroke();
-    fill(0xff000000);
-    rect(x, y, 9, 9);
+  strokeWeight(2);
+  stroke(0xff007FFF);
+  fill(0xff89CFF0);
+	rect(x,y,9,9);
 }
 
 void keyPressed() {
