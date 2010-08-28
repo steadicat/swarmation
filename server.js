@@ -39,5 +39,6 @@ app.get('/', function(req, res){
 
 // Only listen on $ node app.js
 
-if (!module.parent) app.listen(80);
-console.log('Server now listening on port 80...');
+var port = parseInt(process.argv[2], 10) || 80;
+if (!module.parent) app.listen(port);
+console.log('Server now listening on port '+port+'...');
