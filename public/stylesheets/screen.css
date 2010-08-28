@@ -81,25 +81,25 @@ a img {
   border: none;
 }
 
-/* line 7, ../src/screen.sass */
+/* line 6, ../src/screen.sass */
 body {
   font-family: sans-serif;
   font-size: 12px;
   color: #222222;
   background-color: #333333;
 }
-/* line 12, ../src/screen.sass */
+/* line 11, ../src/screen.sass */
 body a {
   color: white;
 }
-/* line 14, ../src/screen.sass */
+/* line 13, ../src/screen.sass */
 body #container {
   width: 1190px;
   margin: 0 auto;
   overflow: hidden;
   *zoom: 1;
 }
-/* line 16, ../src/screen.sass */
+/* line 15, ../src/screen.sass */
 body #header {
   font-family: Lobster;
   font-size: 120px;
@@ -108,7 +108,7 @@ body #header {
   text-align: center;
   text-shadow: black 2px 2px 2px;
 }
-/* line 23, ../src/screen.sass */
+/* line 22, ../src/screen.sass */
 body #header, body #footer {
   display: inline;
   float: left;
@@ -119,7 +119,7 @@ body #header, body #footer {
 * html body #header, * html body #footer {
   overflow-x: hidden;
 }
-/* line 25, ../src/screen.sass */
+/* line 24, ../src/screen.sass */
 body #sidebar {
   display: inline;
   float: left;
@@ -132,7 +132,7 @@ body #sidebar {
 * html body #sidebar {
   overflow-x: hidden;
 }
-/* line 29, ../src/screen.sass */
+/* line 28, ../src/screen.sass */
 body #sidebar .sidebar-notice {
   -moz-box-shadow: #222222 0px 0px 1px 0;
   -webkit-box-shadow: #222222 0px 0px 1px 0;
@@ -144,7 +144,7 @@ body #sidebar .sidebar-notice {
   margin: 12px 1px 0 0;
   color: white;
 }
-/* line 36, ../src/screen.sass */
+/* line 35, ../src/screen.sass */
 body #content {
   display: inline;
   float: left;
@@ -155,11 +155,11 @@ body #content {
 * html body #content {
   overflow-x: hidden;
 }
-/* line 38, ../src/screen.sass */
+/* line 37, ../src/screen.sass */
 body #content #board {
-  margin: 10px 0 0 10px;
+  margin: 10px 0 8px 10px;
 }
-/* line 40, ../src/screen.sass */
+/* line 39, ../src/screen.sass */
 body #content #board-container {
   width: 981px;
   background-color: #eeeeee;
@@ -169,7 +169,7 @@ body #content #board-container {
   -o-box-shadow: black 0px 0px 6px 0;
   box-shadow: black 0px 0px 6px 0;
 }
-/* line 45, ../src/screen.sass */
+/* line 44, ../src/screen.sass */
 body #content #board-controls {
   padding: 15px 25px;
 }
