@@ -19,7 +19,7 @@
         context.stroke();
     }
     
-    $('#board').click(function(e) {
+    $('#board').mousedown(function(e) {
         var offset = $(board).offset();
         var x = Math.floor((e.pageX - offset.left - 4) / 10) * 10 + 1;
         var y = Math.floor((e.pageY - offset.top - 4) / 10) * 10 + 1;
