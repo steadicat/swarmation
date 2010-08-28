@@ -32,7 +32,7 @@ app.configure('production', function(){
 app.get('/', function(req, res){
     res.render('index.jade', {
         locals: {
-            title: 'Express'
+            title: 'Swarmation :: The Pixel Game'
         }
     });
 });
