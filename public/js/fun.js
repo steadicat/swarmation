@@ -1,12 +1,27 @@
+float bx = getX();
+float by = getY();
+int bs = 9;
+
+function getX() {
+	return floor(random(width)/10) * 10 + 1;
+}
+
+function getY() {
+	return floor(random(height)/10) * 10 + 1;
+}
+
 void setup() {
 	size(961, 601);
-  background(0xffeeeeee);
 	smooth();
-  drawGrid();
-	placePixel();
+  frameRate(10);
 }
 
 void draw() {
+  background(0xffeeeeee);
+  drawGrid();  
+  noStroke();
+  fill(0xff000000);
+	rect(bx,by,9,9);
 }
 
 void drawGrid() {
@@ -26,17 +41,19 @@ void placePixel() {
 }
 
 void newPixel(x,y) {
-  noStroke();
-  fill(0xff000000);
-	rect(x,y,9,9);
+
 }
 
 void keyPressed() {
   if (key == CODED) {
-    if (keyCode == UP) {
-			placePixel();
+    if (keyCode == LEFT) {
+			bx = bx - 10;
+		} else if (keyCode == RIGHT) {
+			bx = bx + 10;
+		} else if (keyCode == UP) {
+			by = by - 10;
 		} else if (keyCode == DOWN) {
-			placePixel();
+		  by = by + 10;	
 		}
 	}
 }
