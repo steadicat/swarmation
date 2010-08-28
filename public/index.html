@@ -5,20 +5,22 @@
 
     <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
     <link href="/stylesheets/print.css" media="print" rel="stylesheet" type="text/css" />
-    <!--[if lt IE 8]>
-    <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
-    <![endif]-->
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lobster|Inconsolata">
 
 		<script src="/js/processing-0.9.7.min.js"></script>
+
     <!--[if IE]><script type="text/javascript" src="/js/excanvas.compiled.js"></script><![endif]-->
+    <!--[if lt IE 8]>
+    <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <![endif]-->
+
   </head>
   <body>
     <div id="container">
       <h1 id="header">Swarmation</h1>         
       <div id="content">
         <div id="board-container">
-          <canvas id="board" width="961" height="601"></canvas>
+					<canvas datasrc="/js/fun.js" width="961" height="601" id="play"></canvas>
         </div>
         <div id="board-controls">
         </div>
@@ -38,6 +40,5 @@
     <script src="/js/socket.io.js"></script>
     <script src="/js/net.js"></script>
 		<script src="/js/swarm.js"></script>
-		<script src="/js/fun.js"></script>
 	</body>
 </html>
