@@ -1,0 +1,175 @@
+/* line 4, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+html, body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+}
+
+/* line 6, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+html {
+  font-size: 100.01%;
+}
+
+/* line 16, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+div, span, object, iframe, h1, h2, h3, h4, h5, h6, p,
+pre, a, abbr, acronym, address, code, del, dfn, em, img,
+dl, dt, dd, ol, ul, li, fieldset, form, label, legend, caption, tbody, tfoot, thead, tr {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+}
+
+/* line 18, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+blockquote, q {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+  quotes: "" "";
+}
+/* line 45, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+blockquote:before, blockquote:after, q:before, q:after {
+  content: "";
+}
+
+/* line 20, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+th, td, caption {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+  text-align: left;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+/* line 22, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+table {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+  border-collapse: separate;
+  border-spacing: 0;
+  vertical-align: middle;
+}
+
+/* line 24, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+a img {
+  border: none;
+}
+
+/* line 7, ../src/screen.sass */
+body {
+  font-family: sans-serif;
+  font-size: 12px;
+  color: #222222;
+  background-color: #333333;
+}
+/* line 12, ../src/screen.sass */
+body a {
+  color: white;
+}
+/* line 14, ../src/screen.sass */
+body #container {
+  width: 1190px;
+  margin: 0 auto;
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 16, ../src/screen.sass */
+body #header {
+  font-family: Lobster;
+  font-size: 120px;
+  font-weight: bold;
+  color: #eeeeee;
+  text-align: center;
+  text-shadow: black 2px 2px 2px;
+}
+/* line 23, ../src/screen.sass */
+body #header, body #footer {
+  display: inline;
+  float: left;
+  margin-right: 10px;
+  width: 990px;
+}
+/* line 139, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/_grid.scss */
+* html body #header, * html body #footer {
+  overflow-x: hidden;
+}
+/* line 25, ../src/screen.sass */
+body #sidebar {
+  display: inline;
+  float: left;
+  margin-right: 0;
+  width: 190px;
+  font-family: Inconsolata;
+  color: #eeeeee;
+}
+/* line 139, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/_grid.scss */
+* html body #sidebar {
+  overflow-x: hidden;
+}
+/* line 29, ../src/screen.sass */
+body #sidebar .sidebar-notice {
+  -moz-box-shadow: #222222 0px 0px 1px 0;
+  -webkit-box-shadow: #222222 0px 0px 1px 0;
+  -o-box-shadow: #222222 0px 0px 1px 0;
+  box-shadow: #222222 0px 0px 1px 0;
+  border: 1px solid #222222;
+  background-color: #444444;
+  padding: 3px 7px 4px 7px;
+  margin: 12px 1px 0 0;
+  color: white;
+}
+/* line 36, ../src/screen.sass */
+body #content {
+  display: inline;
+  float: left;
+  margin-right: 10px;
+  width: 990px;
+}
+/* line 139, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/_grid.scss */
+* html body #content {
+  overflow-x: hidden;
+}
+/* line 38, ../src/screen.sass */
+body #content #board {
+  margin: 10px 0 0 10px;
+}
+/* line 40, ../src/screen.sass */
+body #content #board-container {
+  width: 981px;
+  background-color: #eeeeee;
+  border: 1px solid #888888;
+  -moz-box-shadow: black 0px 0px 6px 0;
+  -webkit-box-shadow: black 0px 0px 6px 0;
+  -o-box-shadow: black 0px 0px 6px 0;
+  box-shadow: black 0px 0px 6px 0;
+}
+/* line 45, ../src/screen.sass */
+body #content #board-controls {
+  padding: 15px 25px;
+}

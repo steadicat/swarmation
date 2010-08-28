@@ -1,0 +1,46 @@
+@import "blueprint/reset"
+@import "partials/base"
+@import "blueprint"
+@import "compass"
+
+
+body
+  :font-family sans-serif
+  :font-size 12px
+  :color #222
+  :background-color #333
+  a
+    :color #fff
+  #container
+    +container
+  #header
+    :font-family Lobster
+    :font-size 120px
+    :font-weight bold
+    :color #eee
+    :text-align center
+    +text-shadow(#000,2px,2px,2px)
+  #header, #footer
+    +column(25)
+  #sidebar
+    +column(5, true)
+    :font-family Inconsolata
+    :color #eee
+    .sidebar-notice
+      +box-shadow(#222,0px,0px,1px)
+      :border 1px solid #222
+      :background-color #444
+      :padding 3px 7px 4px 7px
+      :margin 12px 1px 0 0
+      :color #fff
+  #content
+    +column(25)
+    #board
+      :margin 10px 0 0 10px
+    #board-container
+      :width 981px
+      :background-color #eee
+      :border 1px solid #888
+      +box-shadow(#000,0px,0px,6px)
+    #board-controls
+      :padding 15px 25px
