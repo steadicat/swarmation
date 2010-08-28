@@ -1,9 +1,16 @@
-(function($, undefined) {
+// New namespace
+var Swarmation = {};
 
-    var board = $('#board').get(0);
-    var context = board.getContext("2d");
-
-    var drawBoard = function() {
+Swarmation.Board = {
+    canvas: $('#board'),
+    
+    getContext: function() { 
+        return Swarmation.Board.canvas[0].getContext("2d"); 
+    },
+    
+    drawGrid: function() {
+        var context = Swarmation.Board.getContext();
+        
         // Draw vertical lines
         for (var x = 0.5; x <= board.width; x += 10) {
             context.moveTo(x, 0);
@@ -18,29 +25,32 @@
 
         context.strokeStyle = "#ddd";
         context.stroke();
+    },
+
+    drawPixel: function(px, py) {
+        var offset = Swarmation.Board.canvas.offset();
+        var x = Math.floor((px - offset.left - 2) / 10) * 10 + 1;
+        var y = Math.floor((py - offset.top - 2) / 10) * 10 + 1;
+        Swarmation.Board.getContext.fillRect(x, y, 9, 9);
+        sendAction('newPixel', { x: x, y: y });     
+    },
+
+    clear: function() {
+        Swarmation.Board.canvas[0].width = Swarmation.Board.canvas[0].width;
+        Swarmation.Board.drawGrid();
     }
-    
+};
+
+(function($, undefined) {
+    // Bind events
     $('#board').mousedown(function(e) {
-        var offset = $(board).offset();
-        var x = Math.floor((e.pageX - offset.left - 2) / 10) * 10 + 1;
-        var y = Math.floor((e.pageY - offset.top - 2) / 10) * 10 + 1;
-        context.fillRect(x, y, 9, 9);
-        sendAction('newPixel', { x: x, y: y });
+        Swarmation.Board.drawPixel(e.pageX, e.pageY);
     });
 
     $('#board').bind('newPixel', function(event, data) {
         context.fillRect(data.x, data.y, 9, 9);
     });
-    
-    $('#reset').click(function(e) {
-        board.width = board.width;
-        drawBoard();
-    });
 
-    $(document).bind('keydown', 'space', function(e) {
-        console.log('space');
-        return false;
-    });
     $(document).bind('keydown', 'left', function(e) {
         console.log('left');
         return false;
@@ -57,8 +67,16 @@
         console.log('down');
         return false;
     });
+    $(document).bind('keydown', 'space', function(e) {
+        console.log('space');
+        return false;
+    });
+    $(document).bind('keydown', 'esc', function(e) {
+        Swarmation.Board.clear();
+        return false;
+    });
 
     // Run it
-    drawBoard();
+    Swarmation.Board.drawGrid();
 
-})(jQuery);
+})( jQuery );
