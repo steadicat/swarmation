@@ -156,7 +156,7 @@ body #content {
   overflow-x: hidden;
 }
 /* line 37, ../src/screen.sass */
-body #content #board {
+body #content #board, body #content #play {
   margin: 10px 0 8px 10px;
 }
 /* line 39, ../src/screen.sass */
