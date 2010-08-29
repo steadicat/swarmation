@@ -178,6 +178,10 @@ function log(m) {
         PLAYER.formationMade(data.formation);
     });
 
+    $('#play').bind('nextFormation', function(event, data) {
+        displayNotice('You have 10 seconds to join an '+data.formation+' formation!')
+    });
+
     // sockets
 
     io.setPath('/socket/');
