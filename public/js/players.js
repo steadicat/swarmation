@@ -92,19 +92,21 @@ var sendAction;
         },
 
         formationMade: function(name) {
-            displayNotice('You completed the ' + name + ' formation!');
-            if (!Formations[name].completed) this.score++;
-            Formations[name].completed = true;
-            while (Formations[this.goals[this.currentGoal]].completed) {
-                this.currentGoal++;
-                if (this.currentGoal >= this.goals.length) {
-                    displayNotice('You completed all your formations!');
-                    this.currentGoal--;
+            if (!Formations[name].completed) {
+                displayNotice('You completed the ' + name + ' formation!');
+                Formations[name].completed = true;
+                this.score++;
+                while (Formations[this.goals[this.currentGoal]].completed) {
+                    this.currentGoal++;
+                    if (this.currentGoal >= this.goals.length) {
+                        displayNotice('You completed all your formations!');
+                        this.currentGoal--;
+                    }
                 }
+                this.formation = Formations[this.goals[this.currentGoal]];
+                // brag about your achievement
+                this.sendInfo();
             }
-            this.formation = Formations[this.goals[this.currentGoal]];
-            // brag about your achievement
-            this.sendInfo();
         },
 
         usePower: function() {
