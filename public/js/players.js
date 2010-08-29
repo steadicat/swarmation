@@ -5,6 +5,8 @@ var Player;
 var sendAction;
 
 (function($, undefined) {
+    var WIDTH = 96;
+    var HEIGHT = 60;
 
     Player = function Player(id, left, top, isSelf) {
         this.id = id;
@@ -42,6 +44,9 @@ var sendAction;
         setPosition: function(left, top) {
             // cancel in case of collisions
             if (Player.atPosition(left, top)) return;
+            // cancel if out of bounds
+            if ((left < 0) || (left >= WIDTH)) return;
+            if ((top < 0) || (top >= HEIGHT)) return;
 
             if (!MAP[this.left]) MAP[this.left] = [];
             MAP[this.left][this.top] = null;
@@ -133,8 +138,8 @@ var sendAction;
 
     // init
 
-    var initLeft = Math.floor(Math.random() * 96);
-    var initTop = Math.floor(Math.random() * 60);
+    var initLeft = Math.floor(Math.random() * WIDTH);
+    var initTop = Math.floor(Math.random() * HEIGHT);
     PLAYER = new Player('self', initLeft, initTop, true);
     var names = ['saber','tooth','moose','lion'];
     PLAYER.name = names[Math.floor(Math.random()*names.length)];
