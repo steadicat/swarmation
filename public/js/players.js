@@ -7,6 +7,9 @@ var Player;
 var sendAction;
 var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry'];
 
+var INTERVAL = 10000;
+var MARGIN = 2000;
+
 function log(m) {
     try { console.log(m); } catch (e) {}
 }
@@ -180,7 +183,7 @@ function log(m) {
     });
 
     $('#play').bind('formationMade', function(event, data) {
-        PLAYER.formationMade(data.formation);
+        if (data.you) PLAYER.formationMade(data.formation);
         PLAYERS[data.id].inFormation = 10;
 		for (var j = 0; j < data.ids.length; j++) {
 			if (PLAYERS[data.ids[j]]) PLAYERS[data.ids[j]].inFormation = 10;
@@ -218,9 +221,9 @@ function log(m) {
                     $('#score .score').text(PLAYER.score);
                     PLAYER.sendInfo();
                     FORMATION_COMPLETED = false;
-                }, 1500);
+                }, MARGIN);
             }
-        }, 10000);
+        }, INTERVAL);
     });
 
     // sockets

@@ -44,14 +44,15 @@ var socket = new io.listen(app, { resource: 'socket' });
 
 var clients = [];
 
+
+var PLAYERS = 0;
+
 function contains(l, x) {
     for (var i in l) {
         if (l[i] == x) return true;
     }
     return false;
 };
-
-var PLAYERS = 0;
 
 socket.on('connection', function(client) {
     PLAYERS++;
@@ -61,8 +62,7 @@ socket.on('connection', function(client) {
         socket.clients.forEach(function(client) {
             if (!client) return;
             if (client.sessionId == m.id) return;
-            // if 'ids' is set, only send to those clients
-            if (m.ids && (!contains(m.ids, client.sessionId))) return;
+            if (m.ids && (contains(m.ids, client.sessionId))) m.you = true;
             client.send(m);
         });
     });
