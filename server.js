@@ -36,6 +36,13 @@ var socket = new io.listen(app, { resource: 'socket' });
 
 var clients = [];
 
+function contains(l, x) {
+    for (var i in l) {
+        if (l[i] == x) return true;
+    }
+    return false;
+};
+
 socket.on('connection', function(client) {
     client.on('message', function(m) {
         m.id = client.sessionId;
@@ -43,6 +50,8 @@ socket.on('connection', function(client) {
         socket.clients.forEach(function(client) {
             if (!client) return;
             if (client.sessionId == m.id) return;
+            // if 'ids' is set, only send to those clients
+            if (m.ids && (!contains(m.ids, client.sessionId))) return;
             client.send(m);
         });
     });
