@@ -115,14 +115,6 @@ function log(m) {
                 //displayNotice('You completed the ' + name + ' formation!');
                 Formations[name].completed = true;
                 this.powers.push(Formations[name].power);
-                while (Formations[this.goals[this.currentGoal]].completed) {
-                    this.currentGoal++;
-                    if (this.currentGoal >= this.goals.length) {
-                        displayNotice('You completed all your formations!');
-                        this.currentGoal--;
-                    }
-                }
-                this.formation = Formations[this.goals[this.currentGoal]];
                 // brag about your achievement
                 this.sendInfo();
             }
@@ -188,6 +180,10 @@ function log(m) {
 
     $('#play').bind('formationMade', function(event, data) {
         PLAYER.formationMade(data.formation);
+        PLAYERS[data.id].inFormation = 10;
+		for (var j = 0; j < data.ids.length; j++) {
+			if (PLAYERS[data.ids[j]]) PLAYERS[data.ids[j]].inFormation = 10;
+		}
     });
 
     $('#play').bind('nextFormation', function(event, data) {
