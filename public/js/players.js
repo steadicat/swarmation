@@ -54,6 +54,7 @@ var sendAction;
             this.top = top;
             if (!MAP[left]) MAP[left] = [];
             MAP[left][top] = this;
+            if (PLAYER) PLAYER.checkFormation();
         },
         move: function(direction) {
             var newp = Player.directions[direction](this.left, this.top);
@@ -61,7 +62,6 @@ var sendAction;
             if (this.isSelf) {
                 this.sendInfo();
             }
-            this.checkFormation();
         },
 
         checkFormation: function() {
