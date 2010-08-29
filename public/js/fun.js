@@ -10,7 +10,9 @@ void draw() {
     for (var id in PLAYERS) {
         drawPlayer(PLAYERS[id]);
     }
-    if (PLAYER) drawPlayer(PLAYER);
+    if (PLAYER) {
+        drawPlayer(PLAYER);
+    }
 }
 
 void drawPlayer(player) {
@@ -47,6 +49,10 @@ void keyPressed() {
         } else if (keyCode == DOWN) {
             PLAYER.move('down');
         }
+    }
+
+    if (key == 32) {
+        PLAYER.usePower();
     }
 }
 

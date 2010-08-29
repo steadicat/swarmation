@@ -1,6 +1,6 @@
 var Formations = {
-	'mini': {
-		points: [[1,0]],
+	'easy': {
+		points: [[1,0], [-1,0]],
 		name: 'Easy',
 		reward: '',
 	},
