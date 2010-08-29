@@ -38,12 +38,8 @@ var clients = [];
 
 socket.on('connection', function(client) {
     client.on('message', function(m) {
-        m.id = client.sessionId;
-        sys.puts(m.id + ' says ' + m.type);
         socket.clients.forEach(function(client) {
-            if (!client) return;
-            if (client.sessionId == m.id) return;
-            client.send(m);
+            if (client) client.send(m);
         });
     });
     client.on('disconnect', function() {
