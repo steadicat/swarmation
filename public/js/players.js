@@ -1,33 +1,36 @@
 var PLAYER;
 var PLAYERS = {};
+var Player;
+var sendAction;
 
 (function($, undefined) {
 
-    window.Player = function Player(left, top, isSelf) {
+    Player = function Player(left, top, isSelf) {
         this.left = left;
         this.top = top;
         this.isSelf = isSelf;
         this._formIndex = 0;
         this.formation = Formations[this._formIndex];
-    }
+        this.name = 'unknown';
+        this.score = 0;
+    };
 
-    Player.getLeft = function(x) { return Math.floor(x/10); }
-    Player.getTop = function(y) { return Math.floor(y/10); }
+    Player.getLeft = function(x) { return Math.floor(x/10); };
+    Player.getTop = function(y) { return Math.floor(y/10); };
+    Player.directions = {
+        left: function(p) { p.left-- },
+        right: function(p) { p.left++ },
+        up: function(p) { p.top-- },
+        down: function(p) { p.top++ },
+    };
     Player.prototype = {
         getX: function() { return this.left * 10 + 1; },
         getY: function() { return this.top * 10 + 1; },
 
         move: function(direction) {
-            var p = this;
-            var dirs = {
-                left: function() { p.left-- },
-                right: function() { p.left++ },
-                up: function() { p.top-- },
-                down: function() { p.top++ },
-            };
-            dirs[direction]();
+            Player.directions[direction](this);
             if (this.isSelf) {
-                sendAction('playerMove', { left: this.left, top: this.top });
+                this.sendInfo();
             }
             this.checkFormation();
         },
@@ -62,21 +65,34 @@ var PLAYERS = {};
 
         usePower: function() {
             displayNotice('You used your special power');
+        },
+
+        sendInfo: function(isNew) {
+            sendAction('playerInfo', {
+                left: this.left,
+                top: this.top,
+                name: this.name,
+                score: this.score,
+                isNew: isNew
+            });
+        },
+
+        getInfo: function(info) {
+            this.left = info.left;
+            this.top = info.top;
+            this.name = info.name;
+            this.score = info.score;
         }
     };
 
-    $('#play').bind('playerMove', function(event, data) {
+    $('#play').bind('playerInfo', function(event, data) {
         if (!PLAYERS[data.id]) {
             PLAYERS[data.id] = new Player(data.left, data.top);
         }
-        PLAYERS[data.id].left = data.left;
-        PLAYERS[data.id].top = data.top;
-    });
-
-    $('#play').bind('newPlayer', function(event, data) {
-        console.log('New player ' + data.id + '');
-        PLAYERS[data.id] = new Player(data.left, data.top);
-        sendAction('playerMove', { left: PLAYER.left, top: PLAYER.top });
+        PLAYERS[data.id].getInfo(data);
+        if (data.isNew) {
+            PLAYER.sendInfo();
+        }
     });
 
     $('#play').bind('playerGone', function(event, data) {
@@ -84,15 +100,27 @@ var PLAYERS = {};
         delete PLAYERS[data.id];
     });
 
-    $(document).bind('keydown', 'up', function() { return false; });
-    $(document).bind('keydown', 'down', function() { return false; });
-    $(document).bind('keydown', 'left', function() { return false; });
-    $(document).bind('keydown', 'right', function() { return false; });
-    $(document).bind('keydown', 'space', function() { return false; });
+    // sockets
+
+    io.setPath('/socket/');
+    var socket = new io.Socket('', { transports: ['websocket', 'xhr-multipart', 'xhr-polling', 'htmlfile']});
+    socket.connect();
+    socket.on('message', function(data) {
+        $('#play').trigger(data.type, data);
+    });
+
+    sendAction = function(type, data) {
+        data.type = type;
+        socket.send(data);
+    };
+
+    // init
 
     var initLeft = Math.floor(Math.random() * 96);
     var initTop = Math.floor(Math.random() * 60);
     PLAYER = new Player(initLeft, initTop, true);
-    sendAction('newPlayer', { left: initLeft, top: initTop });
+    var names = ['saber','tooth','moose','lion'];
+    PLAYER.name = names[Math.floor(Math.random()*names.length)];
+    PLAYER.sendInfo(true);
 
 })(jQuery);
