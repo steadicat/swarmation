@@ -7,7 +7,7 @@ var Player;
 var sendAction;
 var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry'];
 
-var MARGIN = 2000;
+var MARGIN = 1500;
 
 function log(m) {
     try { console.log(m); } catch (e) {}

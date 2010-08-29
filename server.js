@@ -81,7 +81,7 @@ socket.on('connection', function(client) {
 var formations = require('./public/js/forms.js').Formations;
 var FORMATIONS = [];
 var MAX_SIZE = 20;
-var MARGIN = 2000;
+var MARGIN = 3000;
 
 for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = [];
 
