@@ -13,7 +13,7 @@ var sendAction;
         this.setPosition(left, top);
         this.isSelf = isSelf;
         this.currentGoal = 0;
-        this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank'];
+        this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank', 'Block', 'Fortress', 'Snake'];
         this.formation = Formations[this.goals[this.currentGoal]];
         this.name = 'unknown';
         this.score = 0;
@@ -67,7 +67,15 @@ var sendAction;
         },
 
         checkFormations: function() {
-            this.checkFormation(this.formation);
+            var p = this;
+            if (p.timeout) return;
+            p.timeout = setTimeout(function() {
+                p.timeout = null;
+                console.log('checking formations');
+                for (var id in Formations) {
+                    p.checkFormation(Formations[id]);
+                };
+            }, 1000);
         },
 
         checkFormation: function(formation) {
@@ -91,16 +99,21 @@ var sendAction;
         },
 
         formationMade: function(name) {
-            displayNotice('You completed the ' + name + ' formation!');
-            Formations[name].completed = true;
-            while (Formations[this.goals[this.currentGoal]].completed) {
-                this.currentGoal++;
-                if (this.currentGoal >= this.goals.length) {
-                    displayNotice('You completed all your formations!');
-                    this.currentGoal--;
+            if (!Formations[name].completed) {
+                displayNotice('You completed the ' + name + ' formation!');
+                Formations[name].completed = true;
+                this.score++;
+                while (Formations[this.goals[this.currentGoal]].completed) {
+                    this.currentGoal++;
+                    if (this.currentGoal >= this.goals.length) {
+                        displayNotice('You completed all your formations!');
+                        this.currentGoal--;
+                    }
                 }
+                this.formation = Formations[this.goals[this.currentGoal]];
+                // brag about your achievement
+                this.sendInfo();
             }
-            this.formation = Formations[this.goals[this.currentGoal]];
         },
 
         usePower: function() {
@@ -125,6 +138,19 @@ var sendAction;
             this.setPosition(info.left, info.top);
             this.name = info.name;
             this.score = info.score;
+        },
+
+        showTooltip: function() {
+            $('#tooltip')
+                .show()
+                .css('left', this.getX()+$('#play').offset().left-6)
+                .css('top', this.getY()+$('#play').offset().top+25)
+                .find('.name').text(this.name).end()
+                .find('.score').text(this.score);
+        },
+
+        hideTooltip: function() {
+            $('#tooltip').hide();
         }
     };
 

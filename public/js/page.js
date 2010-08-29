@@ -13,8 +13,7 @@ var displayNotice;
             .animate({ "opacity": "1.0" }, "slow");
 
         setTimeout(function(){div.css({ "color": "#fff" });}, 1000);
-    }
-
+    };
 
     $(document).bind('keydown', 'up', function() { return false; });
     $(document).bind('keydown', 'down', function() { return false; });
