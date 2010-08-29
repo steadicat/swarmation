@@ -12,8 +12,9 @@ var sendAction;
         this.id = id;
         this.setPosition(left, top);
         this.isSelf = isSelf;
-        this._formIndex = 0;
-        this.formation = Formations[this._formIndex];
+        this.currentGoal = 0;
+        this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank'];
+        this.formation = Formations[this.goals[this.currentGoal]];
         this.name = 'unknown';
         this.score = 0;
     };
@@ -54,7 +55,7 @@ var sendAction;
             this.top = top;
             if (!MAP[left]) MAP[left] = [];
             MAP[left][top] = this;
-            if (PLAYER) PLAYER.checkFormation();
+            if (PLAYER) PLAYER.checkFormations();
         },
         move: function(direction) {
             var newp = Player.directions[direction](this.left, this.top);
@@ -64,12 +65,16 @@ var sendAction;
             }
         },
 
-        checkFormation: function() {
+        checkFormations: function() {
+            this.checkFormation(this.formation);
+        },
+
+        checkFormation: function(formation) {
             var otherIds = [];
             var filled = true;
-            for (var i = 0; i < this.formation.points.length; i++) {
-                var dx = this.formation.points[i][0];
-                var dy = this.formation.points[i][1];
+            for (var i = 0; i < formation.points.length; i++) {
+                var dx = formation.points[i][0];
+                var dy = formation.points[i][1];
                 var other = Player.atPosition(this.left+dx, this.top+dy);
                 if (other) {
                     otherIds.push(other.id);
@@ -79,11 +84,22 @@ var sendAction;
                 }
             }
             if (filled) {
-                displayNotice('You completed the ' + this.formation.name + ' formation!');
-                sendAction('formationMade', { formation: this.formation.name, ids: otherIds });
-                this.formation = Formations[++this._formIndex];
-                console.log('completed with ' + otherIds);
+                this.formationMade(formation.name);
+                sendAction('formationMade', { formation: formation.name, ids: otherIds });
             }
+        },
+
+        formationMade: function(name) {
+            displayNotice('You completed the ' + name + ' formation!');
+            Formations[name].completed = true;
+            while (Formations[this.goals[this.currentGoal]].completed) {
+                this.currentGoal++;
+                if (this.currentGoal >= this.goals.length) {
+                    displayNotice('You completed all your formations!');
+                    this.currentGoal--;
+                }
+            }
+            this.formation = Formations[this.goals[this.currentGoal]];
         },
 
         usePower: function() {
@@ -126,9 +142,7 @@ var sendAction;
     });
 
     $('#play').bind('formationMade', function(event, data) {
-        displayNotice('You completed the ' + data.formation + ' formation!');
-        PLAYER.formation = Formations[++PLAYER._formIndex];
-        console.log('completed with ' + data.ids);
+        PLAYER.formationMade(data.formation);
     });
 
     // sockets
