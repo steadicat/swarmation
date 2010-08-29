@@ -4,6 +4,10 @@ var MAP = [];
 var Player;
 var sendAction;
 
+function log(m) {
+    try { console.log(m); } catch (e) {}
+}
+
 (function($, undefined) {
     var WIDTH = 96;
     var HEIGHT = 60;
@@ -71,7 +75,6 @@ var sendAction;
             if (p.timeout) return;
             p.timeout = setTimeout(function() {
                 p.timeout = null;
-                console.log('checking formations');
                 for (var id in Formations) {
                     p.checkFormation(Formations[id]);
                 };
@@ -165,7 +168,6 @@ var sendAction;
     });
 
     $('#play').bind('playerGone', function(event, data) {
-        console.log('Player ' + data.id + ' gone');
         var p = PLAYERS[data.id];
         if (!p) return;
         delete MAP[p.left][p.top];
