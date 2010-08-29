@@ -6,46 +6,54 @@
     <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
     <link href="/stylesheets/print.css" media="print" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Inconsolata">
-    <!--[if lt IE 8]>
-    <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
-    <![endif]-->
+      <!--[if lt IE 8]>
+          <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
+          <![endif]-->
 
-    <script src="/js/processing-0.9.7.min.js"></script>
-  </head>
+      <script src="/js/processing-0.9.7.min.js"></script>
+    </head>
 
-  <body>
-    <div id="container">
-      <h1 id="header">Swarmation</h1>         
-      <div id="content">
-        <div id="board-container">
-          <canvas datasrc="/js/fun.js" width="961" height="601" id="play"></canvas>
+    <body>
+      <div id="container">
+        <h1 id="header">Swarmation</h1>
+        <div id="content">
+          <div id="board-container">
+            <canvas datasrc="/js/fun.js" width="961" height="601" id="play"></canvas>
+          </div>
+          <div id="board-controls">
+          </div>
+          <div id="tooltip">
+            <h3 class="name"></h3>
+            <p><span class="score"></span> points</p>
+          </div>
         </div>
-        <div id="board-controls">
+        <div id="info">
+          <h1 id="countdown">wait</h1>
+          <div id="formation">...</div>
+          <h2 id="score">
+            score:
+            <span class="score">0</span>
+          </h2>
+          <div class="sidebar-notice username-box">
+            <form action="" method="get">
+              <input name="username" type="text" id="username" placeholder="Name your pixel" />
+            </form>
+          </div>
         </div>
-				<div id="tooltip">
-					<h3 class="name"></h3>
-					<p><span class="score"></span> points</p>
-				</div>
+        <div id="sidebar">
+          <p class="sidebar-notice">Use your <img id="arrow-image" src="/images/arrows.png" alt="arrow" /> keys to move</p>
+          <p class="sidebar-notice">Make formations on the light blue pixels to gain special powers</p>
+          <p class="sidebar-notice">Welcome to life as a pixel</p>
+        </div>
       </div>
-      <div id="sidebar">
-        <p class="sidebar-notice">Use your <img id="arrow-image" src="/images/arrows.png" alt="arrow" /> keys to move</p>
-        <p class="sidebar-notice">Make formations on the light blue pixels to gain special powers</p>
-        <p class="sidebar-notice">Welcome to life as a pixel</p>
-        <div class="sidebar-notice username-box">
-					<form action="" method="get">
-						<input name="username" type="text" id="username" placeholder="Name your pixel" />
-					</form>
-				</div>
-      </div>
-    </div>
-    <a href="http://nodeknockout.com/teams/saber-tooth-moose-lion" target="nko" title="Help me win Node.js KO!">
-    <img style="position: fixed; top: 5px; right: 5px; border: 0px;" src="http://nodeknockout.com/images/voteko.png" alt="Help me win Node.js KO!" /></a>
-      
-    <script src="/js/jquery-1.4.2.min.js"></script>
-    <script src="/js/jquery.hotkeys.js"></script>
-    <script src="/js/socket.io.js"></script>
-    <script src="/js/page.js"></script>
-    <script src="/js/forms.js"></script>
-    <script src="/js/players.js"></script>
+      <a href="http://nodeknockout.com/teams/saber-tooth-moose-lion" target="nko" title="Help me win Node.js KO!">
+      <img style="position: fixed; top: 5px; right: 5px; border: 0px;" src="http://nodeknockout.com/images/voteko.png" alt="Help me win Node.js KO!" /></a>
+
+      <script src="/js/jquery-1.4.2.min.js"></script>
+      <script src="/js/jquery.hotkeys.js"></script>
+      <script src="/js/socket.io.js"></script>
+      <script src="/js/page.js"></script>
+      <script src="/js/forms.js"></script>
+      <script src="/js/players.js"></script>
     </body>
-</html>
+  </html>

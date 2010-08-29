@@ -187,18 +187,28 @@ function log(m) {
 
     $('#play').bind('nextFormation', function(event, data) {
         FORMATION = Formations[data.formation];
-        displayNotice('You have 10 seconds to form the '+data.formation+' formation!')
+        $('#formation').text(data.formation);
+        var timeleft = 10;
+        $('#countdown').text(timeleft);
+        var interval = setInterval(function() {
+            timeleft--;
+            $('#countdown').text(timeleft);
+        }, 1000);
         setTimeout(function() {
+            clearInterval(interval);
+            $('#countdown').text('0');
             if (FORMATION) {
                 PLAYER.checkFormation(FORMATION);
                 setTimeout(function() {
                     if (FORMATION_COMPLETED) {
                         PLAYER.score += FORMATION.points.length;
-                        displayNotice('You made it! Your score is ' + PLAYER.score);
+                        displayNotice('You made it!');
+                        $('#score .score').text(PLAYER.score);
                     } else {
                         PLAYER.score -= 20-FORMATION.points.length;
                         if (PLAYER.score < 0) PLAYER.score = 0;
-                        displayNotice('You did not make the formation! Your score is ' + PLAYER.score);
+                        displayNotice('You did not make the formation!');
+                        $('#score .score').text(PLAYER.score);
                     }
                     FORMATION_COMPLETED = false;
                 }, 1500);

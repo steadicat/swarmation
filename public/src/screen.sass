@@ -23,6 +23,25 @@ body
     :overflow hidden
   #header, #footer
     +column(25)
+  #info
+    +column(5, true)
+    :font-family Inconsolata
+    text-align: center
+    :color #eee
+    #countdown
+      font-size: 60px
+    #formation
+      font-size: 30px
+    #score
+      font-size: 30px
+    #username
+      :width 165px
+      :border-width 0px
+      :padding 2px 5px     
+      :font-size 13px
+    .username-box
+      :padding-top 5px
+      :padding-bottom 5px
   #sidebar    
     +column(5, true)
     :height 620px
@@ -39,14 +58,6 @@ body
     #arrow-image
       :position relative
       :top 2px
-    .username-box
-      :padding-top 5px
-      :padding-bottom 5px
-    #username
-      :width 165px
-      :border-width 0px
-      :padding 2px 5px     
-      :font-size 13px
     .placeholder
       :color #888
       :background-color #eee

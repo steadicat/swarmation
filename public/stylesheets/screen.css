@@ -1,4 +1,4 @@
-/* line 4, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+/* line 4, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
 html, body {
   margin: 0;
   padding: 0;
@@ -10,12 +10,12 @@ html, body {
   vertical-align: baseline;
 }
 
-/* line 6, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+/* line 6, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
 html {
   font-size: 100.01%;
 }
 
-/* line 16, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+/* line 16, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
 div, span, object, iframe, h1, h2, h3, h4, h5, h6, p,
 pre, a, abbr, acronym, address, code, del, dfn, em, img,
 dl, dt, dd, ol, ul, li, fieldset, form, label, legend, caption, tbody, tfoot, thead, tr {
@@ -29,7 +29,7 @@ dl, dt, dd, ol, ul, li, fieldset, form, label, legend, caption, tbody, tfoot, th
   vertical-align: baseline;
 }
 
-/* line 18, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+/* line 18, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
 blockquote, q {
   margin: 0;
   padding: 0;
@@ -41,12 +41,12 @@ blockquote, q {
   vertical-align: baseline;
   quotes: "" "";
 }
-/* line 45, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+/* line 45, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
 blockquote:before, blockquote:after, q:before, q:after {
   content: "";
 }
 
-/* line 20, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+/* line 20, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
 th, td, caption {
   margin: 0;
   padding: 0;
@@ -61,7 +61,7 @@ th, td, caption {
   vertical-align: middle;
 }
 
-/* line 22, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+/* line 22, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
 table {
   margin: 0;
   padding: 0;
@@ -76,7 +76,7 @@ table {
   vertical-align: middle;
 }
 
-/* line 24, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
+/* line 24, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/blueprint/stylesheets/blueprint/reset/_utilities.scss */
 a img {
   border: none;
 }
@@ -97,7 +97,11 @@ body #container {
   width: 1190px;
   margin: 0 auto;
   overflow: hidden;
-  *zoom: 1;
+  display: inline-block;
+}
+/* line 8, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/compass/stylesheets/compass/utilities/general/_hacks.scss */
+body #container {
+  display: block;
 }
 /* line 15, ../src/screen.sass */
 body #header {
@@ -117,11 +121,49 @@ body #header, body #footer {
   margin-right: 10px;
   width: 990px;
 }
-/* line 139, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/_grid.scss */
+/* line 138, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/blueprint/stylesheets/blueprint/_grid.scss */
 * html body #header, * html body #footer {
   overflow-x: hidden;
 }
 /* line 26, ../src/screen.sass */
+body #info {
+  display: inline;
+  float: left;
+  margin-right: 0;
+  width: 190px;
+  font-family: Inconsolata;
+  text-align: center;
+  color: #eeeeee;
+}
+/* line 138, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/blueprint/stylesheets/blueprint/_grid.scss */
+* html body #info {
+  overflow-x: hidden;
+}
+/* line 31, ../src/screen.sass */
+body #info #countdown {
+  font-size: 60px;
+}
+/* line 33, ../src/screen.sass */
+body #info #formation {
+  font-size: 30px;
+}
+/* line 35, ../src/screen.sass */
+body #info #score {
+  font-size: 30px;
+}
+/* line 37, ../src/screen.sass */
+body #info #username {
+  width: 165px;
+  border-width: 0px;
+  padding: 2px 5px;
+  font-size: 13px;
+}
+/* line 42, ../src/screen.sass */
+body #info .username-box {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+/* line 45, ../src/screen.sass */
 body #sidebar {
   display: inline;
   float: left;
@@ -132,79 +174,67 @@ body #sidebar {
   font-family: Inconsolata;
   color: #eeeeee;
 }
-/* line 139, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/_grid.scss */
+/* line 138, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/blueprint/stylesheets/blueprint/_grid.scss */
 * html body #sidebar {
   overflow-x: hidden;
 }
-/* line 32, ../src/screen.sass */
+/* line 51, ../src/screen.sass */
 body #sidebar .sidebar-notice {
-  -moz-box-shadow: #1a1a1a 0px 0px 2px 0;
-  -webkit-box-shadow: #1a1a1a 0px 0px 2px 0;
-  -o-box-shadow: #1a1a1a 0px 0px 2px 0;
-  box-shadow: #1a1a1a 0px 0px 2px 0;
+  -moz-box-shadow: #1a1a1a 0px 0px 2px;
+  -webkit-box-shadow: #1a1a1a 0px 0px 2px;
+  -o-box-shadow: #1a1a1a 0px 0px 2px;
+  box-shadow: #1a1a1a 0px 0px 2px;
   border: 1px solid #222222;
   background: #444444 url(../images/bg-notice.png);
   padding: 3px 7px 4px 7px;
   margin: 0px 1px 12px 0;
   color: white;
 }
-/* line 39, ../src/screen.sass */
+/* line 58, ../src/screen.sass */
 body #sidebar #arrow-image {
   position: relative;
   top: 2px;
 }
-/* line 42, ../src/screen.sass */
-body #sidebar .username-box {
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-/* line 45, ../src/screen.sass */
-body #sidebar #username {
-  width: 165px;
-  border-width: 0px;
-  padding: 2px 5px;
-  font-size: 13px;
-}
-/* line 50, ../src/screen.sass */
+/* line 61, ../src/screen.sass */
 body #sidebar .placeholder {
   color: #888888;
   background-color: #eeeeee;
 }
-/* line 53, ../src/screen.sass */
+/* line 64, ../src/screen.sass */
 body #content {
   display: inline;
   float: left;
   margin-right: 10px;
   width: 990px;
 }
-/* line 139, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/_grid.scss */
+/* line 138, ../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.10.2/frameworks/blueprint/stylesheets/blueprint/_grid.scss */
 * html body #content {
   overflow-x: hidden;
 }
-/* line 55, ../src/screen.sass */
+/* line 66, ../src/screen.sass */
 body #content #board, body #content #play {
   margin: 10px 0 8px 10px;
 }
-/* line 57, ../src/screen.sass */
+/* line 68, ../src/screen.sass */
 body #content #board-container {
   width: 981px;
   background-color: #eeeeee;
   border: 1px solid #888888;
-  -moz-box-shadow: black 0px 0px 6px 0;
-  -webkit-box-shadow: black 0px 0px 6px 0;
-  -o-box-shadow: black 0px 0px 6px 0;
-  box-shadow: black 0px 0px 6px 0;
+  -moz-box-shadow: black 0px 0px 6px;
+  -webkit-box-shadow: black 0px 0px 6px;
+  -o-box-shadow: black 0px 0px 6px;
+  box-shadow: black 0px 0px 6px;
 }
-/* line 62, ../src/screen.sass */
+/* line 73, ../src/screen.sass */
 body #content #board-controls {
   padding: 15px 25px;
 }
-/* line 64, ../src/screen.sass */
+/* line 75, ../src/screen.sass */
 body #content #tooltip {
-  -moz-box-shadow: #555555 0px 0px 2px 0;
-  -webkit-box-shadow: #555555 0px 0px 2px 0;
-  -o-box-shadow: #555555 0px 0px 2px 0;
-  box-shadow: #555555 0px 0px 2px 0;
+  -moz-box-shadow: #555555 0px 0px 2px;
+  -webkit-box-shadow: #555555 0px 0px 2px;
+  -o-box-shadow: #555555 0px 0px 2px;
+  box-shadow: #555555 0px 0px 2px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
   -o-border-radius: 2px;
@@ -216,7 +246,7 @@ body #content #tooltip {
   padding: 3px 7px 4px 7px;
   position: absolute;
 }
-/* line 71, ../src/screen.sass */
+/* line 82, ../src/screen.sass */
 body #content #tooltip .name {
   font-weight: bold;
 }
