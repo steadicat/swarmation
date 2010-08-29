@@ -101,14 +101,16 @@ body #container {
 }
 /* line 15, ../src/screen.sass */
 body #header {
-  font-family: Lobster;
-  font-size: 120px;
+  height: 150px;
   font-weight: bold;
   color: #eeeeee;
   text-align: center;
   text-shadow: black 2px 2px 2px;
+  background: url(../images/swarmation.png) 150px 20px no-repeat;
+  text-indent: -9999px;
+  overflow: hidden;
 }
-/* line 22, ../src/screen.sass */
+/* line 24, ../src/screen.sass */
 body #header, body #footer {
   display: inline;
   float: left;
@@ -119,7 +121,7 @@ body #header, body #footer {
 * html body #header, * html body #footer {
   overflow-x: hidden;
 }
-/* line 24, ../src/screen.sass */
+/* line 26, ../src/screen.sass */
 body #sidebar {
   display: inline;
   float: left;
@@ -134,7 +136,7 @@ body #sidebar {
 * html body #sidebar {
   overflow-x: hidden;
 }
-/* line 30, ../src/screen.sass */
+/* line 32, ../src/screen.sass */
 body #sidebar .sidebar-notice {
   -moz-box-shadow: #222222 0px 0px 1px 0;
   -webkit-box-shadow: #222222 0px 0px 1px 0;
@@ -146,12 +148,12 @@ body #sidebar .sidebar-notice {
   margin: 0px 1px 12px 0;
   color: white;
 }
-/* line 37, ../src/screen.sass */
+/* line 39, ../src/screen.sass */
 body #sidebar #arrow-image {
   position: relative;
   top: 2px;
 }
-/* line 41, ../src/screen.sass */
+/* line 43, ../src/screen.sass */
 body #content {
   display: inline;
   float: left;
@@ -162,11 +164,11 @@ body #content {
 * html body #content {
   overflow-x: hidden;
 }
-/* line 43, ../src/screen.sass */
+/* line 45, ../src/screen.sass */
 body #content #board, body #content #play {
   margin: 10px 0 8px 10px;
 }
-/* line 45, ../src/screen.sass */
+/* line 47, ../src/screen.sass */
 body #content #board-container {
   width: 981px;
   background-color: #eeeeee;
@@ -176,7 +178,7 @@ body #content #board-container {
   -o-box-shadow: black 0px 0px 6px 0;
   box-shadow: black 0px 0px 6px 0;
 }
-/* line 50, ../src/screen.sass */
+/* line 52, ../src/screen.sass */
 body #content #board-controls {
   padding: 15px 25px;
 }
