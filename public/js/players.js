@@ -66,7 +66,9 @@ var sendAction;
         },
 
         checkFormations: function() {
-            this.checkFormation(this.formation);
+            for (var id in Formations) {
+                this.checkFormation(Formations[id]);
+            };
         },
 
         checkFormation: function(formation) {
