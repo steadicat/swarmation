@@ -146,7 +146,12 @@ body #sidebar .sidebar-notice {
   margin: 0px 1px 12px 0;
   color: white;
 }
-/* line 38, ../src/screen.sass */
+/* line 37, ../src/screen.sass */
+body #sidebar #arrow-image {
+  position: relative;
+  top: 2px;
+}
+/* line 41, ../src/screen.sass */
 body #content {
   display: inline;
   float: left;
@@ -157,11 +162,11 @@ body #content {
 * html body #content {
   overflow-x: hidden;
 }
-/* line 40, ../src/screen.sass */
+/* line 43, ../src/screen.sass */
 body #content #board, body #content #play {
   margin: 10px 0 8px 10px;
 }
-/* line 42, ../src/screen.sass */
+/* line 45, ../src/screen.sass */
 body #content #board-container {
   width: 981px;
   background-color: #eeeeee;
@@ -171,7 +176,7 @@ body #content #board-container {
   -o-box-shadow: black 0px 0px 6px 0;
   box-shadow: black 0px 0px 6px 0;
 }
-/* line 47, ../src/screen.sass */
+/* line 50, ../src/screen.sass */
 body #content #board-controls {
   padding: 15px 25px;
 }
