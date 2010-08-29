@@ -26,15 +26,18 @@ void draw() {
 }
 
 void drawPlayer(player) {
-    strokeWeight(2);
     if (player.isSelf) {
-        stroke(0xff007FFF);
-        fill(0xff89CFF0);
+        drawPixel(player.getX(), player.getY(), 0xff007FFF, 0xff89CFF0);
     } else {
-        stroke(0xff666666);
-        fill(0xffcccccc);
+        drawPixel(player.getX(), player.getY(), 0xff666666, 0xffcccccc);
     }
-    rect(player.getX(), player.getY(), 9, 9);
+}
+
+void drawPixel(x,y,border,bg) {
+    strokeWeight(2);
+    stroke(border);
+    fill(bg);
+    rect(x,y,9,9);
 }
 
 void drawGrid() {
