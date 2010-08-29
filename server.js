@@ -85,7 +85,7 @@ for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = [];
 
 formations.forEach(function(i, id) {
     var formation = formations[id];
-    for (var i=formation.points.length+2; i<=MAX_SIZE; i++) {
+    for (var i=formation.points.length+1; i<=MAX_SIZE; i++) {
         FORMATIONS[i].push(formation);
     }
 });
