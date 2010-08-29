@@ -1,6 +1,9 @@
 var PLAYER;
 var PLAYERS = {};
 var MAP = [];
+var PREVIOUS_FORMATION;
+var FORMATION_COMPLETED;
+var FORMATION;
 var Player;
 var sendAction;
 
@@ -60,7 +63,7 @@ function log(m) {
             this.top = top;
             if (!MAP[left]) MAP[left] = [];
             MAP[left][top] = this;
-            if (PLAYER) PLAYER.checkFormations();
+            //if (PLAYER) PLAYER.checkFormations();
         },
         move: function(direction) {
             var newp = Player.directions[direction](this.left, this.top);
@@ -99,11 +102,12 @@ function log(m) {
                 this.formationMade(formation.name);
                 sendAction('formationMade', { formation: formation.name, ids: otherIds });
             }
+            return filled;
         },
 
         formationMade: function(name) {
             if (!Formations[name].completed) {
-                displayNotice('You completed the ' + name + ' formation!');
+                //displayNotice('You completed the ' + name + ' formation!');
                 Formations[name].completed = true;
                 this.score++;
                 this.powers.push(Formations[name].power);
@@ -180,10 +184,26 @@ function log(m) {
 
     $('#play').bind('formationMade', function(event, data) {
         PLAYER.formationMade(data.formation);
+        if (data.formation == PREVIOUS_FORMATION.name) FORMATION_COMPLETED = true;
     });
 
     $('#play').bind('nextFormation', function(event, data) {
-        displayNotice('You have 10 seconds to join an '+data.formation+' formation!')
+        PREVIOUS_FORMATION = FORMATION;
+        FORMATION = Formations[data.formation];
+        displayNotice('You have 10 seconds to form the '+data.formation+' formation!')
+        setTimeout(function() {
+            if (PREVIOUS_FORMATION) {
+                PLAYER.checkFormation(PREVIOUS_FORMATION);
+                setTimeout(function() {
+                    if (FORMATION_COMPLETED) {
+                        displayNotice('You are safe.');
+                    } else {
+                        displayNotice('You did not make the formation!');
+                    }
+                    FORMATION_COMPLETED = false;
+                }, 1500);
+            }
+        }, 10000);
     });
 
     // sockets
