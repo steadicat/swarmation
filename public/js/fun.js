@@ -1,5 +1,3 @@
-$("#header").css("color","red");
-
 function displayNotice(text) {
 	var div = $("<p />")
 		.hide()
@@ -10,8 +8,7 @@ function displayNotice(text) {
 		.slideDown()
 		.animate({ "opacity": "1.0" }, "slow");
 
-	setTimeout(function(){div.css({ "color": "#fff" });}, 1000);
-	
+	setTimeout(function(){div.css({ "color": "#fff" });}, 1000);	
 }
 
 float bx = getX();
@@ -71,7 +68,6 @@ void keyPressed() {
 			by = by - 10;
 		} else if (keyCode == DOWN) {
 		  by = by + 10;	
-			displayNotice("asdn amndam sdnaksj ndajksdnakjsnd ajnda,nd a,sdn a,sjnd ,jand");
 		}
   }
 }
