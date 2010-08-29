@@ -125,16 +125,15 @@ var sendAction;
 
         showTooltip: function() {
             $('#tooltip')
-                .css('display', 'block')
-                .css('position', 'absolute')
-                .css('left', this.getX()+$('#play').offset().left)
+                .show()
+                .css('left', this.getX()+$('#play').offset().left-6)
                 .css('top', this.getY()+$('#play').offset().top+25)
                 .find('.name').text(this.name).end()
                 .find('.score').text(this.score);
         },
 
         hideTooltip: function() {
-            $('#tooltip').css('display', 'none');
+            $('#tooltip').hide();
         }
     };
 

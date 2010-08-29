@@ -138,10 +138,10 @@ body #sidebar {
 }
 /* line 32, ../src/screen.sass */
 body #sidebar .sidebar-notice {
-  -moz-box-shadow: #222222 0px 0px 1px 0;
-  -webkit-box-shadow: #222222 0px 0px 1px 0;
-  -o-box-shadow: #222222 0px 0px 1px 0;
-  box-shadow: #222222 0px 0px 1px 0;
+  -moz-box-shadow: #1a1a1a 0px 0px 2px 0;
+  -webkit-box-shadow: #1a1a1a 0px 0px 2px 0;
+  -o-box-shadow: #1a1a1a 0px 0px 2px 0;
+  box-shadow: #1a1a1a 0px 0px 2px 0;
   border: 1px solid #222222;
   background: #444444 url(../images/bg-notice.png);
   padding: 3px 7px 4px 7px;
@@ -181,4 +181,25 @@ body #content #board-container {
 /* line 52, ../src/screen.sass */
 body #content #board-controls {
   padding: 15px 25px;
+}
+/* line 54, ../src/screen.sass */
+body #content #tooltip {
+  -moz-box-shadow: #555555 0px 0px 2px 0;
+  -webkit-box-shadow: #555555 0px 0px 2px 0;
+  -o-box-shadow: #555555 0px 0px 2px 0;
+  box-shadow: #555555 0px 0px 2px 0;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  -o-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -khtml-border-radius: 2px;
+  border-radius: 2px;
+  display: none;
+  background-color: #eeeeee;
+  padding: 3px 7px 4px 7px;
+  position: absolute;
+}
+/* line 61, ../src/screen.sass */
+body #content #tooltip .name {
+  font-weight: bold;
 }
