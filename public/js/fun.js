@@ -52,9 +52,5 @@ void keyPressed() {
     }
 }
 
-void mousePressed() {
-    if (!PLAYER) {
-        PLAYER = createPlayer(Player.getLeft(mouseX), Player.getTop(mouseY));
-        drawPlayer(PLAYER);
-    }
-}
+PLAYER = createPlayer(floor(random()*30), floor(random()*30));
+

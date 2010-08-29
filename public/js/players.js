@@ -23,11 +23,13 @@ var PLAYERS = {};
             down: function() { p.top++ },
         };
         dirs[direction]();
-        if (this.isSelf) sendAction('playerMove', { direction: direction });
+        if (this.isSelf) sendAction('playerMove', { left: this.left, top: this.top });
     };
 
     $('#play').bind('playerMove', function(event, data) {
-        PLAYERS[data.id].move(data.direction);
+        if (!PLAYERS[data.id]) PLAYERS[data.id] = new Player(data.left, data.top);
+        PLAYERS[data.id].left = data.left;
+        PLAYERS[data.id].top = data.top;
     });
 
     window.createPlayer = function(left, top) {
@@ -40,6 +42,7 @@ var PLAYERS = {};
     $('#play').bind('newPlayer', function(event, data) {
         console.log('New player ' + data.id);
         PLAYERS[data.id] = new Player(data.left, data.top);
+        sendAction('playerMove', { left: PLAYER.left, top: PLAYER.top });
     });
 
     $(document).bind('keydown', 'up', function() { return false; });
