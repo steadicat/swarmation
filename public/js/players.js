@@ -79,8 +79,8 @@ var sendAction;
                 }
             }
             if (filled) {
-                displayNotice('You completed the ' + this.formation['name'] + ' formation!');
-                sendAction('formationMade', { formation: this.formation['name'], ids: otherIds });
+                displayNotice('You completed the ' + this.formation.name + ' formation!');
+                sendAction('formationMade', { formation: this.formation.name, ids: otherIds });
                 this.formation = Formations[++this._formIndex];
                 console.log('completed with ' + otherIds);
             }
@@ -119,7 +119,16 @@ var sendAction;
 
     $('#play').bind('playerGone', function(event, data) {
         console.log('Player ' + data.id + ' gone');
+        var p = PLAYERS[data.id];
+        if (!p) return;
+        delete MAP[p.left][p.top];
         delete PLAYERS[data.id];
+    });
+
+    $('#play').bind('formationMade', function(event, data) {
+        displayNotice('You completed the ' + data.formation + ' formation!');
+        PLAYER.formation = Formations[++PLAYER._formIndex];
+        console.log('completed with ' + data.ids);
     });
 
     // sockets
