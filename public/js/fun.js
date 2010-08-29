@@ -12,9 +12,9 @@ void draw() {
         noStroke();
         fill(0xffdddddd);
         for (var i = 0; i < PLAYER.formation['points'].length; i++) {
-            var x = (PLAYER.left + PLAYER.formation['points'][i][0]) * 10 + 1
-            var y = (PLAYER.top  + PLAYER.formation['points'][i][1]) * 10 + 1
-            rect(x, y, 9, 9);
+            var x = (PLAYER.left + PLAYER.formation['points'][i][0]) * 10 + 1;
+            var y = (PLAYER.top  + PLAYER.formation['points'][i][1]) * 10 + 1;
+            drawPixel(x,y,0xffD4E9FF,0xffD4E9FF);
         }
     }
     for (var id in PLAYERS) {

@@ -141,7 +141,7 @@ body #sidebar .sidebar-notice {
   -o-box-shadow: #222222 0px 0px 1px 0;
   box-shadow: #222222 0px 0px 1px 0;
   border: 1px solid #222222;
-  background-color: #444444;
+  background: #444444 url(../images/bg-notice.png);
   padding: 3px 7px 4px 7px;
   margin: 0px 1px 12px 0;
   color: white;
