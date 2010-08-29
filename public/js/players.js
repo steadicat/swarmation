@@ -17,6 +17,7 @@ var sendAction;
         this.formation = Formations[this.goals[this.currentGoal]];
         this.name = 'unknown';
         this.score = 0;
+		this.powers = [];
     };
 
     Player.atPixel = function(x, y) {
@@ -103,7 +104,11 @@ var sendAction;
         },
 
         usePower: function() {
-            displayNotice('You used your special power');
+			if (this.powers.length) {
+				displayNotice('You used the ' + this.powers.pop() + ' power')
+			} else {
+				displayNotice('No powers available');
+			}
         },
 
         sendInfo: function(isNew) {
