@@ -38,11 +38,21 @@ var clients = [];
 
 socket.on('connection', function(client) {
     client.on('message', function(m) {
+        m.id = client.sessionId;
+        sys.puts(m.id + ' says ' + m.type);
         socket.clients.forEach(function(client) {
-            if (client) client.send(m);
+            if (!client) return;
+            if (client.sessionId == m.id) return;
+            client.send(m);
         });
     });
-    client.on('disconnect', function() { console.log('disconnect'); });
+    client.on('disconnect', function() {
+        socket.clients.forEach(function(c) {
+            if (!c) return;
+            if (c.sessionId == client.sessionId) return;
+            c.send({ type: 'playerGone', id: client.sessionId});
+        });
+    });
 });
 
 // Only listen on $ node app.js
