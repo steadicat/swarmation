@@ -31,6 +31,14 @@ app.configure('production', function(){
 
 // Routes
 
+app.get('/', function(req, res) {
+    if (req.header('host') == 'saber-tooth-moose-lion.no.de') {
+        res.redirect('http://swarmation.com/');
+    } else {
+        res.sendfile('public/index.html');
+    }
+});
+
 // IO
 var socket = new io.listen(app, { resource: 'socket' });
 
