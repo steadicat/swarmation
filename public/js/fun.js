@@ -59,13 +59,6 @@ void drawGrid() {
     }
 }
 
-void drawTargetForm() {
-    fill(0xffeeeeee);
-    noStroke();
-    rect(width - 100, 0, 100, 100);
-    stroke(0xffdddddd);
-}
-
 void keyPressed() {
     if (key == CODED) {
         if (keyCode == LEFT) {

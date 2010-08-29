@@ -51,7 +51,10 @@ function contains(l, x) {
     return false;
 };
 
+var PLAYERS = 0;
+
 socket.on('connection', function(client) {
+    PLAYERS++;
     client.on('message', function(m) {
         m.id = client.sessionId;
         sys.puts(m.id + ' says ' + m.type);
@@ -64,6 +67,7 @@ socket.on('connection', function(client) {
         });
     });
     client.on('disconnect', function() {
+        PLAYERS--;
         socket.clients.forEach(function(c) {
             if (!c) return;
             if (c.sessionId == client.sessionId) return;
@@ -87,7 +91,7 @@ formations.forEach(function(i, id) {
 });
 
 function pickFormation() {
-    var available = FORMATIONS[Math.min(socket.clients.length, MAX_SIZE)];
+    var available = FORMATIONS[Math.min(PLAYERS, MAX_SIZE)];
     if (available.length == 0) return;
     return available[Math.floor(Math.random()*available.length)];
 }
@@ -99,7 +103,7 @@ setInterval(function() {
         if (!client) return;
         client.send({ type: 'nextFormation', formation: formation.name });
     });
-}, 10000);
+}, 12000);
 
 // Only listen on $ node app.js
 

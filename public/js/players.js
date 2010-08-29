@@ -1,6 +1,8 @@
 var PLAYER;
 var PLAYERS = {};
 var MAP = [];
+var FORMATION_COMPLETED;
+var FORMATION;
 var Player;
 var sendAction;
 
@@ -19,7 +21,7 @@ function log(m) {
         this.currentGoal = 0;
         this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank', 'Block', 'Fortress', 'Snake', 'Lobster'];
         this.formation = Formations[this.goals[this.currentGoal]];
-        this.name = 'unknown';
+        this.name = 'Guest ' + Math.floor(Math.random()*100);
         this.score = 0;
         this.powers = [];
 		this.inFormation = 0;
@@ -61,7 +63,7 @@ function log(m) {
             this.top = top;
             if (!MAP[left]) MAP[left] = [];
             MAP[left][top] = this;
-            if (PLAYER) PLAYER.checkFormations();
+            //if (PLAYER) PLAYER.checkFormations();
         },
         move: function(direction) {
             var newp = Player.directions[direction](this.left, this.top);
@@ -103,14 +105,15 @@ function log(m) {
 					PLAYERS[otherIds[j]].inFormation = 100;
 				}
             }
+            return filled;
         },
 
         formationMade: function(name) {
 			this.inFormation = 10;
+            if (name == FORMATION.name) FORMATION_COMPLETED = true;
             if (!Formations[name].completed) {
-                displayNotice('You completed the ' + name + ' formation!');
+                //displayNotice('You completed the ' + name + ' formation!');
                 Formations[name].completed = true;
-                this.score++;
                 this.powers.push(Formations[name].power);
                 while (Formations[this.goals[this.currentGoal]].completed) {
                     this.currentGoal++;
@@ -188,7 +191,34 @@ function log(m) {
     });
 
     $('#play').bind('nextFormation', function(event, data) {
-        displayNotice('You have 10 seconds to join an '+data.formation+' formation!')
+        FORMATION = Formations[data.formation];
+        $('#formation').text(data.formation);
+        var timeleft = 10;
+        $('#countdown').text(timeleft);
+        var interval = setInterval(function() {
+            timeleft--;
+            $('#countdown').text(timeleft);
+        }, 1000);
+        setTimeout(function() {
+            clearInterval(interval);
+            $('#countdown').text('0');
+            if (FORMATION) {
+                PLAYER.checkFormation(FORMATION);
+                setTimeout(function() {
+                    if (FORMATION_COMPLETED) {
+                        PLAYER.score += FORMATION.points.length;
+                        displayNotice('You completed '+FORMATION.name+'.');
+                    } else {
+                        PLAYER.score -= 20-FORMATION.points.length;
+                        if (PLAYER.score < 0) PLAYER.score = 0;
+                        displayNotice('You did not make '+FORMATION.name+'!');
+                    }
+                    $('#score .score').text(PLAYER.score);
+                    PLAYER.sendInfo();
+                    FORMATION_COMPLETED = false;
+                }, 1500);
+            }
+        }, 10000);
     });
 
     // sockets
@@ -210,8 +240,6 @@ function log(m) {
     var initLeft = Math.floor(Math.random() * WIDTH);
     var initTop = Math.floor(Math.random() * HEIGHT);
     PLAYER = new Player('self', initLeft, initTop, true);
-    var names = ['saber','tooth','moose','lion'];
-    PLAYER.name = names[Math.floor(Math.random()*names.length)];
     PLAYER.sendInfo(true);
 
 })(jQuery);
