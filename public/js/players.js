@@ -106,6 +106,7 @@ function log(m) {
         },
 
         formationMade: function(name) {
+            if (name == PREVIOUS_FORMATION.name) FORMATION_COMPLETED = true;
             if (!Formations[name].completed) {
                 //displayNotice('You completed the ' + name + ' formation!');
                 Formations[name].completed = true;
@@ -184,7 +185,6 @@ function log(m) {
 
     $('#play').bind('formationMade', function(event, data) {
         PLAYER.formationMade(data.formation);
-        if (data.formation == PREVIOUS_FORMATION.name) FORMATION_COMPLETED = true;
     });
 
     $('#play').bind('nextFormation', function(event, data) {
