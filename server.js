@@ -94,10 +94,12 @@ function pickFormation() {
 setInterval(function() {
     var formation = pickFormation();
     if (!formation) return;
+    console.log('Next formation is ' + formation.name);
     socket.clients.forEach(function(client) {
+        if (!client) return;
         client.send({ type: 'nextFormation', formation: formation.name });
     });
-}, 5000);
+}, 10000);
 
 // Only listen on $ node app.js
 
