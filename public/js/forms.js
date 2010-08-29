@@ -1,4 +1,10 @@
 var Formations = {
+	'mini': {
+		points: [[1,0]],
+		name: 'Easy',
+		reward: '',
+	},
+	
 	'command': {
 		points: [[-1,-1], [1,-1], [-1,1], [1,1]],
 		name: 'Apple Key',
