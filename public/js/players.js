@@ -21,7 +21,7 @@ function log(m) {
         this.currentGoal = 0;
         this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank', 'Block', 'Fortress', 'Snake', 'Lobster'];
         this.formation = Formations[this.goals[this.currentGoal]];
-        this.name = 'unknown';
+        this.name = 'Guest ' + Math.floor(Math.random()*100);
         this.score = 0;
         this.powers = [];
     };
@@ -202,14 +202,14 @@ function log(m) {
                 setTimeout(function() {
                     if (FORMATION_COMPLETED) {
                         PLAYER.score += FORMATION.points.length;
-                        displayNotice('You made it!');
-                        $('#score .score').text(PLAYER.score);
+                        displayNotice('You completed '+FORMATION.name+'.');
                     } else {
                         PLAYER.score -= 20-FORMATION.points.length;
                         if (PLAYER.score < 0) PLAYER.score = 0;
-                        displayNotice('You did not make the formation!');
-                        $('#score .score').text(PLAYER.score);
+                        displayNotice('You did not make '+FORMATION.name+'!');
                     }
+                    $('#score .score').text(PLAYER.score);
+                    this.sendInfo();
                     FORMATION_COMPLETED = false;
                 }, 1500);
             }
@@ -235,8 +235,6 @@ function log(m) {
     var initLeft = Math.floor(Math.random() * WIDTH);
     var initTop = Math.floor(Math.random() * HEIGHT);
     PLAYER = new Player('self', initLeft, initTop, true);
-    var names = ['saber','tooth','moose','lion'];
-    PLAYER.name = names[Math.floor(Math.random()*names.length)];
     PLAYER.sendInfo(true);
 
 })(jQuery);
