@@ -49,5 +49,6 @@ var PLAYERS = {};
     $(document).bind('keydown', 'down', function() { return false; });
     $(document).bind('keydown', 'left', function() { return false; });
     $(document).bind('keydown', 'right', function() { return false; });
+    $(document).bind('keydown', 'space', function() { return false; });
 
 })(jQuery);
