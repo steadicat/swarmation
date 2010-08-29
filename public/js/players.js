@@ -17,7 +17,7 @@ var sendAction;
         this.formation = Formations[this.goals[this.currentGoal]];
         this.name = 'unknown';
         this.score = 0;
-		this.powers = [];
+        this.powers = [];
     };
 
     Player.atPixel = function(x, y) {
@@ -103,6 +103,7 @@ var sendAction;
                 displayNotice('You completed the ' + name + ' formation!');
                 Formations[name].completed = true;
                 this.score++;
+                this.powers.push(Formations[name].power);
                 while (Formations[this.goals[this.currentGoal]].completed) {
                     this.currentGoal++;
                     if (this.currentGoal >= this.goals.length) {
@@ -117,11 +118,14 @@ var sendAction;
         },
 
         usePower: function() {
-			if (this.powers.length) {
-				displayNotice('You used the ' + this.powers.pop() + ' power')
-			} else {
-				displayNotice('No powers available');
-			}
+            var power;
+            if (this.powers.length) {
+                power = this.powers.pop();
+                //power.use(this);
+                displayNotice('You used the ' + power.name + ' power')
+            } else {
+                displayNotice('No powers available');
+            }
         },
 
         sendInfo: function(isNew) {
