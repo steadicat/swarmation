@@ -40,9 +40,12 @@ var PLAYERS = {};
     }
 
     $('#play').bind('newPlayer', function(event, data) {
-        console.log('New player ' + data.id);
         PLAYERS[data.id] = new Player(data.left, data.top);
         sendAction('playerMove', { left: PLAYER.left, top: PLAYER.top });
+    });
+
+    $('#play').bind('playerGone', function(event, data) {
+        delete PLAYERS[data.id];
     });
 
     $(document).bind('keydown', 'up', function() { return false; });

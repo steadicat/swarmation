@@ -53,5 +53,5 @@ void keyPressed() {
     }
 }
 
-PLAYER = createPlayer(floor(random()*30), floor(random()*30));
+PLAYER = createPlayer(floor(random()*96), floor(random()*60));
 

@@ -46,7 +46,13 @@ socket.on('connection', function(client) {
             client.send(m);
         });
     });
-    client.on('disconnect', function() { console.log('disconnect'); });
+    client.on('disconnect', function() {
+        socket.clients.forEach(function(c) {
+            if (!c) return;
+            if (c.sessionId == client.sessionId) return;
+            c.send({ type: 'playerGone', id: client.sessionId});
+        });
+    });
 });
 
 // Only listen on $ node app.js
