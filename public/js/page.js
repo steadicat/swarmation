@@ -2,6 +2,20 @@ var displayNotice;
 
 (function($, undefined) {
 
+    $(".username-box form").submit(
+			function() {
+				if (PLAYER) {
+					PLAYER.name = $("#username").attr("value");
+					$(".username-box form").hide();
+					$(".username-box")
+						.hide("slow")
+						.text("You are now known as '" + PLAYER.name + "'")
+						.show("slow");
+				}
+				return false;
+			}
+		);
+
     displayNotice = function(text) {
         var div = $("<p />")
             .hide()
