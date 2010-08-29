@@ -211,10 +211,16 @@ body #content {
   overflow-x: hidden;
 }
 /* line 71, ../src/screen.sass */
+body #content #about {
+  padding: 5px 15px;
+  text-align: right;
+  color: #888888;
+}
+/* line 75, ../src/screen.sass */
 body #content #board, body #content #play {
   margin: 10px 0 8px 10px;
 }
-/* line 73, ../src/screen.sass */
+/* line 77, ../src/screen.sass */
 body #content #board-container {
   width: 981px;
   background-color: #eeeeee;
@@ -224,11 +230,11 @@ body #content #board-container {
   -o-box-shadow: black 0px 0px 6px 0;
   box-shadow: black 0px 0px 6px 0;
 }
-/* line 78, ../src/screen.sass */
+/* line 82, ../src/screen.sass */
 body #content #board-controls {
   padding: 15px 25px;
 }
-/* line 80, ../src/screen.sass */
+/* line 84, ../src/screen.sass */
 body #content #tooltip {
   -moz-box-shadow: #555555 0px 0px 2px 0;
   -webkit-box-shadow: #555555 0px 0px 2px 0;
@@ -245,7 +251,7 @@ body #content #tooltip {
   padding: 3px 7px 4px 7px;
   position: absolute;
 }
-/* line 87, ../src/screen.sass */
+/* line 91, ../src/screen.sass */
 body #content #tooltip .name {
   font-weight: bold;
 }
