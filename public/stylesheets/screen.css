@@ -125,6 +125,8 @@ body #sidebar {
   float: left;
   margin-right: 0;
   width: 190px;
+  height: 620px;
+  overflow: hidden;
   font-family: Inconsolata;
   color: #eeeeee;
 }
@@ -132,7 +134,7 @@ body #sidebar {
 * html body #sidebar {
   overflow-x: hidden;
 }
-/* line 28, ../src/screen.sass */
+/* line 30, ../src/screen.sass */
 body #sidebar .sidebar-notice {
   -moz-box-shadow: #222222 0px 0px 1px 0;
   -webkit-box-shadow: #222222 0px 0px 1px 0;
@@ -141,10 +143,10 @@ body #sidebar .sidebar-notice {
   border: 1px solid #222222;
   background-color: #444444;
   padding: 3px 7px 4px 7px;
-  margin: 12px 1px 0 0;
+  margin: 0px 1px 12px 0;
   color: white;
 }
-/* line 35, ../src/screen.sass */
+/* line 38, ../src/screen.sass */
 body #content {
   display: inline;
   float: left;
@@ -155,11 +157,11 @@ body #content {
 * html body #content {
   overflow-x: hidden;
 }
-/* line 37, ../src/screen.sass */
+/* line 40, ../src/screen.sass */
 body #content #board, body #content #play {
   margin: 10px 0 8px 10px;
 }
-/* line 39, ../src/screen.sass */
+/* line 42, ../src/screen.sass */
 body #content #board-container {
   width: 981px;
   background-color: #eeeeee;
@@ -169,7 +171,7 @@ body #content #board-container {
   -o-box-shadow: black 0px 0px 6px 0;
   box-shadow: black 0px 0px 6px 0;
 }
-/* line 44, ../src/screen.sass */
+/* line 47, ../src/screen.sass */
 body #content #board-controls {
   padding: 15px 25px;
 }

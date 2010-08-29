@@ -1,3 +1,19 @@
+$("#header").css("color","red");
+
+function displayNotice(text) {
+	var div = $("<p />")
+		.hide()
+		.text(text)
+		.addClass("sidebar-notice")
+		.css({ "opacity": "0.0", "color": "#FFC0CB" })
+		.prependTo($("#sidebar"))
+		.slideDown()
+		.animate({ "opacity": "1.0" }, "slow");
+
+	setTimeout(function(){div.css({ "color": "#fff" });}, 1000);
+	
+}
+
 float bx = getX();
 float by = getY();
 int bs = 9;
@@ -55,6 +71,7 @@ void keyPressed() {
 			by = by - 10;
 		} else if (keyCode == DOWN) {
 		  by = by + 10;	
+			displayNotice("asdn amndam sdnaksj ndajksdnakjsnd ajnda,nd a,sdn a,sjnd ,jand");
 		}
   }
 }
@@ -66,3 +83,4 @@ void mousePressed() {
 		p.draw();
 	}
 }
+
