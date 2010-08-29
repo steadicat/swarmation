@@ -22,7 +22,6 @@ void draw() {
     if (PLAYER) {
         drawPlayer(PLAYER);
     }
-    drawTargetForm();
 }
 
 void drawPlayer(player) {

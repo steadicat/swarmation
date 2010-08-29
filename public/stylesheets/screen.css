@@ -145,25 +145,26 @@ body #info #countdown {
 }
 /* line 33, ../src/screen.sass */
 body #info #formation {
-  font-size: 30px;
+  font-size: 20px;
+  padding-top: 80px;
 }
-/* line 35, ../src/screen.sass */
+/* line 36, ../src/screen.sass */
 body #info #score {
   font-size: 30px;
 }
-/* line 37, ../src/screen.sass */
+/* line 38, ../src/screen.sass */
 body #info #username {
   width: 165px;
   border-width: 0px;
   padding: 2px 5px;
   font-size: 13px;
 }
-/* line 42, ../src/screen.sass */
+/* line 43, ../src/screen.sass */
 body #info .username-box {
   padding-top: 5px;
   padding-bottom: 5px;
 }
-/* line 45, ../src/screen.sass */
+/* line 46, ../src/screen.sass */
 body #sidebar {
   display: inline;
   float: left;
@@ -178,7 +179,7 @@ body #sidebar {
 * html body #sidebar {
   overflow-x: hidden;
 }
-/* line 51, ../src/screen.sass */
+/* line 52, ../src/screen.sass */
 body #sidebar .sidebar-notice {
   -moz-box-shadow: #1a1a1a 0px 0px 2px;
   -webkit-box-shadow: #1a1a1a 0px 0px 2px;
@@ -190,17 +191,17 @@ body #sidebar .sidebar-notice {
   margin: 0px 1px 12px 0;
   color: white;
 }
-/* line 58, ../src/screen.sass */
+/* line 59, ../src/screen.sass */
 body #sidebar #arrow-image {
   position: relative;
   top: 2px;
 }
-/* line 61, ../src/screen.sass */
+/* line 62, ../src/screen.sass */
 body #sidebar .placeholder {
   color: #888888;
   background-color: #eeeeee;
 }
-/* line 64, ../src/screen.sass */
+/* line 65, ../src/screen.sass */
 body #content {
   display: inline;
   float: left;
@@ -211,11 +212,11 @@ body #content {
 * html body #content {
   overflow-x: hidden;
 }
-/* line 66, ../src/screen.sass */
+/* line 67, ../src/screen.sass */
 body #content #board, body #content #play {
   margin: 10px 0 8px 10px;
 }
-/* line 68, ../src/screen.sass */
+/* line 69, ../src/screen.sass */
 body #content #board-container {
   width: 981px;
   background-color: #eeeeee;
@@ -225,11 +226,11 @@ body #content #board-container {
   -o-box-shadow: black 0px 0px 6px;
   box-shadow: black 0px 0px 6px;
 }
-/* line 73, ../src/screen.sass */
+/* line 74, ../src/screen.sass */
 body #content #board-controls {
   padding: 15px 25px;
 }
-/* line 75, ../src/screen.sass */
+/* line 76, ../src/screen.sass */
 body #content #tooltip {
   -moz-box-shadow: #555555 0px 0px 2px;
   -webkit-box-shadow: #555555 0px 0px 2px;
@@ -246,7 +247,7 @@ body #content #tooltip {
   padding: 3px 7px 4px 7px;
   position: absolute;
 }
-/* line 82, ../src/screen.sass */
+/* line 83, ../src/screen.sass */
 body #content #tooltip .name {
   font-weight: bold;
 }
