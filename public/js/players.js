@@ -4,48 +4,62 @@ var PLAYERS = {};
 (function($, undefined) {
 
     window.Player = function Player(left, top, isSelf) {
-        this.left = left || 100;
-        this.top = top || 100;
+        this.left = left;
+        this.top = top;
         this.isSelf = isSelf;
         this.formation = 'easy';
     }
 
     Player.getLeft = function(x) { return Math.floor(x/10); }
     Player.getTop = function(y) { return Math.floor(y/10); }
-    Player.prototype.getX = function() { return this.left*10+1; }
-    Player.prototype.getY = function() { return this.top*10+1; }
+    Player.prototype = {
+        getX: function() { return this.left*10+1; },
+        getY: function() { return this.top*10+1; },
 
-    Player.prototype.move = function(direction) {
-        var p = this;
-        var dirs = {
-            left: function() { p.left-- },
-            right: function() { p.left++ },
-            up: function() { p.top-- },
-            down: function() { p.top++ },
-        };
-        dirs[direction]();
-        if (this.isSelf) sendAction('playerMove', { left: this.left, top: this.top });
-		this.checkFormation();
-    };
+        move: function(direction) {
+            var p = this;
+            var dirs = {
+                left: function() { p.left-- },
+                right: function() { p.left++ },
+                up: function() { p.top-- },
+                down: function() { p.top++ },
+            };
+            dirs[direction]();
+            if (this.isSelf) {
+                sendAction('playerMove', { left: this.left, top: this.top });
+            }
+            this.checkFormation();
+        },
 
-    Player.prototype.checkFormation = function() {
-        var filled = true;
-        for (var i = 0; i < Formations[this.formation]['points'].length; i++) {
-			if (filled) {
-	            filled = false;
-	            for (var id in PLAYERS) {
-	                if (PLAYERS[id].left === this.left + i[0] &&
-	                    PLAYERS[id].top === this.top + i[1]) {
-	                    filled = true;
-	                    break;
-	                }
-	            }
-			} else {
-				break;
-			}
-        }
-        if (filled) {
-            displayNotice('You completed the ' + this.formation + ' formation!');
+        checkFormation: function() {
+            var otherIds = [];
+            var filled = true;
+            for (var i = 0; i < Formations[this.formation]['points'].length; i++) {
+                var dx = Formations[this.formation]['points'][i][0];
+                var dy = Formations[this.formation]['points'][i][1];
+                if (filled) {
+                    filled = false;
+                    for (var id in PLAYERS) {
+                        if (PLAYERS[id].left === this.left + dx &&
+                            PLAYERS[id].top === this.top + dy) {
+                            filled = true;
+                            otherIds.push(id);
+                            break;
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+            if (filled) {
+                displayNotice('You completed the ' + this.formation + ' formation!');
+                sendAction('formationMade', { formation: this.formation, ids: otherIds });
+                console.log('completed with ' + otherIds);
+            }
+        },
+
+        usePower: function() {
+            displayNotice('You used your special power');
         }
     };
 
@@ -56,12 +70,6 @@ var PLAYERS = {};
         PLAYERS[data.id].left = data.left;
         PLAYERS[data.id].top = data.top;
     });
-
-    window.createPlayer = function(left, top) {
-        PLAYER = new Player(left, top, true);
-        sendAction('newPlayer', { left: left, top: top });
-        return PLAYER;
-    }
 
     $('#play').bind('newPlayer', function(event, data) {
         console.log('New player ' + data.id + '');
@@ -80,6 +88,9 @@ var PLAYERS = {};
     $(document).bind('keydown', 'right', function() { return false; });
     $(document).bind('keydown', 'space', function() { return false; });
 
-    PLAYER = createPlayer(Math.floor(Math.random()*96), Math.floor(Math.random()*60));
+    var initLeft = Math.floor(Math.random() * 96);
+    var initTop = Math.floor(Math.random() * 60);
+    PLAYER = new Player(initLeft, initTop, true);
+    sendAction('newPlayer', { left: initLeft, top: initTop });
 
 })(jQuery);

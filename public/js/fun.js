@@ -12,7 +12,6 @@ void draw() {
     }
     if (PLAYER) {
         drawPlayer(PLAYER);
-        PLAYER.checkFormations();
     }
 }
 
@@ -50,6 +49,10 @@ void keyPressed() {
         } else if (keyCode == DOWN) {
             PLAYER.move('down');
         }
+    }
+
+    if (key == 32) {
+        PLAYER.usePower();
     }
 }
 
