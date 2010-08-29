@@ -23,7 +23,7 @@ function log(m) {
         this.setPosition(left, top);
         this.isSelf = isSelf;
         this.currentGoal = 0;
-        this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank', 'Block', 'Fortress', 'Snake', 'Lobster'];
+        this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank', 'Block', 'Fortress', 'Snake', 'Lobster', 'Hat', 'Home', 'Table', 'Patchwork', 'Spiral', 'Volcano'];
         this.formation = Formations[this.goals[this.currentGoal]];
         this.name = NAMES[Math.floor(Math.random()*NAMES.length)];
         this.score = 0;

@@ -52,6 +52,42 @@ var Formations = {
 		name: 'Lobster',
 		power: 'Default',
 		showOutline: false
+	},
+	'Hat': {
+		points: [[1,0], [2,0], [3,0], [4,0], [1,-1], [3,-1], [1,-2], [2,-2], [3,-2]],
+		name: 'Hat',
+		power: 'Default',
+		showOutline: false 
+	},
+	'Home': {
+		points: [[-1,-1], [0,-1], [1,-1], [-1,0], [1,0], [-1,1], [0,1], [1,1], [2,0], [-2,0], [0,2], [0,-2], [-1,2], [1,2]],
+		name: 'Home',
+		power: 'Default',
+		showOutline: false
+	},
+	'Table': {
+		points: [[1,0], [2,0], [3,0], [4,0], [1,1], [3,1]],
+		name: 'Table',
+		power: 'Default',
+		showOutline: false
+	},
+	'Patchwork': {
+		points: [[1,-1],[3,-1],[2,0],[4,0],[1,1],[3,1],[0,2],[2,2],[4,2],[1,3],[3,3]],
+		name: 'Patchwork',
+		power: 'Default',
+		showOutline: false
+	},
+	'Volcano': {
+		points: [[1,0],[2,0],[3,0],[4,0],[1,-1],[2,-1],[3,-1],[2,-2]],
+		name: 'Patchwork',
+		power: 'Default',
+		showOutline: false
+	},
+	'Spiral': {
+		points: [[0,-1], [-1,-1], [-2,0], [-2, 1], [-1,-2], [0,-2], [1,-2], [2,1], [2,0]],
+		name: 'Patchwork',
+		power: 'Default',
+		showOutline: false
 	}
 };
 
@@ -67,7 +103,7 @@ var Powers = {
 		use: function(player) { }
 	},
 	'Default': {
-		name: 'Useless'
+		name: 'Useless',
 		duration: 1,
 		use: function(player) {
 			// Default power does nothing
