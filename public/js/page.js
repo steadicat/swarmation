@@ -1,6 +1,8 @@
+var displayNotice;
+
 (function($, undefined) {
 
-    function displayNotice(text) {
+    displayNotice = function(text) {
         var div = $("<p />")
             .hide()
             .text(text)

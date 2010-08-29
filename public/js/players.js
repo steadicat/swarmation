@@ -1,13 +1,14 @@
 var PLAYER;
 var PLAYERS = {};
+var MAP = [];
 var Player;
 var sendAction;
 
 (function($, undefined) {
 
-    Player = function Player(left, top, isSelf) {
-        this.left = left;
-        this.top = top;
+    Player = function Player(id, left, top, isSelf) {
+        this.id = id;
+        this.setPosition(left, top);
         this.isSelf = isSelf;
         this._formIndex = 0;
         this.formation = Formations[this._formIndex];
@@ -15,20 +16,43 @@ var sendAction;
         this.score = 0;
     };
 
+    Player.atPixel = function(x, y) {
+        return Player.atPosition(Player.getLeft(x), Player.getTop(y));
+    };
+
+    Player.atPosition = function(left, top) {
+        if (!MAP[left]) MAP[left] = [];
+        return MAP[left][top];
+    };
+
     Player.getLeft = function(x) { return Math.floor(x/10); };
     Player.getTop = function(y) { return Math.floor(y/10); };
+
     Player.directions = {
-        left: function(p) { p.left-- },
-        right: function(p) { p.left++ },
-        up: function(p) { p.top-- },
-        down: function(p) { p.top++ },
+        left: function(left, top) { return [left-1, top] },
+        right: function(left, top) { return [left+1, top] },
+        up: function(left, top) { return [left, top-1] },
+        down: function(left, top) { return [left, top+1] },
     };
+
     Player.prototype = {
         getX: function() { return this.left * 10 + 1; },
         getY: function() { return this.top * 10 + 1; },
 
+        setPosition: function(left, top) {
+            // cancel in case of collisions
+            if (Player.atPosition(left, top)) return;
+
+            if (!MAP[this.left]) MAP[this.left] = [];
+            MAP[this.left][this.top] = null;
+            this.left = left;
+            this.top = top;
+            if (!MAP[left]) MAP[left] = [];
+            MAP[left][top] = this;
+        },
         move: function(direction) {
-            Player.directions[direction](this);
+            var newp = Player.directions[direction](this.left, this.top);
+            this.setPosition(newp[0], newp[1]);
             if (this.isSelf) {
                 this.sendInfo();
             }
@@ -38,20 +62,14 @@ var sendAction;
         checkFormation: function() {
             var otherIds = [];
             var filled = true;
-            for (var i = 0; i < this.formation['points'].length; i++) {
-                var dx = this.formation['points'][i][0];
-                var dy = this.formation['points'][i][1];
-                if (filled) {
-                    filled = false;
-                    for (var id in PLAYERS) {
-                        if (PLAYERS[id].left === this.left + dx &&
-                            PLAYERS[id].top === this.top + dy) {
-                            filled = true;
-                            otherIds.push(id);
-                            break;
-                        }
-                    }
+            for (var i = 0; i < this.formation.points.length; i++) {
+                var dx = this.formation.points[i][0];
+                var dy = this.formation.points[i][1];
+                var other = Player.atPosition(this.left+dx, this.top+dy);
+                if (other) {
+                    otherIds.push(other.id);
                 } else {
+                    filled = false;
                     break;
                 }
             }
@@ -78,8 +96,7 @@ var sendAction;
         },
 
         getInfo: function(info) {
-            this.left = info.left;
-            this.top = info.top;
+            this.setPosition(info.left, info.top);
             this.name = info.name;
             this.score = info.score;
         }
@@ -87,7 +104,7 @@ var sendAction;
 
     $('#play').bind('playerInfo', function(event, data) {
         if (!PLAYERS[data.id]) {
-            PLAYERS[data.id] = new Player(data.left, data.top);
+            PLAYERS[data.id] = new Player(data.id, data.left, data.top);
         }
         PLAYERS[data.id].getInfo(data);
         if (data.isNew) {
@@ -118,7 +135,7 @@ var sendAction;
 
     var initLeft = Math.floor(Math.random() * 96);
     var initTop = Math.floor(Math.random() * 60);
-    PLAYER = new Player(initLeft, initTop, true);
+    PLAYER = new Player('self', initLeft, initTop, true);
     var names = ['saber','tooth','moose','lion'];
     PLAYER.name = names[Math.floor(Math.random()*names.length)];
     PLAYER.sendInfo(true);
