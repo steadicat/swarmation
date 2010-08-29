@@ -13,7 +13,7 @@ var sendAction;
         this.setPosition(left, top);
         this.isSelf = isSelf;
         this.currentGoal = 0;
-        this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank'];
+        this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank', 'Block', 'Fortress', 'Snake'];
         this.formation = Formations[this.goals[this.currentGoal]];
         this.name = 'unknown';
         this.score = 0;
@@ -91,6 +91,7 @@ var sendAction;
 
         formationMade: function(name) {
             displayNotice('You completed the ' + name + ' formation!');
+            if (!Formations[name].completed) this.score++;
             Formations[name].completed = true;
             while (Formations[this.goals[this.currentGoal]].completed) {
                 this.currentGoal++;
@@ -120,6 +121,20 @@ var sendAction;
             this.setPosition(info.left, info.top);
             this.name = info.name;
             this.score = info.score;
+        },
+
+        showTooltip: function() {
+            $('#tooltip')
+                .css('display', 'block')
+                .css('position', 'absolute')
+                .css('left', this.getX()+$('#play').offset().left)
+                .css('top', this.getY()+$('#play').offset().top+25)
+                .find('.name').text(this.name).end()
+                .find('.score').text(this.score);
+        },
+
+        hideTooltip: function() {
+            $('#tooltip').css('display', 'none');
         }
     };
 
