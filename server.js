@@ -81,6 +81,8 @@ socket.on('connection', function(client) {
 var formations = require('./public/js/forms.js').Formations;
 var FORMATIONS = [];
 var MAX_SIZE = 20;
+var DELAY = 12000;
+
 for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = [];
 
 formations.forEach(function(i, id) {
@@ -103,7 +105,7 @@ setInterval(function() {
         if (!client) return;
         client.send({ type: 'nextFormation', formation: formation.name });
     });
-}, 12000);
+}, DELAY);
 
 // Only listen on $ node app.js
 
