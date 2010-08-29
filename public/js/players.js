@@ -192,8 +192,9 @@ function log(m) {
 
     $('#play').bind('nextFormation', function(event, data) {
         FORMATION = Formations[data.formation];
+        console.log('url(/images/formations/'+data.formation.toLowerCase()+'.png)');
         $('#formation')
-            .css('background-image', 'url(/images/formations/'+data.formation+'.png)')
+            .css('background', 'url(/images/formations/'+data.formation.toLowerCase()+'.png) no-repeat center center')
             .find('.name').text(data.formation).end();
         var timeleft = 10;
         $('#countdown').text(timeleft);
