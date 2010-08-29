@@ -13,6 +13,7 @@ void draw() {
     for (var id in PLAYERS) {
         drawPlayer(PLAYERS[id]);
     }
+    drawPlayer(PLAYER);
 }
 
 void drawPlayer(player) {
