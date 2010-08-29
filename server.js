@@ -40,8 +40,9 @@ socket.on('connection', function(client) {
     client.on('message', function(m) {
         m.id = client.sessionId;
         socket.clients.forEach(function(client) {
+            if (!client) return;
             if (client.sessionId == m.id) return;
-            if (client) client.send(m);
+            client.send(m);
         });
     });
     client.on('disconnect', function() { console.log('disconnect'); });
