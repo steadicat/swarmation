@@ -190,8 +190,8 @@ function log(m) {
     $('#play').bind('nextFormation', function(event, data) {
         FORMATION = Formations[data.formation];
         $('#formation')
-            .css('background', 'url(/images/formations/'+data.formation.toLowerCase()+'.png) no-repeat center center')
-            .find('.name').text(data.formation).end();
+            .css('background', 'url(/images/formations/'+data.formation.toLowerCase()+'.png) no-repeat center top')
+            .text(data.formation).end();
         var timeleft = 10;
         $('#countdown').text(timeleft);
         var interval = setInterval(function() {
@@ -204,13 +204,16 @@ function log(m) {
             if (FORMATION) {
                 PLAYER.checkFormation(FORMATION);
                 setTimeout(function() {
+                    var delta;
                     if (FORMATION_COMPLETED) {
-                        PLAYER.score += FORMATION.points.length;
-                        displayNotice('You completed '+FORMATION.name+'.');
+                        delta = FORMATION.points.length+1;
+                        PLAYER.score += delta;
+                        displayNotice('You completed '+FORMATION.name+'. You gain '+delta+' points!');
                     } else {
-                        PLAYER.score -= 20-FORMATION.points.length;
+                        delta = 10-(FORMATION.points.length+1);
+                        PLAYER.score -= delta;
                         if (PLAYER.score < 0) PLAYER.score = 0;
-                        displayNotice('You did not make '+FORMATION.name+'!');
+                        displayNotice('You did not make '+FORMATION.name+'! Lose '+delta+' points.');
                     }
                     $('#score .score').text(PLAYER.score);
                     PLAYER.sendInfo();
