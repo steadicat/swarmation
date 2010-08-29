@@ -10,7 +10,10 @@ void draw() {
     for (var id in PLAYERS) {
         drawPlayer(PLAYERS[id]);
     }
-    if (PLAYER) drawPlayer(PLAYER);
+    if (PLAYER) {
+        drawPlayer(PLAYER);
+        PLAYER.checkFormations();
+    }
 }
 
 void drawPlayer(player) {

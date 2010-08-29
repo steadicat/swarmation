@@ -7,6 +7,7 @@ var PLAYERS = {};
         this.left = left || 100;
         this.top = top || 100;
         this.isSelf = isSelf;
+        this.formation = 'easy';
     }
 
     Player.getLeft = function(x) { return Math.floor(x/10); }
@@ -24,10 +25,34 @@ var PLAYERS = {};
         };
         dirs[direction]();
         if (this.isSelf) sendAction('playerMove', { left: this.left, top: this.top });
+		this.checkFormation();
+    };
+
+    Player.prototype.checkFormation = function() {
+        var filled = true;
+        for (var i = 0; i < Formations[this.formation]['points'].length; i++) {
+			if (filled) {
+	            filled = false;
+	            for (var id in PLAYERS) {
+	                if (PLAYERS[id].left === this.left + i[0] &&
+	                    PLAYERS[id].top === this.top + i[1]) {
+	                    filled = true;
+	                    break;
+	                }
+	            }
+			} else {
+				break;
+			}
+        }
+        if (filled) {
+            displayNotice('You completed the ' + this.formation + ' formation!');
+        }
     };
 
     $('#play').bind('playerMove', function(event, data) {
-        if (!PLAYERS[data.id]) PLAYERS[data.id] = new Player(data.left, data.top);
+        if (!PLAYERS[data.id]) {
+            PLAYERS[data.id] = new Player(data.left, data.top);
+        }
         PLAYERS[data.id].left = data.left;
         PLAYERS[data.id].top = data.top;
     });
