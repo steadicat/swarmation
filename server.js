@@ -74,6 +74,6 @@ socket.on('connection', function(client) {
 
 // Only listen on $ node app.js
 
-var port = parseInt(process.argv[2], 10) || 80;
+var port = parseInt(process.env.PORT) || parseInt(process.argv[2], 10) || 8000;
 if (!module.parent) app.listen(port);
 console.log('Server now listening on port '+port+'...');
