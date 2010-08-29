@@ -5,6 +5,7 @@ var FORMATION_COMPLETED;
 var FORMATION;
 var Player;
 var sendAction;
+var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry'];
 
 function log(m) {
     try { console.log(m); } catch (e) {}
@@ -21,7 +22,7 @@ function log(m) {
         this.currentGoal = 0;
         this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank', 'Block', 'Fortress', 'Snake', 'Lobster'];
         this.formation = Formations[this.goals[this.currentGoal]];
-        this.name = 'Guest ' + Math.floor(Math.random()*100);
+        this.name = NAMES[Math.floor(Math.random()*NAMES.length)];
         this.score = 0;
         this.powers = [];
 		this.inFormation = 0;
@@ -115,14 +116,6 @@ function log(m) {
                 //displayNotice('You completed the ' + name + ' formation!');
                 Formations[name].completed = true;
                 this.powers.push(Formations[name].power);
-                while (Formations[this.goals[this.currentGoal]].completed) {
-                    this.currentGoal++;
-                    if (this.currentGoal >= this.goals.length) {
-                        displayNotice('You completed all your formations!');
-                        this.currentGoal--;
-                    }
-                }
-                this.formation = Formations[this.goals[this.currentGoal]];
                 // brag about your achievement
                 this.sendInfo();
             }
@@ -188,6 +181,10 @@ function log(m) {
 
     $('#play').bind('formationMade', function(event, data) {
         PLAYER.formationMade(data.formation);
+        PLAYERS[data.id].inFormation = 10;
+		for (var j = 0; j < data.ids.length; j++) {
+			if (PLAYERS[data.ids[j]]) PLAYERS[data.ids[j]].inFormation = 10;
+		}
     });
 
     $('#play').bind('nextFormation', function(event, data) {
