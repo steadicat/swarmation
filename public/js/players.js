@@ -5,6 +5,7 @@ var FORMATION_COMPLETED;
 var FORMATION;
 var Player;
 var sendAction;
+var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry'];
 
 function log(m) {
     try { console.log(m); } catch (e) {}
@@ -21,7 +22,7 @@ function log(m) {
         this.currentGoal = 0;
         this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank', 'Block', 'Fortress', 'Snake', 'Lobster'];
         this.formation = Formations[this.goals[this.currentGoal]];
-        this.name = 'Guest ' + Math.floor(Math.random()*100);
+        this.name = NAMES[Math.floor(Math.random()*NAMES.length)];
         this.score = 0;
         this.powers = [];
 		this.inFormation = 0;
