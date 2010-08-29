@@ -38,7 +38,9 @@ var clients = [];
 
 socket.on('connection', function(client) {
     client.on('message', function(m) {
+        m.id = client.sessionId;
         socket.clients.forEach(function(client) {
+            if (client.sessionId == m.id) return;
             if (client) client.send(m);
         });
     });
