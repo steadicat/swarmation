@@ -7,7 +7,6 @@ var Player;
 var sendAction;
 var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry'];
 
-var INTERVAL = 10000;
 var MARGIN = 2000;
 
 function log(m) {

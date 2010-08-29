@@ -4,9 +4,9 @@
  */
 
 var express = require('express'),
-    connect = require('connect'),
-    sys = require('sys'),
-    io = require('./contrib/Socket.IO-node');
+connect = require('connect'),
+sys = require('sys'),
+io = require('./contrib/Socket.IO-node');
 
 
 var app = module.exports = express.createServer();
@@ -22,11 +22,11 @@ app.configure(function(){
 });
 
 app.configure('development', function(){
-    app.use(connect.errorHandler({ dumpExceptions: true, showStack: true })); 
+    app.use(connect.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 
 app.configure('production', function(){
-   app.use(connect.errorHandler()); 
+    app.use(connect.errorHandler());
 });
 
 // Routes
@@ -101,15 +101,18 @@ function pickFormation() {
 var time = 0;
 setInterval(function() {
     time -= 1;
-    if (time >= 0) return;
+    if (time > 0) return;
     var formation = pickFormation();
     if (!formation) return;
-    console.log('Next formation is ' + formation.name);
-    time = 3*(formation.points.length+1);
-    socket.clients.forEach(function(client) {
-        if (!client) return;
-        client.send({ type: 'nextFormation', formation: formation.name, time: time });
-    });
+    time = 10;
+    setTimeout(function() {
+        console.log('Next formation is ' + formation.name);
+        time = 2*(formation.points.length+1);
+        socket.clients.forEach(function(client) {
+            if (!client) return;
+            client.send({ type: 'nextFormation', formation: formation.name, time: time });
+        });
+    }, MARGIN);
 }, 1000);
 
 // Only listen on $ node app.js
