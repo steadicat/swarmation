@@ -4,6 +4,10 @@ var MAP = [];
 var Player;
 var sendAction;
 
+function log(m) {
+    try { console.log(m); } catch (e) {}
+}
+
 (function($, undefined) {
     var WIDTH = 96;
     var HEIGHT = 60;
@@ -13,10 +17,11 @@ var sendAction;
         this.setPosition(left, top);
         this.isSelf = isSelf;
         this.currentGoal = 0;
-        this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank', 'Block', 'Fortress', 'Snake'];
+        this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank', 'Block', 'Fortress', 'Snake', 'Lobster'];
         this.formation = Formations[this.goals[this.currentGoal]];
         this.name = 'unknown';
         this.score = 0;
+		this.powers = [];
     };
 
     Player.atPixel = function(x, y) {
@@ -66,9 +71,14 @@ var sendAction;
         },
 
         checkFormations: function() {
-            for (var id in Formations) {
-                this.checkFormation(Formations[id]);
-            };
+            var p = this;
+            if (p.timeout) return;
+            p.timeout = setTimeout(function() {
+                p.timeout = null;
+                for (var id in Formations) {
+                    p.checkFormation(Formations[id]);
+                };
+            }, 1000);
         },
 
         checkFormation: function(formation) {
@@ -110,7 +120,11 @@ var sendAction;
         },
 
         usePower: function() {
-            displayNotice('You used your special power');
+			if (this.powers.length) {
+				displayNotice('You used the ' + this.powers.pop() + ' power')
+			} else {
+				displayNotice('No powers available');
+			}
         },
 
         sendInfo: function(isNew) {
@@ -154,7 +168,6 @@ var sendAction;
     });
 
     $('#play').bind('playerGone', function(event, data) {
-        console.log('Player ' + data.id + ' gone');
         var p = PLAYERS[data.id];
         if (!p) return;
         delete MAP[p.left][p.top];
