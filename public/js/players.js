@@ -102,7 +102,7 @@ function log(m) {
                 this.formationMade(formation.name);
                 sendAction('formationMade', { formation: formation.name, ids: otherIds });
 				for (var j = 0; j < otherIds.length; j++) {
-					PLAYERS[otherIds[j]].inFormation = 100;
+					PLAYERS[otherIds[j]].inFormation = 10;
 				}
             }
             return filled;
