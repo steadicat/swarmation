@@ -154,11 +154,22 @@ body #sidebar #arrow-image {
   top: 2px;
 }
 /* line 42, ../src/screen.sass */
-body #sidebar #username {
-  width: 173px;
-  border-width: 0px;
+body #sidebar .username-box {
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 /* line 45, ../src/screen.sass */
+body #sidebar #username {
+  width: 165px;
+  border-width: 0px;
+  padding: 2px 5px;
+}
+/* line 49, ../src/screen.sass */
+body #sidebar .placeholder {
+  color: #888888;
+  background-color: #eeeeee;
+}
+/* line 52, ../src/screen.sass */
 body #content {
   display: inline;
   float: left;
@@ -169,11 +180,11 @@ body #content {
 * html body #content {
   overflow-x: hidden;
 }
-/* line 47, ../src/screen.sass */
+/* line 54, ../src/screen.sass */
 body #content #board, body #content #play {
   margin: 10px 0 8px 10px;
 }
-/* line 49, ../src/screen.sass */
+/* line 56, ../src/screen.sass */
 body #content #board-container {
   width: 981px;
   background-color: #eeeeee;
@@ -183,11 +194,11 @@ body #content #board-container {
   -o-box-shadow: black 0px 0px 6px 0;
   box-shadow: black 0px 0px 6px 0;
 }
-/* line 54, ../src/screen.sass */
+/* line 61, ../src/screen.sass */
 body #content #board-controls {
   padding: 15px 25px;
 }
-/* line 56, ../src/screen.sass */
+/* line 63, ../src/screen.sass */
 body #content #tooltip {
   -moz-box-shadow: #555555 0px 0px 2px 0;
   -webkit-box-shadow: #555555 0px 0px 2px 0;
@@ -204,7 +215,7 @@ body #content #tooltip {
   padding: 3px 7px 4px 7px;
   position: absolute;
 }
-/* line 63, ../src/screen.sass */
+/* line 70, ../src/screen.sass */
 body #content #tooltip .name {
   font-weight: bold;
 }
