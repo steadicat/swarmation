@@ -73,3 +73,5 @@ var Powers = {
 		}
 	}
 }
+
+this.Formations = Formations;

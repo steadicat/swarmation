@@ -72,6 +72,35 @@ socket.on('connection', function(client) {
     });
 });
 
+// Formation countdown
+
+var formations = require('./public/js/forms.js').Formations;
+var FORMATIONS = [];
+var MAX_SIZE = 20;
+for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = [];
+
+formations.forEach(function(i, id) {
+    var formation = formations[id];
+    for (var i=formation.points.length; i<=MAX_SIZE; i++) {
+        FORMATIONS[i].push(formation);
+    }
+});
+
+function pickFormation() {
+    var available = FORMATIONS[Math.min(socket.clients.length, MAX_SIZE)];
+    if (available.length == 0) return;
+    return available[Math.floor(Math.random()*available.length)];
+}
+setInterval(function() {
+    var formation = pickFormation();
+    if (!formation) return;
+    console.log('Next formation is ' + formation.name);
+    socket.clients.forEach(function(client) {
+        if (!client) return;
+        client.send({ type: 'nextFormation', formation: formation.name });
+    });
+}, 10000);
+
 // Only listen on $ node app.js
 
 var port = parseInt(process.env.PORT) || parseInt(process.argv[2], 10) || 8000;
