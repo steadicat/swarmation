@@ -28,5 +28,11 @@ var Formations = [
         name: 'The Tank',
         reward: '',
         showOutline: true
-    }
+    },
+	block: {
+		points: [[-1,-1], [0,-1], [1,-1], [-1,0], [1,0], [-1,1], [-1,0], [1,1]],
+		name: 'Block',
+		reward: '',
+		showOutline: true,
+	}
 ];
