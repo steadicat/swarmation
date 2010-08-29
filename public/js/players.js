@@ -34,17 +34,18 @@ var PLAYERS = {};
 
     window.createPlayer = function(left, top) {
         PLAYER = new Player(left, top, true);
-        PLAYERS['self'] = PLAYER;
         sendAction('newPlayer', { left: left, top: top });
         return PLAYER;
     }
 
     $('#play').bind('newPlayer', function(event, data) {
+        console.log('New player ' + data.id + '');
         PLAYERS[data.id] = new Player(data.left, data.top);
         sendAction('playerMove', { left: PLAYER.left, top: PLAYER.top });
     });
 
     $('#play').bind('playerGone', function(event, data) {
+        console.log('Player ' + data.id + ' gone');
         delete PLAYERS[data.id];
     });
 
@@ -52,5 +53,7 @@ var PLAYERS = {};
     $(document).bind('keydown', 'down', function() { return false; });
     $(document).bind('keydown', 'left', function() { return false; });
     $(document).bind('keydown', 'right', function() { return false; });
+
+    PLAYER = createPlayer(Math.floor(Math.random()*96), Math.floor(Math.random()*60));
 
 })(jQuery);
