@@ -33,13 +33,13 @@ var Formations = {
 		points: [[-1,-1], [0,-1], [1,-1], [-1,0], [1,0], [-1,1], [0,1], [1,1]],
 		name: 'Block',
 		power: 'Default',
-		showOutline: false,
+		showOutline: false
     },
 	'Fortress': {
 		points: [[-2,-2], [-1,-2], [0,-2], [1,-2], [2,-2], [-2, -1], [2,-1], [-2,0], [2,0], [-2,1], [2,1], [-2,2], [-1,2], [0,2], [1,2], [2,2]],
 		name: 'Fortress',
 		power: 'Default',
-		showOutline: false,
+		showOutline: false
 	},
 	'Snake': {
 		points: [[-1,1], [0,2], [-1,3], [-2,4]],
