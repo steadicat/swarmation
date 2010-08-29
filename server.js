@@ -4,9 +4,9 @@
  */
 
 var express = require('express'),
-    connect = require('connect'),
-    sys = require('sys'),
-    io = require('./contrib/Socket.IO-node');
+connect = require('connect'),
+sys = require('sys'),
+io = require('./contrib/Socket.IO-node');
 
 
 var app = module.exports = express.createServer();
@@ -22,11 +22,11 @@ app.configure(function(){
 });
 
 app.configure('development', function(){
-    app.use(connect.errorHandler({ dumpExceptions: true, showStack: true })); 
+    app.use(connect.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 
 app.configure('production', function(){
-   app.use(connect.errorHandler()); 
+    app.use(connect.errorHandler());
 });
 
 // Routes
@@ -81,7 +81,7 @@ socket.on('connection', function(client) {
 var formations = require('./public/js/forms.js').Formations;
 var FORMATIONS = [];
 var MAX_SIZE = 20;
-var DELAY = 12000;
+var MARGIN = 3000;
 
 for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = [];
 
@@ -97,15 +97,23 @@ function pickFormation() {
     if (available.length == 0) return;
     return available[Math.floor(Math.random()*available.length)];
 }
+
+var time = 0;
 setInterval(function() {
+    time -= 1;
+    if (time > 0) return;
     var formation = pickFormation();
     if (!formation) return;
-    console.log('Next formation is ' + formation.name);
-    socket.clients.forEach(function(client) {
-        if (!client) return;
-        client.send({ type: 'nextFormation', formation: formation.name });
-    });
-}, DELAY);
+    time = 10;
+    setTimeout(function() {
+        console.log('Next formation is ' + formation.name);
+        time = 2*(formation.points.length+1);
+        socket.clients.forEach(function(client) {
+            if (!client) return;
+            client.send({ type: 'nextFormation', formation: formation.name, time: time });
+        });
+    }, MARGIN);
+}, 1000);
 
 // Only listen on $ node app.js
 
