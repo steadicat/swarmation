@@ -5,7 +5,7 @@
     socket = new io.Socket('', { transports: ['websocket', 'xhr-multipart', 'xhr-polling', 'htmlfile']});
     socket.connect();
     socket.on('message', function(data) {
-        $('#play').trigger(data.type, data);
+        Swarmation.Board.canvas.trigger(data.type, data);
     });
 
     window.sendAction = function(type, data) {

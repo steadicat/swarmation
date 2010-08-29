@@ -21,8 +21,10 @@ body
     +text-shadow(#000,2px,2px,2px)
   #header, #footer
     +column(25)
-  #sidebar
+  #sidebar    
     +column(5, true)
+    :height 620px
+    :overflow hidden
     :font-family Inconsolata
     :color #eee
     .sidebar-notice
@@ -30,8 +32,9 @@ body
       :border 1px solid #222
       :background-color #444
       :padding 3px 7px 4px 7px
-      :margin 12px 1px 0 0
+      :margin 0px 1px 12px 0
       :color #fff
+
   #content
     +column(25)
     #board, #play
