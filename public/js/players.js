@@ -7,6 +7,9 @@ var Player;
 var sendAction;
 var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry'];
 
+var INTERVAL = 10000;
+var MARGIN = 2000;
+
 function log(m) {
     try { console.log(m); } catch (e) {}
 }
@@ -180,7 +183,7 @@ function log(m) {
     });
 
     $('#play').bind('formationMade', function(event, data) {
-        PLAYER.formationMade(data.formation);
+        if (data.you) PLAYER.formationMade(data.formation);
         PLAYERS[data.id].inFormation = 10;
 		for (var j = 0; j < data.ids.length; j++) {
 			if (PLAYERS[data.ids[j]]) PLAYERS[data.ids[j]].inFormation = 10;
@@ -190,8 +193,8 @@ function log(m) {
     $('#play').bind('nextFormation', function(event, data) {
         FORMATION = Formations[data.formation];
         $('#formation')
-            .css('background', 'url(/images/formations/'+data.formation.toLowerCase()+'.png) no-repeat center center')
-            .find('.name').text(data.formation).end();
+            .css('background', 'url(/images/formations/'+data.formation.toLowerCase()+'.png) no-repeat center top')
+            .text(data.formation).end();
         var timeleft = 10;
         $('#countdown').text(timeleft);
         var interval = setInterval(function() {
@@ -204,20 +207,23 @@ function log(m) {
             if (FORMATION) {
                 PLAYER.checkFormation(FORMATION);
                 setTimeout(function() {
+                    var delta;
                     if (FORMATION_COMPLETED) {
-                        PLAYER.score += FORMATION.points.length;
-                        displayNotice('You completed '+FORMATION.name+'.');
+                        delta = FORMATION.points.length+1;
+                        PLAYER.score += delta;
+                        displayNotice('You completed '+FORMATION.name+'. You gain '+delta+' points!');
                     } else {
-                        PLAYER.score -= 20-FORMATION.points.length;
+                        delta = 10-(FORMATION.points.length+1);
+                        PLAYER.score -= delta;
                         if (PLAYER.score < 0) PLAYER.score = 0;
-                        displayNotice('You did not make '+FORMATION.name+'!');
+                        displayNotice('You did not make '+FORMATION.name+'! Lose '+delta+' points.');
                     }
                     $('#score .score').text(PLAYER.score);
                     PLAYER.sendInfo();
                     FORMATION_COMPLETED = false;
-                }, 1500);
+                }, MARGIN);
             }
-        }, 10000);
+        }, INTERVAL);
     });
 
     // sockets

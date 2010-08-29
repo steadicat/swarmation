@@ -44,14 +44,15 @@ var socket = new io.listen(app, { resource: 'socket' });
 
 var clients = [];
 
+
+var PLAYERS = 0;
+
 function contains(l, x) {
     for (var i in l) {
         if (l[i] == x) return true;
     }
     return false;
 };
-
-var PLAYERS = 0;
 
 socket.on('connection', function(client) {
     PLAYERS++;
@@ -61,8 +62,7 @@ socket.on('connection', function(client) {
         socket.clients.forEach(function(client) {
             if (!client) return;
             if (client.sessionId == m.id) return;
-            // if 'ids' is set, only send to those clients
-            if (m.ids && (!contains(m.ids, client.sessionId))) return;
+            if (m.ids && (contains(m.ids, client.sessionId))) m.you = true;
             client.send(m);
         });
     });
@@ -81,11 +81,13 @@ socket.on('connection', function(client) {
 var formations = require('./public/js/forms.js').Formations;
 var FORMATIONS = [];
 var MAX_SIZE = 20;
+var DELAY = 12000;
+
 for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = [];
 
 formations.forEach(function(i, id) {
     var formation = formations[id];
-    for (var i=formation.points.length; i<=MAX_SIZE; i++) {
+    for (var i=formation.points.length+1; i<=MAX_SIZE; i++) {
         FORMATIONS[i].push(formation);
     }
 });
@@ -103,7 +105,7 @@ setInterval(function() {
         if (!client) return;
         client.send({ type: 'nextFormation', formation: formation.name });
     });
-}, 12000);
+}, DELAY);
 
 // Only listen on $ node app.js
 
