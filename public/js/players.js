@@ -66,9 +66,15 @@ var sendAction;
         },
 
         checkFormations: function() {
-            for (var id in Formations) {
-                this.checkFormation(Formations[id]);
-            };
+            var p = this;
+            if (p.timeout) return;
+            p.timeout = setTimeout(function() {
+                p.timeout = null;
+                console.log('checking formations');
+                for (var id in Formations) {
+                    p.checkFormation(Formations[id]);
+                };
+            }, 1000);
         },
 
         checkFormation: function(formation) {
