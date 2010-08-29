@@ -209,7 +209,7 @@ function log(m) {
                         displayNotice('You did not make '+FORMATION.name+'!');
                     }
                     $('#score .score').text(PLAYER.score);
-                    this.sendInfo();
+                    PLAYER.sendInfo();
                     FORMATION_COMPLETED = false;
                 }, 1500);
             }
