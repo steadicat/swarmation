@@ -69,4 +69,13 @@ void keyPressed() {
     }
 }
 
+var activePlayer;
 
+void mouseMoved() {
+    var player = Player.atPixel(mouseX, mouseY);
+    if (player != activePlayer) {
+        if (activePlayer) activePlayer.hideTooltip();
+        if (player) player.showTooltip();
+        activePlayer = player;
+    }
+}
