@@ -3,55 +3,55 @@ var Formations = {
         points: [[1,0], [-1,0]],
         name: 'Easy',
         power: 'Broadcast',
-        showOutline: true
+        showOutline: false
     },
     'Apple Key': {
         points: [[-1,-1], [1,-1], [-1,1], [1,1]],
         name: 'Apple Key',
         power: 'Skip',
-        showOutline: true
+        showOutline: false
     },
     'Tetris': {
         points: [[0,1], [0,2], [0,3], [0,4]],
         name: 'Tetris',
         power: 'Default',
-        showOutline: true
+        showOutline: false
     },
     'Delta': {
         points: [[-2,2], [-1,1], [1,1], [2,2]],
         name: 'Delta',
         power: 'Default',
-        showOutline: true
+        showOutline: false
     },
     'The Tank': {
         points: [[-1,-1], [-1,-2], [0,-3], [1,-2], [1,-1]],
         name: 'The Tank',
         power: 'Default',
-        showOutline: true
+        showOutline: false
     },
 	'Block': {
 		points: [[-1,-1], [0,-1], [1,-1], [-1,0], [1,0], [-1,1], [0,1], [1,1]],
 		name: 'Block',
 		power: 'Default',
-		showOutline: true,
+		showOutline: false,
     },
 	'Fortress': {
 		points: [[-2,-2], [-1,-2], [0,-2], [1,-2], [2,-2], [-2, -1], [2,-1], [-2,0], [2,0], [-2,1], [2,1], [-2,2], [-1,2], [0,2], [1,2], [2,2]],
 		name: 'Fortress',
 		power: 'Default',
-		showOutline: true,
+		showOutline: false,
 	},
 	'Snake': {
 		points: [[-1,1], [0,2], [-1,3], [-2,4], [-1,5]],
 		name: 'Snake',
 		power: 'Default',
-		showOutline: true
+		showOutline: false
 	},
 	'Lobster': {
 		points: [[0,-1], [0,-2], [-1,-3], [-1,-4], [1,3], [1,4]],
 		name: 'Lobster',
 		power: 'Default',
-		showOutline: true
+		showOutline: false
 	}
 };
 

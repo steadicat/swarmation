@@ -1,7 +1,6 @@
 var PLAYER;
 var PLAYERS = {};
 var MAP = [];
-var PREVIOUS_FORMATION;
 var FORMATION_COMPLETED;
 var FORMATION;
 var Player;
@@ -106,11 +105,10 @@ function log(m) {
         },
 
         formationMade: function(name) {
-            if (name == PREVIOUS_FORMATION.name) FORMATION_COMPLETED = true;
+            if (name == FORMATION.name) FORMATION_COMPLETED = true;
             if (!Formations[name].completed) {
                 //displayNotice('You completed the ' + name + ' formation!');
                 Formations[name].completed = true;
-                this.score++;
                 this.powers.push(Formations[name].power);
                 while (Formations[this.goals[this.currentGoal]].completed) {
                     this.currentGoal++;
@@ -188,17 +186,19 @@ function log(m) {
     });
 
     $('#play').bind('nextFormation', function(event, data) {
-        PREVIOUS_FORMATION = FORMATION;
         FORMATION = Formations[data.formation];
         displayNotice('You have 10 seconds to form the '+data.formation+' formation!')
         setTimeout(function() {
-            if (PREVIOUS_FORMATION) {
-                PLAYER.checkFormation(PREVIOUS_FORMATION);
+            if (FORMATION) {
+                PLAYER.checkFormation(FORMATION);
                 setTimeout(function() {
                     if (FORMATION_COMPLETED) {
-                        displayNotice('You are safe.');
+                        PLAYER.score += FORMATION.points.length;
+                        displayNotice('You made it! Your score is ' + PLAYER.score);
                     } else {
-                        displayNotice('You did not make the formation!');
+                        PLAYER.score -= 20-FORMATION.points.length;
+                        if (PLAYER.score < 0) PLAYER.score = 0;
+                        displayNotice('You did not make the formation! Your score is ' + PLAYER.score);
                     }
                     FORMATION_COMPLETED = false;
                 }, 1500);
