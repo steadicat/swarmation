@@ -2,7 +2,7 @@ var Formations = {
     'Easy': {
         points: [[1,0], [-1,0]],
         name: 'Easy',
-        power: 'Broadcast',
+        power: 'Default',
         showOutline: false
     },
     'Clover': {
@@ -44,7 +44,7 @@ var Formations = {
 	'Snake': {
 		points: [[-1,1], [0,2], [-1,3], [-2,4]],
 		name: 'Snake',
-		power: 'Default',
+		power: 'Skip',
 		showOutline: false
 	},
 	'Lobster': {
@@ -57,16 +57,17 @@ var Formations = {
 
 var Powers = {
 	'Broadcast': {
+		name: 'Broadcast',
 		duration: 30,
-		use: function(player) { console.log('Used broadcast power ' + player.name) }
+		use: function(player) {  }
 	},
 	'Skip': {
+		name: 'Skip',
 		duration: 1,
-		use: function(player) {
-			player.Formations[player.goals[++player.currentGoal]];
-		}
+		use: function(player) { }
 	},
 	'Default': {
+		name: 'Useless'
 		duration: 1,
 		use: function(player) {
 			// Default power does nothing
