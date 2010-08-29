@@ -101,6 +101,8 @@ var sendAction;
                 }
             }
             this.formation = Formations[this.goals[this.currentGoal]];
+            // brag about your achievement
+            this.sendInfo();
         },
 
         usePower: function() {
