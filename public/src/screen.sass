@@ -24,25 +24,21 @@ body
   #header, #footer
     +column(25)
   #info
-    +column(5, true)
     :font-family Inconsolata
-    text-align: center
+    :text-align center
     :color #eee
+    :margin-bottom 15px
+    :background #444 url(../images/bg-notice.png)
+    :border 2px solid #666
+    +border-radius(4px)
+    :padding 10px 12px
     #countdown
-      font-size: 60px
+      :font-size 60px
     #formation
-      font-size: 20px
-      padding-top: 80px
+      :font-size 20px
+      :padding-top 80px
     #score
-      font-size: 30px
-    #username
-      :width 165px
-      :border-width 0px
-      :padding 2px 5px     
-      :font-size 13px
-    .username-box
-      :padding-top 5px
-      :padding-bottom 5px
+      :font-size 30px
   #sidebar    
     +column(5, true)
     :height 620px
@@ -62,6 +58,14 @@ body
     .placeholder
       :color #888
       :background-color #eee
+    #username
+      :width 165px
+      :border-width 0px
+      :padding 2px 5px     
+      :font-size 13px
+    .username-box
+      :padding-top 5px
+      :padding-bottom 5px
   #content
     +column(25)
     #board, #play
