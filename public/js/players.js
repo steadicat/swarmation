@@ -7,14 +7,15 @@ var PLAYERS = {};
         this.left = left;
         this.top = top;
         this.isSelf = isSelf;
-        this.formation = 'easy';
+        this._formIndex = 0;
+        this.formation = Formations[this._formIndex];
     }
 
     Player.getLeft = function(x) { return Math.floor(x/10); }
     Player.getTop = function(y) { return Math.floor(y/10); }
     Player.prototype = {
-        getX: function() { return this.left*10+1; },
-        getY: function() { return this.top*10+1; },
+        getX: function() { return this.left * 10 + 1; },
+        getY: function() { return this.top * 10 + 1; },
 
         move: function(direction) {
             var p = this;
@@ -34,9 +35,9 @@ var PLAYERS = {};
         checkFormation: function() {
             var otherIds = [];
             var filled = true;
-            for (var i = 0; i < Formations[this.formation]['points'].length; i++) {
-                var dx = Formations[this.formation]['points'][i][0];
-                var dy = Formations[this.formation]['points'][i][1];
+            for (var i = 0; i < this.formation['points'].length; i++) {
+                var dx = this.formation['points'][i][0];
+                var dy = this.formation['points'][i][1];
                 if (filled) {
                     filled = false;
                     for (var id in PLAYERS) {
@@ -52,8 +53,9 @@ var PLAYERS = {};
                 }
             }
             if (filled) {
-                displayNotice('You completed the ' + this.formation + ' formation!');
-                sendAction('formationMade', { formation: this.formation, ids: otherIds });
+                displayNotice('You completed the ' + this.formation['name'] + ' formation!');
+                sendAction('formationMade', { formation: this.formation['name'], ids: otherIds });
+                this.formation = Formations[++this._formIndex];
                 console.log('completed with ' + otherIds);
             }
         },
