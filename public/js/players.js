@@ -195,7 +195,7 @@ function log(m) {
         $('#formation')
             .css('background', 'url(/images/formations/'+data.formation.toLowerCase()+'.png) no-repeat center top')
             .text(data.formation).end();
-        var timeleft = 10;
+        var timeleft = data.time;
         $('#countdown').text(timeleft);
         var interval = setInterval(function() {
             timeleft--;
@@ -223,7 +223,7 @@ function log(m) {
                     FORMATION_COMPLETED = false;
                 }, MARGIN);
             }
-        }, INTERVAL);
+        }, data.time*1000);
     });
 
     // sockets

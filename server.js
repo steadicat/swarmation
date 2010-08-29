@@ -81,7 +81,7 @@ socket.on('connection', function(client) {
 var formations = require('./public/js/forms.js').Formations;
 var FORMATIONS = [];
 var MAX_SIZE = 20;
-var DELAY = 12000;
+var MARGIN = 2000;
 
 for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = [];
 
@@ -97,15 +97,20 @@ function pickFormation() {
     if (available.length == 0) return;
     return available[Math.floor(Math.random()*available.length)];
 }
+
+var time = 0;
 setInterval(function() {
+    time -= 1;
+    if (time >= 0) return;
     var formation = pickFormation();
     if (!formation) return;
     console.log('Next formation is ' + formation.name);
+    time = 3*(formation.points.length+1);
     socket.clients.forEach(function(client) {
         if (!client) return;
-        client.send({ type: 'nextFormation', formation: formation.name });
+        client.send({ type: 'nextFormation', formation: formation.name, time: time });
     });
-}, DELAY);
+}, 1000);
 
 // Only listen on $ node app.js
 
