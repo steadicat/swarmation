@@ -22,6 +22,7 @@ function log(m) {
         this.name = 'unknown';
         this.score = 0;
         this.powers = [];
+		this.inFormation = 0;
     };
 
     Player.atPixel = function(x, y) {
@@ -98,10 +99,14 @@ function log(m) {
             if (filled) {
                 this.formationMade(formation.name);
                 sendAction('formationMade', { formation: formation.name, ids: otherIds });
+				for (var j = 0; j < otherIds.length; j++) {
+					PLAYERS[otherIds[j]].inFormation = 100;
+				}
             }
         },
 
         formationMade: function(name) {
+			this.inFormation = 10;
             if (!Formations[name].completed) {
                 displayNotice('You completed the ' + name + ' formation!');
                 Formations[name].completed = true;

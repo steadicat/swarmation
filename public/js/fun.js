@@ -8,7 +8,7 @@ void draw() {
     background(0xffeeeeee);
     drawGrid();
     if (PLAYER && PLAYER.formation['showOutline']) {
-		noStroke();
+        noStroke();
         fill(0xffD4E9FF);
         for (var i = 0; i < PLAYER.formation['points'].length; i++) {
             var x = (PLAYER.left + PLAYER.formation['points'][i][0]) * 10 + 1;
@@ -22,13 +22,22 @@ void draw() {
     if (PLAYER) {
         drawPlayer(PLAYER);
     }
+    drawTargetForm();
 }
 
 void drawPlayer(player) {
-    if (player.isSelf) {
-        drawPixel(player.getX(), player.getY(), 0xff007FFF, 0xff89CFF0);
+    if (player.inFormation == 0) {
+        if (player.isSelf) {
+            drawPixel(player.getX(), player.getY(), 0xff007FFF, 0xff89CFF0);
+        } else {
+            drawPixel(player.getX(), player.getY(), 0xff666666, 0xffcccccc);
+        }
     } else {
-        drawPixel(player.getX(), player.getY(), 0xff666666, 0xffcccccc);
+        fill(0xffffff33);
+        strokeWeight(2);
+        stroke(0xffffcc00);
+        rect(player.getX(), player.getY(), 9, 9);
+        player.inFormation--;
     }
 }
 
@@ -48,6 +57,13 @@ void drawGrid() {
     for (var y = 0.5; y <= height; y += 10) {
         line(0, y, width, y);
     }
+}
+
+void drawTargetForm() {
+    fill(0xffeeeeee);
+    noStroke();
+    rect(width - 100, 0, 100, 100);
+    stroke(0xffdddddd);
 }
 
 void keyPressed() {
