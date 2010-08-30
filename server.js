@@ -1,13 +1,10 @@
 
-/**
- * Module dependencies.
- */
+// Module dependencies.
 
 var express = require('express'),
 connect = require('connect'),
 sys = require('sys'),
 io = require('./contrib/Socket.IO-node');
-
 
 var app = module.exports = express.createServer();
 
@@ -39,42 +36,36 @@ app.get('/', function(req, res) {
     }
 });
 
+// Error Handling
+
+process.addListener('uncaughtException', function(e) {
+    console.log(e.stack);
+});
+
 // IO
-var socket = new io.listen(app, { resource: 'socket' });
-
-var clients = [];
-
 
 var PLAYERS = 0;
+var socket = new io.listen(app, { resource: 'socket.io' });
 
-function contains(l, x) {
-    for (var i in l) {
-        if (l[i] == x) return true;
-    }
-    return false;
-};
-
-socket.on('connection', function(client) {
+function onConnect(client) {
     PLAYERS++;
-    client.on('message', function(m) {
-        m.id = client.sessionId;
-        sys.puts(m.id + ' says ' + m.type);
-        socket.clients.forEach(function(client) {
-            if (!client) return;
-            if (client.sessionId == m.id) return;
-            if (m.ids && (contains(m.ids, client.sessionId))) m.you = true;
-            client.send(m);
-        });
+    client.send({ type: 'welcome', id: client.sessionId });
+    socket.broadcast({ type: 'connected', id: client.sessionId}, [client.sessionId]);
+
+    client.on('message', function(message) {
+        message.id = client.sessionId;
+        //sys.log(JSON.stringify(message));
+        socket.broadcast(message, [client.sessionId]);
     });
+
     client.on('disconnect', function() {
         PLAYERS--;
-        socket.clients.forEach(function(c) {
-            if (!c) return;
-            if (c.sessionId == client.sessionId) return;
-            c.send({ type: 'playerGone', id: client.sessionId});
-        });
+        socket.broadcast({ type: 'disconnected', id: client.sessionId});
     });
-});
+}
+
+
+socket.on('connection', onConnect);
 
 // Formation countdown
 
@@ -106,7 +97,7 @@ setInterval(function() {
     if (!formation) return;
     time = 10;
     setTimeout(function() {
-        console.log('Next formation is ' + formation.name);
+        sys.log('Next formation is ' + formation.name);
         time = 2*(formation.points.length+1);
         socket.clients.forEach(function(client) {
             if (!client) return;
@@ -115,8 +106,7 @@ setInterval(function() {
     }, MARGIN);
 }, 1000);
 
-// Only listen on $ node app.js
-
-var port = parseInt(process.env.PORT) || parseInt(process.argv[2], 10) || 8000;
+// Only listen on $ node server.js
+var port = parseInt(process.env.PORT) || 81;
 if (!module.parent) app.listen(port);
-console.log('Server now listening on port '+port+'...');
+sys.log('Server now listening on port '+port+'...');

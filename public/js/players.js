@@ -1,3 +1,5 @@
+var WIDTH = 96;
+var HEIGHT = 60;
 var PLAYER;
 var PLAYERS = {};
 var MAP = [];
@@ -9,25 +11,27 @@ var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zom
 
 var MARGIN = 1500;
 
-function log(m) {
-    try { console.log(m); } catch (e) {}
-}
-
 (function($, undefined) {
-    var WIDTH = 96;
-    var HEIGHT = 60;
 
     Player = function Player(id, left, top, isSelf) {
         this.id = id;
+
+        if (!left) {
+            left = Math.floor(Math.random() * WIDTH);
+            top = Math.floor(Math.random() * HEIGHT);
+            while (Player.atPosition(left, top)) {
+                left = Math.floor(Math.random() * WIDTH);
+                top = Math.floor(Math.random() * HEIGHT);
+            }
+        }
         this.setPosition(left, top);
         this.isSelf = isSelf;
-        this.currentGoal = 0;
-        this.goals = ['Easy', 'Apple Key', 'Tetris', 'Delta', 'The Tank', 'Block', 'Fortress', 'Snake', 'Lobster', 'Hat', 'Home', 'Table', 'Patchwork', 'Spiral', 'Volcano'];
-        this.formation = Formations[this.goals[this.currentGoal]];
         this.name = NAMES[Math.floor(Math.random()*NAMES.length)];
         this.score = 0;
-        this.powers = [];
-		this.inFormation = 0;
+        this.inFormation = 0;
+        if (isSelf) {
+            this.sendInfo();
+        }
     };
 
     Player.atPixel = function(x, y) {
@@ -66,8 +70,8 @@ function log(m) {
             this.top = top;
             if (!MAP[left]) MAP[left] = [];
             MAP[left][top] = this;
-            //if (PLAYER) PLAYER.checkFormations();
         },
+
         move: function(direction) {
             var newp = Player.directions[direction](this.left, this.top);
             this.setPosition(newp[0], newp[1]);
@@ -76,78 +80,49 @@ function log(m) {
             }
         },
 
-        checkFormations: function() {
-            var p = this;
-            if (p.timeout) return;
-            p.timeout = setTimeout(function() {
-                p.timeout = null;
-                for (var id in Formations) {
-                    p.checkFormation(Formations[id]);
-                };
-            }, 1000);
-        },
-
         checkFormation: function(formation) {
+            if (!this.id) return;
             var otherIds = [];
-            var filled = true;
-            for (var i = 0; i < formation.points.length; i++) {
+            for (var i in formation.points) {
                 var dx = formation.points[i][0];
                 var dy = formation.points[i][1];
                 var other = Player.atPosition(this.left+dx, this.top+dy);
-                if (other) {
-                    otherIds.push(other.id);
-                } else {
-                    filled = false;
-                    break;
-                }
+                if (!other) return;
+                otherIds.push(other.id);
             }
-            if (filled) {
-                this.formationMade(formation.name);
-                sendAction('formationMade', { formation: formation.name, ids: otherIds });
-				for (var j = 0; j < otherIds.length; j++) {
-					PLAYERS[otherIds[j]].inFormation = 10;
-				}
+            this.formationMade(formation.name);
+            sendAction('formationMade', { formation: formation.name, ids: otherIds });
+            for (var i in otherIds) {
+                PLAYERS[otherIds[i]].inFormation = 10;
             }
-            return filled;
         },
 
         formationMade: function(name) {
-			this.inFormation = 10;
+            if (!FORMATION) return;
+            this.inFormation = 10;
             if (name == FORMATION.name) FORMATION_COMPLETED = true;
-            if (!Formations[name].completed) {
-                //displayNotice('You completed the ' + name + ' formation!');
-                Formations[name].completed = true;
-                this.powers.push(Formations[name].power);
-                // brag about your achievement
-                this.sendInfo();
-            }
         },
 
-        usePower: function() {
-            var power;
-            if (this.powers.length) {
-                power = this.powers.pop();
-                //power.use(this);
-                displayNotice('You used the ' + power.name + ' power')
+        sendInfo: function(full) {
+            if (full) {
+                sendAction('info', {
+                    left: this.left,
+                    top: this.top,
+                    name: this.name,
+                    score: this.score
+                });
             } else {
-                displayNotice('No powers available');
+                sendAction('info', {
+                    left: this.left,
+                    top: this.top
+                });
             }
-        },
-
-        sendInfo: function(isNew) {
-            sendAction('playerInfo', {
-                left: this.left,
-                top: this.top,
-                name: this.name,
-                score: this.score,
-                isNew: isNew
-            });
         },
 
         getInfo: function(info) {
             this.setPosition(info.left, info.top);
-            this.name = info.name;
-            this.score = info.score;
+            if (info.name) this.name = info.name;
+            if (info.score) this.score = info.score;
         },
 
         showTooltip: function() {
@@ -164,17 +139,24 @@ function log(m) {
         }
     };
 
-    $('#play').bind('playerInfo', function(event, data) {
+    $('#play').bind('welcome', function(event, data) {
+        setTimeout(function() {
+            PLAYER = new Player(data.id, null, null, true);
+        }, 2000);
+    });
+
+    $('#play').bind('info', function(event, data) {
         if (!PLAYERS[data.id]) {
             PLAYERS[data.id] = new Player(data.id, data.left, data.top);
         }
         PLAYERS[data.id].getInfo(data);
-        if (data.isNew) {
-            PLAYER.sendInfo();
-        }
     });
 
-    $('#play').bind('playerGone', function(event, data) {
+    $('#play').bind('connected', function(event, data) {
+        PLAYER.sendInfo(true);
+    });
+
+    $('#play').bind('disconnected', function(event, data) {
         var p = PLAYERS[data.id];
         if (!p) return;
         delete MAP[p.left][p.top];
@@ -182,11 +164,12 @@ function log(m) {
     });
 
     $('#play').bind('formationMade', function(event, data) {
-        if (data.you) PLAYER.formationMade(data.formation);
+        if (!PLAYER.id) return;
+        if ($.inArray(PLAYER.id, data.ids) >= 0) PLAYER.formationMade(data.formation);
         PLAYERS[data.id].inFormation = 10;
-		for (var j = 0; j < data.ids.length; j++) {
-			if (PLAYERS[data.ids[j]]) PLAYERS[data.ids[j]].inFormation = 10;
-		}
+        for (var j = 0; j < data.ids.length; j++) {
+            if (PLAYERS[data.ids[j]]) PLAYERS[data.ids[j]].inFormation = 10;
+        }
     });
 
     $('#play').bind('nextFormation', function(event, data) {
@@ -207,18 +190,23 @@ function log(m) {
                 PLAYER.checkFormation(FORMATION);
                 setTimeout(function() {
                     var delta;
+                    var score = PLAYER.score;
                     if (FORMATION_COMPLETED) {
                         delta = FORMATION.points.length+1;
                         PLAYER.score += delta;
                         displayNotice('You completed '+FORMATION.name+'. You gain '+delta+' points!');
                     } else {
-                        delta = 10-(FORMATION.points.length+1);
+                        delta = 15-(FORMATION.points.length+1);
                         PLAYER.score -= delta;
-                        if (PLAYER.score < 0) PLAYER.score = 0;
+                        if (PLAYER.score < 0) {
+                            PLAYER.score = 0;
+                        }
                         displayNotice('You did not make '+FORMATION.name+'! Lose '+delta+' points.');
                     }
-                    $('#score .score').text(PLAYER.score);
-                    PLAYER.sendInfo();
+                    if (PLAYER.score != score) {
+                        PLAYER.sendInfo(true);
+                        $('#score .score').text(PLAYER.score);
+                    }
                     FORMATION_COMPLETED = false;
                 }, MARGIN);
             }
@@ -239,12 +227,5 @@ function log(m) {
         data.type = type;
         socket.send(data);
     };
-
-    // init
-
-    var initLeft = Math.floor(Math.random() * WIDTH);
-    var initTop = Math.floor(Math.random() * HEIGHT);
-    PLAYER = new Player('self', initLeft, initTop, true);
-    PLAYER.sendInfo(true);
 
 })(jQuery);
