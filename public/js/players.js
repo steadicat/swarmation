@@ -227,10 +227,11 @@ function log(m) {
 
     // sockets
 
-    io.setPath('/socket/');
-    var socket = new io.Socket('', { transports: ['websocket', 'xhr-multipart', 'xhr-polling', 'htmlfile']});
+    io.setPath('/io/');
+    var socket = new io.Socket('', { transports: ['websocket', 'server-events', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling']});
     socket.connect();
     socket.on('message', function(data) {
+        //console.log([data.id, data.type, data.left, data.top, data.score, data.formation, data]);
         $('#play').trigger(data.type, data);
     });
 
