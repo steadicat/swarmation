@@ -262,7 +262,7 @@ var MARGIN = 1500;
     var socket;
 
     function connect() {
-        socket = new io.Socket('', { transports: ['websocket', 'server-events', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling']});
+        socket = new io.Socket('');
         socket.connect();
 
         socket.on('message', function(data) {
