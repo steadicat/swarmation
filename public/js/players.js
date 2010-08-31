@@ -34,6 +34,8 @@ var MARGIN = 1500;
         this.isSelf = isSelf;
         this.name = NAMES[Math.floor(Math.random()*NAMES.length)];
         this.score = 0;
+        this.succeeded = 0;
+        this.total = 0;
         this.inFormation = 0;
         this.completed = 0;
         if (isSelf) {
@@ -116,21 +118,30 @@ var MARGIN = 1500;
 
         formationDeadline: function() {
             var points = FORMATION.points[0].length+1;
+            this.total++;
             if (this.completed >= QUORUM) {
                 this.inFormation = 15;
                 this.score += points;
+                this.succeeded++;
                 if (this.isSelf) {
                     displayNotice('You completed '+FORMATION.name+'. You gain '+points+' points!');
                     $('#score .score').text(this.score);
+                    $('#success .success').text(this.successRate());
                 }
             } else {
                 this.score = Math.max(0, this.score-(20-points));
                 if (this.isSelf) {
                     displayNotice('You did not make '+FORMATION.name+'! Lose '+(15-points)+' points.');
                     $('#score .score').text(this.score);
+                    $('#success .success').text(this.successRate());
                 }
             }
             this.completed = 0;
+        },
+
+        successRate: function() {
+            if (this.total == 0) return 100;
+            return Math.round(1000.0*this.succeeded/this.total)/10;
         },
 
         sendInfo: function(full) {
@@ -139,7 +150,9 @@ var MARGIN = 1500;
                     left: this.left,
                     top: this.top,
                     name: this.name,
-                    score: this.score
+                    score: this.score,
+                    total: this.total,
+                    succeeded: this.succeeded
                 });
             } else {
                 sendAction('info', {
@@ -153,6 +166,8 @@ var MARGIN = 1500;
             this.setPosition(info.left, info.top);
             if (info.name) this.name = info.name;
             if (info.score) this.score = info.score;
+            if (info.total) this.total = info.total;
+            if (info.succeeded) this.succeeded = info.succeeded;
         },
 
         showTooltip: function() {
@@ -161,7 +176,8 @@ var MARGIN = 1500;
                 .css('left', this.getX()+$('#play').offset().left-6)
                 .css('top', this.getY()+$('#play').offset().top+25)
                 .find('.name').text(this.name).end()
-                .find('.score').text(this.score);
+                .find('.score').text(this.score).end()
+                .find('.success').text(this.successRate());
         },
 
         hideTooltip: function() {
