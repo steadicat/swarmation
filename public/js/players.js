@@ -36,7 +36,7 @@ var MARGIN = 1500;
         this.inFormation = 0;
         this.completed = 0;
         if (isSelf) {
-            this.sendInfo();
+            this.sendInfo(true);
         }
     };
 
