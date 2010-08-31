@@ -69,7 +69,10 @@ socket.on('connection', onConnect);
 
 // Formation countdown
 
-var formations = require('./public/js/forms.js').Formations;
+var formations = require('./public/js/formations.js').Formations;
+var compileFormation = require('./public/js/forms.js').compileFormations;
+formations = compileFormations(formations);
+
 var FORMATIONS = [];
 var MAX_SIZE = 20;
 var MARGIN = 3000;
@@ -77,9 +80,8 @@ var MARGIN = 3000;
 for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = [];
 
 formations.forEach(function(i, id) {
-    var formation = formations[id];
-    for (var i=formation.points.length+1; i<=MAX_SIZE; i++) {
-        FORMATIONS[i].push(formation);
+    for (var i=formations[id].points[0].length; i<=MAX_SIZE; i++) {
+        FORMATIONS[i].push(formations[id]);
     }
 });
 
@@ -107,6 +109,6 @@ setInterval(function() {
 }, 1000);
 
 // Only listen on $ node server.js
-var port = parseInt(process.env.PORT) || 81;
+var port = parseInt(process.env.PORT, 10) || parseInt(process.argv[2], 10) || 81;
 if (!module.parent) app.listen(port);
 sys.log('Server now listening on port '+port+'...');

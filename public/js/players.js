@@ -3,15 +3,18 @@ var HEIGHT = 60;
 var PLAYER;
 var PLAYERS = {};
 var MAP = [];
-var FORMATION_COMPLETED;
 var FORMATION;
 var Player;
 var sendAction;
 var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry'];
 
+var QUORUM = 2;
 var MARGIN = 1500;
 
+
 (function($, undefined) {
+
+    Formations = compileFormations(Formations);
 
     Player = function Player(id, left, top, isSelf) {
         this.id = id;
@@ -19,9 +22,12 @@ var MARGIN = 1500;
         if (!left) {
             left = Math.floor(Math.random() * WIDTH);
             top = Math.floor(Math.random() * HEIGHT);
+            left = 10;
+            top = 10;
             while (Player.atPosition(left, top)) {
-                left = Math.floor(Math.random() * WIDTH);
-                top = Math.floor(Math.random() * HEIGHT);
+                //left = Math.floor(Math.random() * WIDTH);
+                //top = Math.floor(Math.random() * HEIGHT);
+                left++;
             }
         }
         this.setPosition(left, top);
@@ -29,6 +35,7 @@ var MARGIN = 1500;
         this.name = NAMES[Math.floor(Math.random()*NAMES.length)];
         this.score = 0;
         this.inFormation = 0;
+        this.completed = 0;
         if (isSelf) {
             this.sendInfo();
         }
@@ -80,27 +87,50 @@ var MARGIN = 1500;
             }
         },
 
-        checkFormation: function(formation) {
-            if (!this.id) return;
-            var otherIds = [];
-            for (var i in formation.points) {
-                var dx = formation.points[i][0];
-                var dy = formation.points[i][1];
+        checkFormationPoints: function(points) {
+            var others = [];
+            for (var i in points) {
+                var dx = points[i][0];
+                var dy = points[i][1];
                 var other = Player.atPosition(this.left+dx, this.top+dy);
                 if (!other) return;
-                otherIds.push(other.id);
+                others.push(other.id);
             }
-            this.formationMade(formation.name);
-            sendAction('formationMade', { formation: formation.name, ids: otherIds });
-            for (var i in otherIds) {
-                PLAYERS[otherIds[i]].inFormation = 10;
+            return others;
+        },
+
+        checkFormation: function(formation) {
+            if (!this.id) return;
+            for (var i in formation.points) {
+                var others = this.checkFormationPoints(formation.points[i]);
+                if (!others) continue;
+                this.formationReported(formation.name);
+                for (var id in others) if (PLAYERS[others[id]]) PLAYERS[others[id]].formationReported(formation.name);
+                sendAction('formation', { formation: formation.name, ids: others });
             }
         },
 
-        formationMade: function(name) {
-            if (!FORMATION) return;
-            this.inFormation = 10;
-            if (name == FORMATION.name) FORMATION_COMPLETED = true;
+        formationReported: function(name) {
+            this.completed++;
+        },
+
+        formationDeadline: function() {
+            var points = FORMATION.points[0].length+1;
+            if (this.completed >= QUORUM) {
+                this.inFormation = 15;
+                this.score += points;
+                if (this.isSelf) {
+                    displayNotice('You completed '+FORMATION.name+'. You gain '+points+' points!');
+                    $('#score .score').text(this.score);
+                }
+            } else {
+                this.score = Math.max(0, this.score-(20-points));
+                if (this.isSelf) {
+                    displayNotice('You did not make '+FORMATION.name+'! Lose '+(15-points)+' points.');
+                    $('#score .score').text(this.score);
+                }
+            }
+            this.completed = 0;
         },
 
         sendInfo: function(full) {
@@ -153,7 +183,7 @@ var MARGIN = 1500;
     });
 
     $('#play').bind('connected', function(event, data) {
-        PLAYER.sendInfo(true);
+        if (PLAYER) PLAYER.sendInfo(true);
     });
 
     $('#play').bind('disconnected', function(event, data) {
@@ -163,12 +193,12 @@ var MARGIN = 1500;
         delete PLAYERS[data.id];
     });
 
-    $('#play').bind('formationMade', function(event, data) {
+    $('#play').bind('formation', function(event, data) {
         if (!PLAYER.id) return;
-        if ($.inArray(PLAYER.id, data.ids) >= 0) PLAYER.formationMade(data.formation);
-        PLAYERS[data.id].inFormation = 10;
+        if ($.inArray(PLAYER.id, data.ids) >= 0) PLAYER.formationReported(data.formation);
+        PLAYERS[data.id].formationReported(data.formation);
         for (var j = 0; j < data.ids.length; j++) {
-            if (PLAYERS[data.ids[j]]) PLAYERS[data.ids[j]].inFormation = 10;
+            if (PLAYERS[data.ids[j]]) PLAYERS[data.ids[j]].formationReported(data.formation);
         }
     });
 
@@ -177,37 +207,24 @@ var MARGIN = 1500;
         $('#formation')
             .css('background', 'url(/images/formations/'+data.formation.toLowerCase()+'.png) no-repeat center top')
             .text(data.formation).end();
+
         var timeleft = data.time;
         $('#countdown').text(timeleft);
+
         var interval = setInterval(function() {
             timeleft--;
             $('#countdown').text(timeleft);
         }, 1000);
+
         setTimeout(function() {
             clearInterval(interval);
+
             $('#countdown').text('0');
             if (FORMATION) {
                 PLAYER.checkFormation(FORMATION);
                 setTimeout(function() {
-                    var delta;
-                    var score = PLAYER.score;
-                    if (FORMATION_COMPLETED) {
-                        delta = FORMATION.points.length+1;
-                        PLAYER.score += delta;
-                        displayNotice('You completed '+FORMATION.name+'. You gain '+delta+' points!');
-                    } else {
-                        delta = 15-(FORMATION.points.length+1);
-                        PLAYER.score -= delta;
-                        if (PLAYER.score < 0) {
-                            PLAYER.score = 0;
-                        }
-                        displayNotice('You did not make '+FORMATION.name+'! Lose '+delta+' points.');
-                    }
-                    if (PLAYER.score != score) {
-                        PLAYER.sendInfo(true);
-                        $('#score .score').text(PLAYER.score);
-                    }
-                    FORMATION_COMPLETED = false;
+                    PLAYER.formationDeadline();
+                    for (var id in PLAYERS) PLAYERS[id].formationDeadline();
                 }, MARGIN);
             }
         }, data.time*1000);

@@ -1,64 +1,37 @@
-var Formations = {
-    'Easy': {
-        points: [[1,0], [-1,0]],
-        name: 'Easy'
-    },
-    'Clover': {
-        points: [[-1,-1], [1,-1], [-1,1], [1,1]],
-        name: 'Clover'
-    },
-    'Tetris': {
-        points: [[0,1], [0,2], [0,3], [0,4]],
-        name: 'Tetris'
-    },
-    'Delta': {
-        points: [[-2,2], [-1,1], [1,1], [2,2]],
-        name: 'Delta'
-    },
-    'Tank': {
-        points: [[-1,-1], [-1,-2], [0,-3], [1,-2], [1,-1]],
-        name: 'Tank'
-    },
-    'Block': {
-        points: [[-1,-1], [0,-1], [1,-1], [-1,0], [1,0], [-1,1], [0,1], [1,1]],
-        name: 'Block'
-    },
-    'Fortress': {
-        points: [[-2,-2], [-1,-2], [0,-2], [1,-2], [2,-2], [-2, -1], [2,-1], [-2,0], [2,0], [-2,1], [2,1], [-2,2], [-1,2], [0,2], [1,2], [2,2]],
-        name: 'Fortress'
-    },
-    'Snake': {
-        points: [[-1,1], [0,2], [-1,3], [-2,4]],
-        name: 'Snake'
-    },
-    'Lobster': {
-        points: [[0,-1], [0,-2], [-1,-3], [-1,-4], [1,-3], [1,-4]],
-        name: 'Lobster'
-    },
-    'Hat': {
-        points: [[1,0], [2,0], [3,0], [4,0], [1,-1], [3,-1], [1,-2], [2,-2], [3,-2]],
-        name: 'Hat'
-    },
-    'Home': {
-        points: [[-1,-1], [0,-1], [1,-1], [-1,0], [1,0], [-1,1], [0,1], [1,1], [2,0], [-2,0], [0,2], [0,-2], [-1,2], [1,2]],
-        name: 'Home'
-    },
-    'Table': {
-        points: [[1,0], [2,0], [3,0], [4,0], [1,1], [3,1]],
-        name: 'Table'
-    },
-    'Patchwork': {
-        points: [[1,-1],[3,-1],[2,0],[4,0],[1,1],[3,1],[0,2],[2,2],[4,2],[1,3],[3,3]],
-        name: 'Patchwork'
-    },
-    'Volcano': {
-        points: [[1,0],[2,0],[3,0],[4,0],[1,-1],[2,-1],[3,-1],[2,-2]],
-        name: 'Volcano'
-    },
-    'Spiral': {
-        points: [[0,-1], [-1,-1], [-2,0], [-2, 1], [-1,-2], [0,-2], [1,-2], [2,1], [2,0]],
-        name: 'Spiral'
-    }
-};
+this.compileFormations = {};
 
-this.Formations = Formations;
+(function($, undefined) {
+    // compile formations
+
+    function getPoints(diagram, y, x) {
+        var points = [];
+        for (var i in diagram) {
+            for (var j in diagram[i]) {
+                if ((diagram[i][j] == 'o') || (diagram[i][j] == 'x')) {
+                    if ((x!=j) || (y!=i)) points.push([x-j, i-y]);
+                }
+            }
+        }
+        return points;
+    }
+
+    compileFormations = function(definitions) {
+        var formations = {};
+        for (name in definitions) {
+            var diagram = definitions[name].split('\n');
+            var formation = {};
+            formation.name = name;
+            formation.points = [];
+            for (var i in diagram) {
+                for (var j in diagram[i]) {
+                    if (diagram[i][j] == 'o') {
+                        formation.points.push(getPoints(diagram, i, j));
+                    }
+                }
+            }
+            formations[name] = formation;
+        }
+        return formations;
+    }
+
+})();
