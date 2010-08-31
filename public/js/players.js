@@ -22,12 +22,9 @@ var MARGIN = 1500;
         if (!left) {
             left = Math.floor(Math.random() * WIDTH);
             top = Math.floor(Math.random() * HEIGHT);
-            left = 10;
-            top = 10;
             while (Player.atPosition(left, top)) {
-                //left = Math.floor(Math.random() * WIDTH);
-                //top = Math.floor(Math.random() * HEIGHT);
-                left++;
+                left = Math.floor(Math.random() * WIDTH);
+                top = Math.floor(Math.random() * HEIGHT);
             }
         }
         this.setPosition(left, top);
