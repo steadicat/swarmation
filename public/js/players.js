@@ -149,7 +149,9 @@ var MARGIN = 1500;
                     name: this.name,
                     score: this.score,
                     total: this.total,
-                    succeeded: this.succeeded
+                    succeeded: this.succeeded,
+                    _id: $.cookie('player'),
+                    _rev: this.rev
                 });
             } else {
                 sendAction('info', {
@@ -160,7 +162,7 @@ var MARGIN = 1500;
         },
 
         getInfo: function(info) {
-            this.setPosition(info.left, info.top);
+            if (info.left) this.setPosition(info.left, info.top);
             if (info.name) this.name = info.name;
             if (info.score) this.score = info.score;
             if (info.total) this.total = info.total;
@@ -189,10 +191,21 @@ var MARGIN = 1500;
     });
 
     $('#play').bind('info', function(event, data) {
-        if (!PLAYERS[data.id]) {
-            PLAYERS[data.id] = new Player(data.id, data.left, data.top);
+        if (PLAYER && (data.id == PLAYER.id)) {
+            PLAYER.getInfo(data);
+            PLAYER.rev = data._rev;
+            PLAYER.sendInfo(true);
+        } else {
+            if (!PLAYERS[data.id]) {
+                PLAYERS[data.id] = new Player(data.id, data.left, data.top);
+            }
+            PLAYERS[data.id].getInfo(data);
         }
-        PLAYERS[data.id].getInfo(data);
+    });
+
+    $('#play').bind('save', function(event, data) {
+        $.cookie('player', data.player, { expires: 3650 });
+        PLAYER.rev = data.rev;
     });
 
     $('#play').bind('connected', function(event, data) {

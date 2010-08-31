@@ -4,7 +4,8 @@
 var express = require('express'),
 connect = require('connect'),
 sys = require('sys'),
-io = require('./contrib/Socket.IO-node');
+io = require('./contrib/Socket.IO-node'),
+http = require('http');
 
 var app = module.exports = express.createServer();
 
@@ -42,6 +43,35 @@ process.addListener('uncaughtException', function(e) {
     console.log(e.stack);
 });
 
+// Player persitence
+function makeRequest(method, path, message, callback) {
+    message = JSON.stringify(message);
+    var request = http.createClient(5984, 'swarmation.cloudant.com').request(method, '/players/' + path, { 'content-length': message ? message.length : null, authorization: 'Basic aWNoaW1tYXJldmlsaWNoaWNoYXRpb25kOlFTaXVhcENuT2huWGlTdlBTcG00RG9JcA==', host: 'swarmation.cloudant.com', 'content-type': 'application/json' });
+    if (message) request.write(message);
+    request.on('response', function(response) {
+        var body = [];
+        response.on('data', function(chunk) {
+            body.push(chunk);
+        });
+        response.on('end', function() {
+            callback(JSON.parse(body.join('')));
+        });
+    });
+    request.end();
+}
+function savePlayer(client, message) {
+    makeRequest('POST', '', message, function(doc) {
+        if (doc.ok != true) return;
+        client.send({ type: 'save', player: doc.id, rev: doc.rev });
+    });
+}
+function loadPlayer(client, message) {
+    makeRequest('GET', message._id, null, function(doc) {
+        doc.type = 'info';
+        doc.id = client.sessionId;
+        client.send(doc);
+    });
+}
 // IO
 
 var PLAYERS = 0;
@@ -56,6 +86,21 @@ function onConnect(client) {
         message.id = client.sessionId;
         //sys.log(JSON.stringify(message));
         socket.broadcast(message, [client.sessionId]);
+
+        // store players
+        if ((message.type == 'info') && (message.name)) {
+            delete message.type;
+            delete message.left;
+            delete message.top;
+            delete message.id;
+            if (!message._id) delete message._id;
+            if (message._id && (!message._rev)) {
+                loadPlayer(client, message);
+            } else {
+                savePlayer(client, message);
+            }
+        }
+
     });
 
     client.on('disconnect', function() {
@@ -80,7 +125,7 @@ var MARGIN = 3000;
 for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = [];
 
 formations.forEach(function(i, id) {
-    for (var i=formations[id].points[0].length; i<=MAX_SIZE; i++) {
+    for (var i=formations[id].points[0].length+1; i<=MAX_SIZE; i++) {
         FORMATIONS[i].push(formations[id]);
     }
 });
@@ -100,7 +145,7 @@ setInterval(function() {
     time = 10;
     setTimeout(function() {
         sys.log('Next formation is ' + formation.name);
-        time = 2*(formation.points.length+1);
+        time = 2*(formation.points[0].length+1);
         socket.clients.forEach(function(client) {
             if (!client) return;
             client.send({ type: 'nextFormation', formation: formation.name, time: time });
