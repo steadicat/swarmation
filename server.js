@@ -74,11 +74,23 @@ function loadPlayer(client, message) {
 }
 // IO
 
-var PLAYERS = 0;
+var ACTIVE_PLAYERS = 0;
+var PLAYERS = {};
+
+function setPlayerActive(id) {
+    if (!PLAYERS[id]) ACTIVE_PLAYERS++;
+    PLAYERS[id] = true;
+}
+
+function sweepPlayers() {
+    ACTIVE_PLAYERS = 0;
+    PLAYERS = {};
+}
+
 var socket = new io.listen(app, { resource: 'socket.io' });
 
 function onConnect(client) {
-    PLAYERS++;
+
     client.send({ type: 'welcome', id: client.sessionId });
     socket.broadcast({ type: 'connected', id: client.sessionId}, [client.sessionId]);
 
@@ -86,6 +98,11 @@ function onConnect(client) {
         message.id = client.sessionId;
         //sys.log(JSON.stringify(message));
         socket.broadcast(message, [client.sessionId]);
+
+        // mark players that are active
+        if ((message.type == 'info') && (!message.name)) {
+            setPlayerActive(client.sessionId);
+        }
 
         // store players
         if ((message.type == 'info') && (message.name)) {
@@ -104,7 +121,6 @@ function onConnect(client) {
     });
 
     client.on('disconnect', function() {
-        PLAYERS--;
         socket.broadcast({ type: 'disconnected', id: client.sessionId});
     });
 }
@@ -119,6 +135,7 @@ var compileFormation = require('./public/js/forms.js').compileFormations;
 formations = compileFormations(formations);
 
 var FORMATIONS = [];
+var MIN_SIZE = 3;
 var MAX_SIZE = 20;
 var MARGIN = 3000;
 
@@ -131,7 +148,7 @@ formations.forEach(function(i, id) {
 });
 
 function pickFormation() {
-    var available = FORMATIONS[Math.min(PLAYERS, MAX_SIZE)];
+    var available = FORMATIONS[Math.max(MIN_SIZE, Math.min(ACTIVE_PLAYERS, MAX_SIZE))];
     if (available.length == 0) return;
     return available[Math.floor(Math.random()*available.length)];
 }
@@ -140,16 +157,15 @@ var time = 0;
 setInterval(function() {
     time -= 1;
     if (time > 0) return;
+    sys.log('There are '+ACTIVE_PLAYERS+' active players.');
     var formation = pickFormation();
     if (!formation) return;
     time = 10;
     setTimeout(function() {
-        sys.log('Next formation is ' + formation.name);
         time = 2*(formation.points[0].length+1);
-        socket.clients.forEach(function(client) {
-            if (!client) return;
-            client.send({ type: 'nextFormation', formation: formation.name, time: time });
-        });
+        sys.log('Next formation is ' + formation.name +', of size '+(formation.points[0].length+1)+'.');
+        socket.broadcast({ type: 'nextFormation', formation: formation.name, time: time });
+        sweepPlayers();
     }, MARGIN);
 }, 1000);
 
