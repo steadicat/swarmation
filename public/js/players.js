@@ -261,38 +261,37 @@ var MARGIN = 1500;
 
     io.setPath('/io/');
     var socket;
+    socket = new io.Socket('');
+    socket.connect();
 
-    function connect() {
-        socket = new io.Socket('');
-        socket.connect();
+    socket.on('message', function(data) {
+        //console.log([data.id, data.type, data.left, data.top, data.score, data.formation, data]);
+        $('#play').trigger(data.type, data);
+    });
 
-        socket.on('message', function(data) {
-            //console.log([data.id, data.type, data.left, data.top, data.score, data.formation, data]);
-            $('#play').trigger(data.type, data);
-        });
-        socket.on('connect', function() {
-            if (PLAYER) PLAYER.sendInfo(true);
-            PLAYERS = {};
-            MAP = [];
-        });
+    socket.on('connect', function() {
+        if (PLAYER) PLAYER.sendInfo(true);
+        PLAYERS = {};
+        MAP = [];
+    });
 
-        socket.on('disconnect', function() {
-            connect();
-            var interval = setInterval(function() {
-                if (socket.connected) {
-                    clearInterval(interval);
-                } else {
-                    connect();
-                }
-            }, 1000);
-        });
-    };
+    socket.on('disconnect', function() {
+        var interval;
+        function connect() {
+            if (socket.connected) {
+                clearInterval(interval);
+            } else {
+                socket.connect();
+            }
+        }
+        connect();
+        interval = setInterval(connect, 5000);
+    });
 
     sendAction = function(type, data) {
         data.type = type;
         socket.send(data);
     };
 
-    connect();
 
 })(jQuery);
