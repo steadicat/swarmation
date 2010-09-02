@@ -142,7 +142,7 @@ var MARGIN = 3000;
 for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = [];
 
 formations.forEach(function(i, id) {
-    for (var i=formations[id].points[0].length+1; i<=MAX_SIZE; i++) {
+    for (var i=formations[id].size; i<=MAX_SIZE; i++) {
         FORMATIONS[i].push(formations[id]);
     }
 });
@@ -162,8 +162,8 @@ setInterval(function() {
     if (!formation) return;
     time = 10;
     setTimeout(function() {
-        time = 2*(formation.points[0].length+1);
-        sys.log('Next formation is ' + formation.name +', of size '+(formation.points[0].length+1)+'.');
+        time = formation.difficulty;
+        sys.log('Next formation is ' + formation.name +', of size '+(formation.size)+'.');
         socket.broadcast({ type: 'nextFormation', formation: formation.name, time: time });
         sweepPlayers();
     }, MARGIN);

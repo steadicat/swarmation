@@ -8,6 +8,7 @@ var Player;
 var sendAction;
 var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry'];
 
+var MAX_POINTS = 14;
 var QUORUM = 2;
 var MARGIN = 1500;
 
@@ -114,21 +115,20 @@ var MARGIN = 1500;
         },
 
         formationDeadline: function() {
-            var points = FORMATION.points[0].length+1;
             this.total++;
             if (this.completed >= QUORUM) {
                 this.inFormation = 15;
-                this.score += points;
+                this.score += FORMATION.difficulty;
                 this.succeeded++;
                 if (this.isSelf) {
-                    displayNotice('You completed '+FORMATION.name+'. You gain '+points+' points!');
+                    displayNotice('You completed '+FORMATION.name+'. You gain '+FORMATION.difficulty+' points!');
                     $('#score .score').text(this.score);
                     $('#success .success').text(this.successRate());
                 }
             } else {
-                this.score = Math.max(0, this.score-(20-points));
+                this.score = Math.max(0, this.score-(MAX_POINTS-FORMATION.difficulty));
                 if (this.isSelf) {
-                    displayNotice('You did not make '+FORMATION.name+'! Lose '+(15-points)+' points.');
+                    displayNotice('You did not make '+FORMATION.name+'! Lose '+(MAX_POINTS-FORMATION.difficulty)+' points.');
                     $('#score .score').text(this.score);
                     $('#success .success').text(this.successRate());
                 }
