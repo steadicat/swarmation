@@ -16,6 +16,7 @@ void draw() {
 }
 
 void drawPlayer(player) {
+    if (!player.getX()) return;
     if (player.inFormation == 0) {
         if (player.isSelf) {
             drawPixel(player.getX(), player.getY(), 0xff007FFF, 0xff89CFF0);
@@ -23,10 +24,7 @@ void drawPlayer(player) {
             drawPixel(player.getX(), player.getY(), 0xff666666, 0xffcccccc);
         }
     } else {
-        fill(0xffffff33);
-        strokeWeight(2);
-        stroke(0xffffcc00);
-        rect(player.getX(), player.getY(), 9, 9);
+        drawPixel(player.getX(), player.getY(), 0xffffcc00, 0xffffff33);
         player.inFormation--;
     }
 }
