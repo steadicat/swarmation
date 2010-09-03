@@ -9,7 +9,7 @@ this.compileFormations = {};
             if (i == 0) continue;
             for (var j in diagram[i]) {
                 if ((diagram[i][j] == 'o') || (diagram[i][j] == 'x')) {
-                    if ((x!=j) || (y!=i)) points.push([x-j, i-y]);
+                    if ((x!=j) || (y!=i)) points.push([j-x, i-y]);
                 }
             }
         }
