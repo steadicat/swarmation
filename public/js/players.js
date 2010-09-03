@@ -44,8 +44,8 @@ function log(m) {
         if (isSelf) {
             this.sendInfo(true);
             this.el.addClass('self');
-            var p = this;
         }
+        var p = this;
         this.el.hover(function() {
             p.showTooltip();
         }, function() {
