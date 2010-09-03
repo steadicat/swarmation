@@ -4,8 +4,8 @@
 @import "compass"
 
 body
-  :font-family sans-serif
-  :font-size 12px
+  :font-family Arial, sans-serif
+  :font-size 13px
   :color #222
   :background #333 url(../images/bg.png)
   a
@@ -20,20 +20,21 @@ body
     +text-shadow(#000,2px,2px,2px)
     :background url(../images/swarmation.png) center 25px no-repeat
     :text-indent -9999px
-    :overflow hidden
+    :overflow hidden    
   #header, #footer, #content
     +column(25)
   #info
     :color #fff
-    :font-family Inconsolata
     :text-align center
     :border 1px solid #666
-    :padding 10px 12px
-    +box-shadow(#888,0px,0px,2px)
+    :padding 12px 12px
     :border 1px solid #222
-    :background #444 url(../images/bg-notice.png)
+    :background #444 url(../images/bg-score.png)
     :margin 2px
     :margin-bottom 16px
+    +border-radius(3px)
+    +box-shadow(#1a1a1a,0px,0px,2px)
+    +text-shadow(#000,0px,0px,2px)
     #countdown
       :font-size 60px
     #formation
@@ -45,13 +46,12 @@ body
     +column(5, true)
     :height 620px
     :overflow hidden
-    :font-family Inconsolata
     :color #eee
     .sidebar-notice
       +box-shadow(#1a1a1a,0px,0px,2px)
       :border 1px solid #222
       :background #444 url(../images/bg-notice.png)
-      :padding 3px 7px 4px 7px
+      :padding 5px 8px 6px 8px
       :margin 0px 1px 12px 0
       :color #fff
     #arrow-image
