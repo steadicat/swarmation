@@ -165,7 +165,7 @@ setInterval(function() {
         time = formation.difficulty;
         sys.log('Next formation is ' + formation.name +', of size '+(formation.size)+'.');
         socket.broadcast({ type: 'nextFormation', formation: formation.name, time: time });
-        sweepPlayers();
+        //sweepPlayers();
     }, MARGIN);
 }, 1000);
 
