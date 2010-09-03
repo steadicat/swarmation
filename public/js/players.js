@@ -45,13 +45,12 @@ function log(m) {
             this.sendInfo(true);
             this.el.addClass('self');
             var p = this;
-            this.el.hover(function() {
-                p.showTooltip();
-            }, function() {
-                p.hideTooltip();
-            });
         }
-
+        this.el.hover(function() {
+            p.showTooltip();
+        }, function() {
+            p.hideTooltip();
+        });
     };
 
     Player.atPixel = function(x, y) {
