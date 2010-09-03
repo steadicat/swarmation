@@ -6,9 +6,8 @@ this.compileFormations = {};
     function getPoints(diagram, y, x) {
         var points = [];
         for (var i in diagram) {
-            if (i == 0) continue;
-            for (var j in diagram[i]) {
-                if ((diagram[i][j] == 'o') || (diagram[i][j] == 'x')) {
+            for (var j=0; j < diagram[i].length; j++) {
+                if ((diagram[i].charAt(j) == 'o') || (diagram[i].charAt(j) == 'x')) {
                     if ((x!=j) || (y!=i)) points.push([j-x, i-y]);
                 }
             }
@@ -25,9 +24,8 @@ this.compileFormations = {};
             formation.points = [];
             formation.difficulty = parseInt(diagram[0], 10);
             for (var i in diagram) {
-                if (i == 0) continue;
-                for (var j in diagram[i]) {
-                    if (diagram[i][j] == 'o') {
+                for (var j=0; j < diagram[i].length; j++) {
+                    if (diagram[i].charAt(j) == 'o') {
                         formation.points.push(getPoints(diagram, i, j));
                     }
                 }
