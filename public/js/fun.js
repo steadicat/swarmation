@@ -7,6 +7,15 @@ void setup() {
 void draw() {
     background(0xffeeeeee);
     drawGrid();
+    if (PLAYER && PLAYER.formation['showOutline']) {
+        noStroke();
+        fill(0xffD4E9FF);
+        for (var i = 0; i < PLAYER.formation['points'].length; i++) {
+            var x = (PLAYER.left + PLAYER.formation['points'][i][0]) * 10 + 1;
+            var y = (PLAYER.top  + PLAYER.formation['points'][i][1]) * 10 + 1;
+            rect(x, y, 9, 9);
+        }
+    }
     for (var id in PLAYERS) {
         drawPlayer(PLAYERS[id]);
     }
@@ -50,7 +59,6 @@ void drawGrid() {
 }
 
 void keyPressed() {
-    if (!PLAYER) return;
     if (key == CODED) {
         if (keyCode == LEFT) {
             PLAYER.move('left');
@@ -61,6 +69,10 @@ void keyPressed() {
         } else if (keyCode == DOWN) {
             PLAYER.move('down');
         }
+    }
+
+    if (key == 32) {
+        PLAYER.usePower();
     }
 }
 
