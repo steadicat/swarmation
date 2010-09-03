@@ -14,6 +14,6 @@
     table: "12\nxxoxx\no o",
     patchwork: "10\nx x\no x o\nx x\nx o x\nx x",
     volcano: " 8\n  o\n xxx\noxxxo",
-    spiral: "12\nxx\nx o x\nx   x\noxo"
+    spiral: "16\nxx\nx o x\nx   x\noxo"
   };
 })();

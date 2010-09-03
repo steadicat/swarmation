@@ -78,7 +78,7 @@ x o x
  xxx
 oxxxo
 """
-    spiral: """ 12
+    spiral: """ 16
  xx
 x o x
 x   x
