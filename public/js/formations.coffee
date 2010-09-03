@@ -4,7 +4,7 @@ ooo
 """
     clover: """ 6
 x o
- o
+-o
 o x
 """
     tetris: """ 4
@@ -14,15 +14,15 @@ o
 o
 """
     delta: """ 6
-  o
- x x
+--o
+-x x
 o   o
 """
     tank: """ 6
- o
+-o
 x x
 o o
- x
+-x
 """
     block: """ 4
 oxx
@@ -37,50 +37,50 @@ x   x
 xxxxo
 """
     snake: """ 10
-  o
- x
-  o
- x
+--o
+-x
+--o
+-x
 o
 """
     lobster: """ 10
 o o
 x x
- o
- x
- x
+-o
+-x
+-x
 """
     hat: """ 10
- oxo
- x x
+-oxo
+-x x
 xxoxx
 """
     home: """ 12
-  o
- xxx
+--o
+-xxx
 oxxxo
- xxx
- xxx
+-xxx
+-xxx
 """
     table: """ 12
 xxoxx
- o o
+-o o
 """
     patchwork: """ 10
- x x
+-x x
 o x o
- x x
+-x x
 x o x
- x x
+-x x
 """
     volcano: """ 8
-  o
- xxx
+--o
+-xxx
 oxxxo
 """
     spiral: """ 16
- xx
+-xx
 x o x
 x   x
- oxo
+-oxo
 """
