@@ -103,6 +103,12 @@ function onConnect(client) {
         if ((message.type == 'info') && (!message.name)) {
             setPlayerActive(client.sessionId);
         }
+        if (message.type == 'formation') {
+            setPlayerActive(message.id);
+            for (var i in message.ids) {
+                setPlayerActive(message.ids[i]);
+            }
+        }
 
         // store players
         if ((message.type == 'info') && (message.name)) {
@@ -159,13 +165,13 @@ setInterval(function() {
     if (time > 0) return;
     sys.log('There are '+ACTIVE_PLAYERS+' active players.');
     var formation = pickFormation();
+    sweepPlayers();
     if (!formation) return;
     time = 10;
     setTimeout(function() {
         time = formation.difficulty;
         sys.log('Next formation is ' + formation.name +', of size '+(formation.size)+'.');
         socket.broadcast({ type: 'nextFormation', formation: formation.name, time: time });
-        //sweepPlayers();
     }, MARGIN);
 }, 1000);
 
