@@ -4,3 +4,6 @@
 [submodule "contrib/Socket.IO-node"]
 	path = contrib/Socket.IO-node
 	url = http://github.com/LearnBoost/Socket.IO-node.git
+[submodule "public/io/lib/vendor/web-socket-js"]
+	path = public/io/lib/vendor/web-socket-js
+	url = git://github.com/gimite/web-socket-js.git
