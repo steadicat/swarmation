@@ -12,6 +12,11 @@ var MAX_POINTS = 14;
 var QUORUM = 2;
 var MARGIN = 1500;
 
+function log(m) {
+    try {
+        console.log(m);
+    } catch (e) {}
+}
 
 (function($, undefined) {
 
@@ -267,7 +272,7 @@ var MARGIN = 1500;
     socket.connect();
 
     socket.on('message', function(data) {
-        console.log([data.id, data.type, data.left, data.top, data.score, data.succeeded, data.formation, data]);
+        //log([data.id, data.type, data.left, data.top, data.score, data.succeeded, data.formation, data]);
         $('#play').trigger(data.type, data);
     });
 
@@ -292,7 +297,7 @@ var MARGIN = 1500;
 
     sendAction = function(type, data) {
         data.type = type;
-        //console.log(['sending', data.type, data.left, data.top, data.score, data.succeeded, data.formation, data]);
+        //log(['sending', data.type, data.left, data.top, data.score, data.succeeded, data.formation, data]);
         socket.send(data);
     };
 
