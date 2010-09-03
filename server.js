@@ -102,7 +102,7 @@ function onConnect(client) {
 
     client.on('message', function(message) {
         message.id = client.sessionId;
-        sys.log(JSON.stringify(message));
+        //sys.log(JSON.stringify(message));
         socket.broadcast(message, [client.sessionId]);
 
         // mark players that are active
