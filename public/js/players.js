@@ -264,7 +264,7 @@ var MARGIN = 1500;
 
     io.setPath('/io/');
     var socket;
-    socket = new io.Socket('');
+    socket = new io.Socket(location.hostname);
     socket.connect();
 
     socket.on('message', function(data) {

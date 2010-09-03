@@ -13,25 +13,27 @@ body
   #container
     +container
   #header
-    :height 150px
+    :height 160px
     :font-weight bold
     :color #eee
     :text-align center
     +text-shadow(#000,2px,2px,2px)
-    :background url(../images/swarmation.png) 150px 20px no-repeat
+    :background url(../images/swarmation.png) center 25px no-repeat
     :text-indent -9999px
     :overflow hidden
-  #header, #footer
+  #header, #footer, #content
     +column(25)
   #info
+    :color #fff
     :font-family Inconsolata
     :text-align center
-    :color #eee
-    :margin-bottom 15px
-    :background #444 url(../images/bg-notice.png)
-    :border 3px solid #666
-    +border-radius(4px)
+    :border 1px solid #666
     :padding 10px 12px
+    +box-shadow(#888,0px,0px,2px)
+    :border 1px solid #222
+    :background #444 url(../images/bg-notice.png)
+    :margin 2px
+    :margin-bottom 16px
     #countdown
       :font-size 60px
     #formation
@@ -67,7 +69,6 @@ body
       :padding-top 5px
       :padding-bottom 5px
   #content
-    +column(25)
     #about
       :padding 5px 15px
       :text-align right
@@ -90,3 +91,14 @@ body
       :position absolute
       .name
         :font-weight bold
+  #footer
+    :color #eee
+    :padding 10px 12px
+    #leaderboard
+      +horizontal-list
+      :line-height 1.5em
+      a
+        :text-decoration none 
+        :padding-right 6px
+        .points
+          :color #999
