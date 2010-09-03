@@ -101,56 +101,56 @@ body #container {
 }
 /* line 15, ../src/screen.sass */
 body #header {
-  height: 150px;
+  height: 160px;
   font-weight: bold;
   color: #eeeeee;
   text-align: center;
   text-shadow: black 2px 2px 2px;
-  background: url(../images/swarmation.png) 150px 20px no-repeat;
+  background: url(../images/swarmation.png) center 25px no-repeat;
   text-indent: -9999px;
   overflow: hidden;
 }
 /* line 24, ../src/screen.sass */
-body #header, body #footer {
+body #header, body #footer, body #content {
   display: inline;
   float: left;
   margin-right: 10px;
   width: 990px;
 }
 /* line 139, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/_grid.scss */
-* html body #header, * html body #footer {
+* html body #header, * html body #footer, * html body #content {
   overflow-x: hidden;
 }
 /* line 26, ../src/screen.sass */
 body #info {
+  color: white;
   font-family: Inconsolata;
   text-align: center;
-  color: #eeeeee;
-  margin-bottom: 15px;
-  background: #444444 url(../images/bg-notice.png);
-  border: 3px solid #666666;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  -o-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -khtml-border-radius: 4px;
-  border-radius: 4px;
+  border: 1px solid #666666;
   padding: 10px 12px;
+  -moz-box-shadow: #888888 0px 0px 2px 0;
+  -webkit-box-shadow: #888888 0px 0px 2px 0;
+  -o-box-shadow: #888888 0px 0px 2px 0;
+  box-shadow: #888888 0px 0px 2px 0;
+  border: 1px solid #222222;
+  background: #444444 url(../images/bg-notice.png);
+  margin: 2px;
+  margin-bottom: 16px;
 }
-/* line 35, ../src/screen.sass */
+/* line 37, ../src/screen.sass */
 body #info #countdown {
   font-size: 60px;
 }
-/* line 37, ../src/screen.sass */
+/* line 39, ../src/screen.sass */
 body #info #formation {
   font-size: 20px;
   padding-top: 80px;
 }
-/* line 40, ../src/screen.sass */
+/* line 42, ../src/screen.sass */
 body #info #score {
   font-size: 30px;
 }
-/* line 42, ../src/screen.sass */
+/* line 44, ../src/screen.sass */
 body #sidebar {
   display: inline;
   float: left;
@@ -165,7 +165,7 @@ body #sidebar {
 * html body #sidebar {
   overflow-x: hidden;
 }
-/* line 48, ../src/screen.sass */
+/* line 50, ../src/screen.sass */
 body #sidebar .sidebar-notice {
   -moz-box-shadow: #1a1a1a 0px 0px 2px 0;
   -webkit-box-shadow: #1a1a1a 0px 0px 2px 0;
@@ -177,50 +177,39 @@ body #sidebar .sidebar-notice {
   margin: 0px 1px 12px 0;
   color: white;
 }
-/* line 55, ../src/screen.sass */
+/* line 57, ../src/screen.sass */
 body #sidebar #arrow-image {
   position: relative;
   top: 2px;
 }
-/* line 58, ../src/screen.sass */
+/* line 60, ../src/screen.sass */
 body #sidebar .placeholder {
   color: #888888;
   background-color: #eeeeee;
 }
-/* line 61, ../src/screen.sass */
+/* line 63, ../src/screen.sass */
 body #sidebar #username {
   width: 165px;
   border-width: 0px;
   padding: 2px 5px;
   font-size: 13px;
 }
-/* line 66, ../src/screen.sass */
+/* line 68, ../src/screen.sass */
 body #sidebar .username-box {
   padding-top: 5px;
   padding-bottom: 5px;
 }
-/* line 69, ../src/screen.sass */
-body #content {
-  display: inline;
-  float: left;
-  margin-right: 10px;
-  width: 990px;
-}
-/* line 139, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/blueprint/stylesheets/blueprint/_grid.scss */
-* html body #content {
-  overflow-x: hidden;
-}
-/* line 71, ../src/screen.sass */
+/* line 72, ../src/screen.sass */
 body #content #about {
   padding: 5px 15px;
   text-align: right;
   color: #888888;
 }
-/* line 75, ../src/screen.sass */
+/* line 76, ../src/screen.sass */
 body #content #board, body #content #play {
   margin: 10px 0 8px 10px;
 }
-/* line 77, ../src/screen.sass */
+/* line 78, ../src/screen.sass */
 body #content #board-container {
   width: 981px;
   background-color: #eeeeee;
@@ -230,11 +219,11 @@ body #content #board-container {
   -o-box-shadow: black 0px 0px 6px 0;
   box-shadow: black 0px 0px 6px 0;
 }
-/* line 82, ../src/screen.sass */
+/* line 83, ../src/screen.sass */
 body #content #board-controls {
   padding: 15px 25px;
 }
-/* line 84, ../src/screen.sass */
+/* line 85, ../src/screen.sass */
 body #content #tooltip {
   -moz-box-shadow: #555555 0px 0px 2px 0;
   -webkit-box-shadow: #555555 0px 0px 2px 0;
@@ -251,7 +240,50 @@ body #content #tooltip {
   padding: 3px 7px 4px 7px;
   position: absolute;
 }
-/* line 91, ../src/screen.sass */
+/* line 92, ../src/screen.sass */
 body #content #tooltip .name {
   font-weight: bold;
+}
+/* line 94, ../src/screen.sass */
+body #footer {
+  color: #eeeeee;
+  padding: 10px 12px;
+}
+/* line 97, ../src/screen.sass */
+body #footer #leaderboard {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  overflow: hidden;
+  *zoom: 1;
+  line-height: 1.5em;
+}
+/* line 51, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/compass/stylesheets/compass/utilities/lists/_horizontal-list.scss */
+body #footer #leaderboard li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0px;
+  white-space: nowrap;
+  display: inline;
+  float: left;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+/* line 43, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/compass/stylesheets/compass/utilities/lists/_horizontal-list.scss */
+body #footer #leaderboard li:first-child, body #footer #leaderboard li.first {
+  padding-left: 0px;
+}
+/* line 44, ../../../../../var/lib/gems/1.8/gems/compass-0.10.4/frameworks/compass/stylesheets/compass/utilities/lists/_horizontal-list.scss */
+body #footer #leaderboard li:last-child, body #footer #leaderboard li.last {
+  padding-right: 0px;
+}
+/* line 100, ../src/screen.sass */
+body #footer #leaderboard a {
+  text-decoration: none;
+  padding-right: 6px;
+}
+/* line 103, ../src/screen.sass */
+body #footer #leaderboard a .points {
+  color: #999999;
 }
