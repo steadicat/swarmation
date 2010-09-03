@@ -185,10 +185,13 @@ var MARGIN = 1500;
     };
 
     $('#play').bind('welcome', function(event, data) {
-        if (PLAYER) return;
-        setTimeout(function() {
-            PLAYER = new Player(data.id, null, null, true);
-        }, 2000);
+        if (PLAYER) {
+            PLAYER.id = data.id;
+        } else {
+            setTimeout(function() {
+                PLAYER = new Player(data.id, null, null, true);
+            }, 2000);
+        }
     });
 
     $('#play').bind('info', function(event, data) {
