@@ -64,12 +64,9 @@ var displayNotice;
 
     setupPlaceholder("username");
 
-    $("#username");
-
-    $(document).bind('keydown', 'up', function() { return false; });
-    $(document).bind('keydown', 'down', function() { return false; });
-    $(document).bind('keydown', 'left', function() { return false; });
-    $(document).bind('keydown', 'right', function() { return false; });
-    $(document).bind('keydown', 'space', function() { return false; });
+    $(document).bind('keydown', 'up', function() { if (PLAYER) PLAYER.move('up'); return false; });
+    $(document).bind('keydown', 'down', function() { if (PLAYER) PLAYER.move('down'); return false; });
+    $(document).bind('keydown', 'left', function() { if (PLAYER) PLAYER.move('left'); return false; });
+    $(document).bind('keydown', 'right', function() { if (PLAYER) PLAYER.move('right'); return false; });
 
 })(jQuery);

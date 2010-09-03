@@ -20,7 +20,7 @@ body
     +text-shadow(#000,2px,2px,2px)
     :background url(../images/swarmation.png) center 25px no-repeat
     :text-indent -9999px
-    :overflow hidden    
+    :overflow hidden
   #header, #footer, #content
     +column(25)
   #info
@@ -73,13 +73,17 @@ body
       :padding 5px 15px
       :text-align right
       :color #888
-    #board, #play
-      :margin 10px 0 8px 10px
     #board-container
-      :width 981px
+      :margin 10px 0 8px 10px
+      :padding 9px
       :background-color #eee
       :border 1px solid #888
       +box-shadow(#000,0px,0px,6px)
+    #board
+      :width 961px
+      :height 601px
+      :background inline_image('cell.png')
+      :position relative
     #board-controls
       :padding 15px 25px
     #tooltip
@@ -91,6 +95,19 @@ body
       :position absolute
       .name
         :font-weight bold
+    .player
+      :position absolute
+      :width 6px
+      :height 6px
+      :border 2px solid #666
+      :background #ccc
+      &.self
+        :border 2px solid #07f
+        :background #89cff0
+      &.active
+        :border 2px solid #fc0
+        :background #ff3
+
   #footer
     :color #eee
     :padding 10px 12px

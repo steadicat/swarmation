@@ -33,17 +33,19 @@ function log(m) {
                 top = Math.floor(Math.random() * HEIGHT);
             }
         }
+        this.el = $('<div class="player"></div>').appendTo('#board');
         this.setPosition(left, top);
         this.isSelf = isSelf;
         this.name = NAMES[Math.floor(Math.random()*NAMES.length)];
         this.score = 0;
         this.succeeded = 0;
         this.total = 0;
-        this.inFormation = 0;
         this.completed = 0;
         if (isSelf) {
             this.sendInfo(true);
+            this.el.addClass('self');
         }
+
     };
 
     Player.atPixel = function(x, y) {
@@ -82,6 +84,8 @@ function log(m) {
             this.top = top;
             if (!MAP[left]) MAP[left] = [];
             MAP[left][top] = this;
+
+            this.el.css({ left: this.getX(), top: this.getY() });
         },
 
         move: function(direction) {
@@ -122,7 +126,11 @@ function log(m) {
         formationDeadline: function() {
             this.total++;
             if (this.completed >= QUORUM) {
-                this.inFormation = 15;
+                this.el.addClass('active');
+                var el = this.el;
+                setTimeout(function() {
+                    el.removeClass('active');
+                }, 1000);
                 this.score += FORMATION.difficulty;
                 this.succeeded++;
                 if (this.isSelf) {
@@ -177,8 +185,8 @@ function log(m) {
         showTooltip: function() {
             $('#tooltip')
                 .show()
-                .css('left', this.getX()+$('#play').offset().left-6)
-                .css('top', this.getY()+$('#play').offset().top+25)
+                .css('left', this.getX()+$('#board').offset().left-6)
+                .css('top', this.getY()+$('#board').offset().top+25)
                 .find('.name').text(this.name).end()
                 .find('.score').text(this.score).end()
                 .find('.success').text(this.successRate());
@@ -189,7 +197,9 @@ function log(m) {
         }
     };
 
-    $('#play').bind('welcome', function(event, data) {
+    var board = $('#board');
+
+    board.bind('welcome', function(event, data) {
         if (PLAYER) {
             PLAYER.id = data.id;
         } else {
@@ -199,7 +209,7 @@ function log(m) {
         }
     });
 
-    $('#play').bind('info', function(event, data) {
+    board.bind('info', function(event, data) {
         if (PLAYER && (data.id == PLAYER.id)) {
             PLAYER.getInfo(data);
             PLAYER.rev = data._rev;
@@ -211,23 +221,24 @@ function log(m) {
         }
     });
 
-    $('#play').bind('save', function(event, data) {
+    board.bind('save', function(event, data) {
         $.cookie('player', data.player, { expires: 3650 });
         PLAYER.rev = data.rev;
     });
 
-    $('#play').bind('connected', function(event, data) {
+    board.bind('connected', function(event, data) {
         if (PLAYER) PLAYER.sendInfo(true);
     });
 
-    $('#play').bind('disconnected', function(event, data) {
+    board.bind('disconnected', function(event, data) {
         var p = PLAYERS[data.id];
         if (!p) return;
         delete MAP[p.left][p.top];
+        PLAYERS[data.id].el.remove();
         delete PLAYERS[data.id];
     });
 
-    $('#play').bind('formation', function(event, data) {
+    board.bind('formation', function(event, data) {
         if (!PLAYER.id) return;
         if ($.inArray(PLAYER.id, data.ids) >= 0) PLAYER.formationReported(data.formation);
         PLAYERS[data.id].formationReported(data.formation);
@@ -236,7 +247,7 @@ function log(m) {
         }
     });
 
-    $('#play').bind('nextFormation', function(event, data) {
+    board.bind('nextFormation', function(event, data) {
         FORMATION = Formations[data.formation];
         $('#formation')
             .css('background', 'url(/images/formations/'+data.formation.toLowerCase()+'.png) no-repeat center top')
@@ -267,13 +278,12 @@ function log(m) {
     // sockets
 
     io.setPath('/io/');
-    var socket;
-    socket = new io.Socket();
+    var socket = new io.Socket();
     socket.connect();
 
     socket.on('message', function(data) {
-        //log([data.id, data.type, data.left, data.top, data.score, data.succeeded, data.formation, data]);
-        $('#play').trigger(data.type, data);
+        log([data.id, data.type, data.left, data.top, data.score, data.succeeded, data.formation, data]);
+        board.trigger(data.type, data);
     });
 
     socket.on('connect', function() {
@@ -297,7 +307,7 @@ function log(m) {
 
     sendAction = function(type, data) {
         data.type = type;
-        //log(['sending', data.type, data.left, data.top, data.score, data.succeeded, data.formation, data]);
+        log(['sending', data.type, data.left, data.top, data.score, data.succeeded, data.formation, data]);
         socket.send(data);
     };
 
