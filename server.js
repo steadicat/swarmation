@@ -40,7 +40,7 @@ app.get('/', function(req, res) {
 // Error Handling
 
 process.addListener('uncaughtException', function(e) {
-    console.log(e.stack);
+    sys.log(e.stack);
 });
 
 // Player persitence
@@ -54,22 +54,28 @@ function makeRequest(method, path, message, callback) {
             body.push(chunk);
         });
         response.on('end', function() {
-            callback(JSON.parse(body.join('')));
+            var resp = JSON.parse(body.join(''));
+            callback(resp);
         });
     });
     request.end();
 }
-function savePlayer(client, message) {
+function savePlayer(client, message, socket) {
     makeRequest('POST', '', message, function(doc) {
-        if (doc.ok != true) return;
-        client.send({ type: 'save', player: doc.id, rev: doc.rev });
+        if (doc.error == 'conflict') {
+            sys.log('CONFLICT!');
+            sys.log(message);
+            sys.log(doc);
+            loadPlayer(client, message, socket);
+        }
+        if (doc.ok == true) client.send({ type: 'save', player: doc.id, rev: doc.rev });
     });
 }
-function loadPlayer(client, message) {
+function loadPlayer(client, message, socket) {
     makeRequest('GET', message._id, null, function(doc) {
         doc.type = 'info';
         doc.id = client.sessionId;
-        client.send(doc);
+        socket.broadcast(doc);
     });
 }
 // IO
@@ -96,7 +102,7 @@ function onConnect(client) {
 
     client.on('message', function(message) {
         message.id = client.sessionId;
-        //sys.log(JSON.stringify(message));
+        sys.log(JSON.stringify(message));
         socket.broadcast(message, [client.sessionId]);
 
         // mark players that are active
@@ -118,9 +124,9 @@ function onConnect(client) {
             delete message.id;
             if (!message._id) delete message._id;
             if (message._id && (!message._rev)) {
-                loadPlayer(client, message);
+                loadPlayer(client, message, socket);
             } else {
-                savePlayer(client, message);
+                savePlayer(client, message, socket);
             }
         }
 
