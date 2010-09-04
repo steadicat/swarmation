@@ -61,6 +61,7 @@ function makeRequest(method, path, message, callback) {
     request.end();
 }
 function savePlayer(client, message, socket) {
+    return;
     makeRequest('POST', '', message, function(doc) {
         if (doc.error == 'conflict') {
             sys.log('CONFLICT!');
@@ -72,6 +73,7 @@ function savePlayer(client, message, socket) {
     });
 }
 function loadPlayer(client, message, socket) {
+    return;
     makeRequest('GET', message._id, null, function(doc) {
         doc.type = 'info';
         doc.id = client.sessionId;
