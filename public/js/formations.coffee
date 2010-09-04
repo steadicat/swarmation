@@ -1,84 +1,84 @@
 (exports ? window).Formations =
-    easy: """ 3
+    easy: """ 6
 ooo
 """
-    clover: """ 6
+    clover: """ 10
 x o
 -o
 o x
 """
-    tetris: """ 4
+    tetris: """ 8
 o
 x
 o
 o
 """
-    delta: """ 6
+    delta: """ 12
 --o
 -x x
 o   o
 """
-    tank: """ 6
+    tank: """ 14
 -o
 x x
 o o
 -x
 """
-    block: """ 4
+    block: """ 12
 oxx
 xox
 xxo
 """
-    fortress: """ 10
+    fortress: """ 20
 oxxxx
 x   x
 x o x
 x   x
 xxxxo
 """
-    snake: """ 10
+    snake: """ 16
 --o
 -x
 --o
 -x
 o
 """
-    lobster: """ 10
+    lobster: """ 16
 o o
 x x
 -o
 -x
 -x
 """
-    hat: """ 10
+    hat: """ 14
 -oxo
 -x x
 xxoxx
 """
-    home: """ 12
+    arrow: """ 20
 --o
 -xxx
 oxxxo
 -xxx
 -xxx
 """
-    table: """ 12
+    table: """ 16
 xxoxx
 -o o
 """
-    patchwork: """ 10
+    patchwork: """ 20
 -x x
 o x o
 -x x
 x o x
 -x x
 """
-    volcano: """ 8
+    volcano: """ 16
 --o
 -xxx
 oxxxo
 """
-    spiral: """ 14
+    spiral: """ 22
 -xx
 x o x
 x   x
