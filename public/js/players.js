@@ -306,6 +306,7 @@ function log(m) {
 
     socket.on('connect', function() {
         if (PLAYER) PLAYER.sendInfo(true);
+        for (var id in PLAYERS) PLAYERS[id].el.remove();
         PLAYERS = {};
         MAP = [];
     });
