@@ -280,14 +280,13 @@ function log(m) {
         }, 1000);
 
         setTimeout(function() {
-            clearInterval(interval);
-
-            $('#countdown').text('0');
             if (FORMATION) {
                 PLAYER.checkFormation(FORMATION);
                 setTimeout(function() {
                     PLAYER.formationDeadline();
                     for (var id in PLAYERS) PLAYERS[id].formationDeadline();
+                    clearInterval(interval);
+                    $('#countdown').text('0');
                 }, MARGIN);
             }
         }, data.time*1000 - MARGIN);
