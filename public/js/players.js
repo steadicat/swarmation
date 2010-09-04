@@ -187,10 +187,16 @@ function log(m) {
                     succeeded: this.succeeded
                 });
             } else {
-                sendAction('info', {
-                    left: this.left,
-                    top: this.top
-                });
+                // rate limiting
+                var p = this;
+                if (this.timeout) return;
+                this.timeout = setTimeout(function() {
+                    sendAction('info', {
+                        left: p.left,
+                        top: p.top
+                    });
+                    p.timeout = null;
+                }, 100);
             }
         },
 
