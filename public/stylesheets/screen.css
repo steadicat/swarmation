@@ -286,10 +286,16 @@ body #content .player.flash {
 }
 /* line 116, ../src/screen.sass */
 body #footer {
-  color: #eeeeee;
+  text-align: center;
+  color: #999999;
   padding: 10px 12px;
+  line-height: 24px;
 }
-/* line 119, ../src/screen.sass */
+/* line 121, ../src/screen.sass */
+body #footer a {
+  text-decoration: none;
+}
+/* line 123, ../src/screen.sass */
 body #footer #leaderboard {
   margin: 0;
   padding: 0;
@@ -322,12 +328,11 @@ body #footer #leaderboard li:first-child, body #footer #leaderboard li.first {
 body #footer #leaderboard li:last-child, body #footer #leaderboard li.last {
   padding-right: 0px;
 }
-/* line 122, ../src/screen.sass */
+/* line 126, ../src/screen.sass */
 body #footer #leaderboard a {
-  text-decoration: none;
   padding-right: 6px;
 }
-/* line 125, ../src/screen.sass */
+/* line 128, ../src/screen.sass */
 body #footer #leaderboard a .points {
   color: #999999;
 }
