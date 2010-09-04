@@ -10,7 +10,7 @@ var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zom
 
 var MAX_POINTS = 26;
 var QUORUM = 2;
-var MARGIN = 1500;
+var MARGIN = 1000;
 
 var DEBUG = false;
 
@@ -290,7 +290,7 @@ function log(m) {
                     for (var id in PLAYERS) PLAYERS[id].formationDeadline();
                 }, MARGIN);
             }
-        }, data.time*1000);
+        }, data.time*1000 - MARGIN);
     });
 
     // sockets

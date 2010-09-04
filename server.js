@@ -149,7 +149,7 @@ formations = compileFormations(formations);
 var FORMATIONS = [];
 var MIN_SIZE = 3;
 var MAX_SIZE = 20;
-var MARGIN = 3000;
+var MARGIN = 2000;
 
 for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = [];
 
