@@ -44,8 +44,9 @@ function log(m) {
         this.total = 0;
         this.completed = 0;
         if (isSelf) {
-            this.sendInfo(true);
             this.el.addClass('self');
+            this.load();
+            this.sendInfo();
         }
         var p = this;
         this.el.hover(function() {
@@ -152,8 +153,6 @@ function log(m) {
                 this.succeeded++;
                 if (this.isSelf) {
                     displayNotice('You completed '+FORMATION.name+'. You gain '+FORMATION.difficulty+' points!');
-                    $('#score .score').text(this.score);
-                    $('#success .success').text(this.successRate());
                 }
                 this.el.removeClass('idle');
             } else {
@@ -161,11 +160,15 @@ function log(m) {
                 this.score = Math.max(0, this.score-delta);
                 if (this.isSelf) {
                     displayNotice('You did not make '+FORMATION.name+'! Lose '+delta+' points.');
-                    $('#score .score').text(this.score);
-                    $('#success .success').text(this.successRate());
                 }
             }
             this.completed = 0;
+            if (this.isSelf) {
+                // save occasionally
+                if (Math.random() < 0.1) this.save();
+                $('#score .score').text(this.score);
+                $('#success .success').text(this.successRate());
+            }
         },
 
         successRate: function() {
@@ -181,9 +184,7 @@ function log(m) {
                     name: this.name,
                     score: this.score,
                     total: this.total,
-                    succeeded: this.succeeded,
-                    _id: $.cookie('player'),
-                    _rev: this.rev
+                    succeeded: this.succeeded
                 });
             } else {
                 sendAction('info', {
@@ -191,6 +192,21 @@ function log(m) {
                     top: this.top
                 });
             }
+        },
+
+        load: function() {
+            sendAction('load', { player: $.cookie('player') });
+        },
+
+        save: function() {
+            sendAction('save', {
+                name: this.name,
+                score: this.score,
+                total: this.total,
+                succeeded: this.succeeded,
+                _id: $.cookie('player'),
+                _rev: this.rev
+            });
         },
 
         getInfo: function(info) {
@@ -250,7 +266,7 @@ function log(m) {
         if (PLAYER && (data.id == PLAYER.id)) PLAYER.el.addClass('idle');
     });
 
-    board.bind('save', function(event, data) {
+    board.bind('saved', function(event, data) {
         $.cookie('player', data.player, { expires: 3650 });
         PLAYER.rev = data.rev;
     });

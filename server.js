@@ -1,3 +1,4 @@
+var DEBUG = false;
 
 // Module dependencies.
 
@@ -61,20 +62,18 @@ function makeRequest(method, path, message, callback) {
     request.end();
 }
 function savePlayer(client, message, socket) {
-    return;
+    if (!message._id) delete message._id;
+    if (!message._rev) delete message._rev;
     makeRequest('POST', '', message, function(doc) {
         if (doc.error == 'conflict') {
-            sys.log('CONFLICT!');
-            sys.log(message);
-            sys.log(doc);
-            loadPlayer(client, message, socket);
+            sys.log('CONFLICT! ' + JSON.stringify(message));
         }
-        if (doc.ok == true) client.send({ type: 'save', player: doc.id, rev: doc.rev });
+        if (doc.ok == true) client.send({ type: 'saved', player: doc.id, rev: doc.rev });
     });
 }
-function loadPlayer(client, message, socket) {
-    return;
-    makeRequest('GET', message._id, null, function(doc) {
+function loadPlayer(client, player, socket) {
+    if (!player) return;
+    makeRequest('GET', player, null, function(doc) {
         doc.type = 'info';
         doc.id = client.sessionId;
         socket.broadcast(doc);
@@ -104,8 +103,7 @@ function onConnect(client) {
 
     client.on('message', function(message) {
         message.id = client.sessionId;
-        //sys.log(JSON.stringify(message));
-        socket.broadcast(message, [client.sessionId]);
+        if (DEBUG) sys.log(JSON.stringify(message));
 
         // mark players that are active
         if ((message.type == 'info') && (!message.name)) {
@@ -119,17 +117,12 @@ function onConnect(client) {
         }
 
         // store players
-        if ((message.type == 'info') && (message.name)) {
-            delete message.type;
-            delete message.left;
-            delete message.top;
-            delete message.id;
-            if (!message._id) delete message._id;
-            if (message._id && (!message._rev)) {
-                loadPlayer(client, message, socket);
-            } else {
-                savePlayer(client, message, socket);
-            }
+        if (message.type == 'save') {
+            savePlayer(client, message, socket);
+        } else if (message.type == 'load') {
+            loadPlayer(client, message.player, socket);
+        } else {
+            socket.broadcast(message, [client.sessionId]);
         }
 
     });
