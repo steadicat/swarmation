@@ -8,7 +8,7 @@ var Player;
 var sendAction;
 var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry'];
 
-var MAX_POINTS = 14;
+var MAX_POINTS = 26;
 var QUORUM = 2;
 var MARGIN = 1500;
 
@@ -148,9 +148,10 @@ function log(m) {
                 }
                 this.el.removeClass('idle');
             } else {
-                this.score = Math.max(0, this.score-(MAX_POINTS-FORMATION.difficulty));
+                var delta = Math.round((MAX_POINTS-FORMATION.difficulty)/3);
+                this.score = Math.max(0, this.score-delta);
                 if (this.isSelf) {
-                    displayNotice('You did not make '+FORMATION.name+'! Lose '+(MAX_POINTS-FORMATION.difficulty)+' points.');
+                    displayNotice('You did not make '+FORMATION.name+'! Lose '+delta+' points.');
                     $('#score .score').text(this.score);
                     $('#success .success').text(this.successRate());
                 }
