@@ -104,6 +104,15 @@ function log(m) {
             }
         },
 
+        flash: function() {
+            var player = this;
+            player.el.addClass('flash');
+            setTimeout(function() {
+                player.el.removeClass('flash');
+            }, 200);
+            if (this.isSelf) sendAction('flash', {});
+        },
+
         checkFormationPoints: function(points) {
             var others = [];
             for (var i in points) {
@@ -230,6 +239,10 @@ function log(m) {
             if (!data.name) PLAYERS[data.id].el.removeClass('idle');
             PLAYERS[data.id].getInfo(data);
         }
+    });
+
+    board.bind('flash', function(event, data) {
+        if (PLAYERS[data.id]) PLAYERS[data.id].flash();
     });
 
     board.bind('idle', function(event, data) {

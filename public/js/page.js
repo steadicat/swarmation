@@ -68,5 +68,6 @@ var displayNotice;
     $(document).bind('keydown', 'down', function() { if (PLAYER) PLAYER.move('down'); return false; });
     $(document).bind('keydown', 'left', function() { if (PLAYER) PLAYER.move('left'); return false; });
     $(document).bind('keydown', 'right', function() { if (PLAYER) PLAYER.move('right'); return false; });
+    $(document).bind('keydown', 'space', function() { if (PLAYER) PLAYER.flash(); return false; });
 
 })(jQuery);
