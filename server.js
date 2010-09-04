@@ -83,10 +83,12 @@ function loadPlayer(client, player, socket) {
 
 var ACTIVE_PLAYERS = 0;
 var PLAYERS = {};
+var IDLE = {};
 
 function setPlayerActive(id) {
     if (!PLAYERS[id]) ACTIVE_PLAYERS++;
     PLAYERS[id] = true;
+    delete IDLE[id];
 }
 
 function sweepPlayers() {
@@ -128,6 +130,7 @@ function onConnect(client) {
     });
 
     client.on('disconnect', function() {
+        delete IDLE[client.sessionId];
         socket.broadcast({ type: 'disconnected', id: client.sessionId});
     });
 }
@@ -167,7 +170,10 @@ setInterval(function() {
     sys.log('There are '+ACTIVE_PLAYERS+' active players.');
     var formation = pickFormation();
     for (var id in socket.clients) {
-        if (!PLAYERS[id]) socket.broadcast({ type: 'idle', id: id });
+        if ((!PLAYERS[id]) && (!IDLE[id])) {
+            socket.broadcast({ type: 'idle', id: id });
+            IDLE[id] = true;
+        }
     }
     sweepPlayers();
     if (!formation) return;
