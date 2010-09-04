@@ -275,12 +275,16 @@ body #content .player.active {
   border: 2px solid #ffcc00;
   background: #ffff33;
 }
-/* line 111, ../src/screen.sass */
+/* line 110, ../src/screen.sass */
+body #content .player.idle {
+  opacity: 0.5;
+}
+/* line 113, ../src/screen.sass */
 body #footer {
   color: #eeeeee;
   padding: 10px 12px;
 }
-/* line 114, ../src/screen.sass */
+/* line 116, ../src/screen.sass */
 body #footer #leaderboard {
   margin: 0;
   padding: 0;
@@ -313,12 +317,12 @@ body #footer #leaderboard li:first-child, body #footer #leaderboard li.first {
 body #footer #leaderboard li:last-child, body #footer #leaderboard li.last {
   padding-right: 0px;
 }
-/* line 117, ../src/screen.sass */
+/* line 119, ../src/screen.sass */
 body #footer #leaderboard a {
   text-decoration: none;
   padding-right: 6px;
 }
-/* line 120, ../src/screen.sass */
+/* line 122, ../src/screen.sass */
 body #footer #leaderboard a .points {
   color: #999999;
 }

@@ -171,6 +171,9 @@ setInterval(function() {
     if (time > 0) return;
     sys.log('There are '+ACTIVE_PLAYERS+' active players.');
     var formation = pickFormation();
+    for (var id in socket.clients) {
+        if (!PLAYERS[id]) socket.broadcast({ type: 'idle', id: id });
+    }
     sweepPlayers();
     if (!formation) return;
     time = 10;

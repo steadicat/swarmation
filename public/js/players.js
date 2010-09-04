@@ -12,9 +12,11 @@ var MAX_POINTS = 14;
 var QUORUM = 2;
 var MARGIN = 1500;
 
+var DEBUG = false;
+
 function log(m) {
     try {
-        console.log(m);
+        if (DEBUG) console.log(m);
     } catch (e) {}
 }
 
@@ -98,6 +100,7 @@ function log(m) {
             this.setPosition(newp[0], newp[1]);
             if (this.isSelf) {
                 this.sendInfo();
+                this.el.removeClass('idle');
             }
         },
 
@@ -143,6 +146,7 @@ function log(m) {
                     $('#score .score').text(this.score);
                     $('#success .success').text(this.successRate());
                 }
+                this.el.removeClass('idle');
             } else {
                 this.score = Math.max(0, this.score-(MAX_POINTS-FORMATION.difficulty));
                 if (this.isSelf) {
@@ -222,8 +226,14 @@ function log(m) {
             if (!PLAYERS[data.id]) {
                 PLAYERS[data.id] = new Player(data.id, data.left, data.top);
             }
+            if (!data.name) PLAYERS[data.id].el.removeClass('idle');
             PLAYERS[data.id].getInfo(data);
         }
+    });
+
+    board.bind('idle', function(event, data) {
+        if (PLAYERS[data.id]) PLAYERS[data.id].el.addClass('idle');
+        if (PLAYER && (data.id == PLAYER.id)) PLAYER.el.addClass('idle');
     });
 
     board.bind('save', function(event, data) {
@@ -248,7 +258,9 @@ function log(m) {
         if ($.inArray(PLAYER.id, data.ids) >= 0) PLAYER.formationReported(data.formation);
         PLAYERS[data.id].formationReported(data.formation);
         for (var j = 0; j < data.ids.length; j++) {
-            if (PLAYERS[data.ids[j]]) PLAYERS[data.ids[j]].formationReported(data.formation);
+            if (PLAYERS[data.ids[j]]) {
+                PLAYERS[data.ids[j]].formationReported(data.formation);
+            }
         }
     });
 
