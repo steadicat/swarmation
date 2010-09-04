@@ -157,7 +157,7 @@ function log(m) {
                 }
                 this.el.removeClass('idle');
             } else {
-                var delta = Math.round((MAX_POINTS-FORMATION.difficulty)/3);
+                var delta = Math.round((MAX_POINTS-FORMATION.difficulty)/2);
                 this.score = Math.max(0, this.score-delta);
                 if (this.isSelf) {
                     displayNotice('You did not make '+FORMATION.name+'! Lose '+delta+' points.');
