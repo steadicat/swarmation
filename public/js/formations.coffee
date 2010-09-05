@@ -84,3 +84,8 @@ x o x
 x   x
 -oxo
 """
+    glider: """ 13
+-o
+--o
+xox
+"""

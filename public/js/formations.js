@@ -14,6 +14,7 @@
     table: " 16\nxxoxx\n-o o",
     patchwork: " 20\n-x x\no x o\n-x x\nx o x\n-x x",
     volcano: " 16\n--o\n-xxx\noxxxo",
-    spiral: " 22\n-xx\nx o x\nx   x\n-oxo"
+    spiral: " 22\n-xx\nx o x\nx   x\n-oxo",
+    glider: " 13\n-o\n--o\nxox"
   };
 })();
