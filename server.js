@@ -44,7 +44,7 @@ process.on('uncaughtException', function(e) {
     sys.log(e.stack);
 });
 
-process.on('SIGTERM', function() {
+process.on('SIGINT', function() {
     if (socket) socket.broadcast({ type: 'restart' });
     setTimeout(function() {
         process.exit();
