@@ -165,7 +165,7 @@ function log(m) {
             this.completed = 0;
             if (this.isSelf) {
                 // save occasionally
-                if (Math.random() < 0.1) this.save();
+                if (Math.random() < 0.3) this.save();
                 $('#score .score').text(this.score);
                 $('#success .success').text(this.successRate());
             }
@@ -205,6 +205,7 @@ function log(m) {
         },
 
         save: function() {
+            displayNotice('Your score has been saved.');
             sendAction('save', {
                 name: this.name,
                 score: this.score,
