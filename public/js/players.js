@@ -358,7 +358,6 @@ function log(m) {
         if (RESTARTING) return;
         var interval;
         function connect() {
-            console.log('connecting');
             if (socket.connected) {
                 clearInterval(interval);
             } else {
