@@ -6,3 +6,4 @@
 .DS_Store
 public/css/style.css
 public/.sass-cache/
+*.pyc
