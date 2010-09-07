@@ -64,6 +64,7 @@ function makeRequest(method, path, message, callback) {
 function savePlayer(client, message, socket) {
     if (!message._id) delete message._id;
     if (!message._rev) delete message._rev;
+    delete message.type;
     makeRequest('POST', '', message, function(doc) {
         if (doc.error == 'conflict') {
             sys.log('CONFLICT! ' + JSON.stringify(message));
