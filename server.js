@@ -82,6 +82,7 @@ function savePlayer(client, message, socket) {
 function loadPlayer(client, player, socket) {
     if (!player) return;
     makeRequest('GET', player, null, function(doc) {
+        if (!PLAYERS[client.sessionId]) PLAYERS[client.sessionId] = {};
         copy(doc, PLAYERS[client.sessionId]);
         doc.type = 'info';
         doc.id = client.sessionId;
@@ -97,6 +98,7 @@ var ACTIVE_PLAYERS = {};
 function setPlayerActive(id) {
     if (!ACTIVE_PLAYERS[id]) ACTIVE_PLAYERS_COUNT++;
     ACTIVE_PLAYERS[id] = true;
+    if (!PLAYERS[id]) PLAYERS[id] = {};
     PLAYERS[id].idle = false;
 }
 
@@ -126,6 +128,7 @@ function onConnect(client) {
 
         // cache state for new clients
         if (message.type == 'info') {
+            if (!PLAYERS[message.id]) PLAYERS[message.id] = {};
             copy(message, PLAYERS[message.id]);
         }
 
