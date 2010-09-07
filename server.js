@@ -82,6 +82,7 @@ function savePlayer(client, message, socket) {
 function loadPlayer(client, player, socket) {
     if (!player) return;
     makeRequest('GET', player, null, function(doc) {
+        copy(doc, PLAYERS[client.sessionId]);
         doc.type = 'info';
         doc.id = client.sessionId;
         socket.broadcast(doc);
@@ -89,31 +90,44 @@ function loadPlayer(client, player, socket) {
 }
 // IO
 
-var ACTIVE_PLAYERS = 0;
 var PLAYERS = {};
-var IDLE = {};
+var ACTIVE_PLAYERS_COUNT = 0;
+var ACTIVE_PLAYERS = {};
 
 function setPlayerActive(id) {
-    if (!PLAYERS[id]) ACTIVE_PLAYERS++;
-    PLAYERS[id] = true;
-    delete IDLE[id];
+    if (!ACTIVE_PLAYERS[id]) ACTIVE_PLAYERS_COUNT++;
+    ACTIVE_PLAYERS[id] = true;
+    PLAYERS[id].idle = false;
 }
 
 function sweepPlayers() {
-    ACTIVE_PLAYERS = 0;
-    PLAYERS = {};
+    ACTIVE_PLAYERS_COUNT = 0;
+    ACTIVE_PLAYERS = {};
+}
+
+function copy(source, dest) {
+    for (var key in source) {
+        if (source[key]) dest[key] = source[key];
+    }
 }
 
 var socket = new io.listen(app, { resource: 'socket.io' });
 
 function onConnect(client) {
 
-    client.send({ type: 'welcome', id: client.sessionId });
-    socket.broadcast({ type: 'connected', id: client.sessionId}, [client.sessionId]);
+    client.send({ type: 'welcome', id: client.sessionId, players: PLAYERS });
+    PLAYERS[client.sessionId] = { id: client.sessionId };
+
+    //socket.broadcast({ type: 'connected', id: client.sessionId}, [client.sessionId]);
 
     client.on('message', function(message) {
         message.id = client.sessionId;
         if (DEBUG) sys.log(JSON.stringify(message));
+
+        // cache state for new clients
+        if (message.type == 'info') {
+            copy(message, PLAYERS[message.id]);
+        }
 
         // mark players that are active
         if ((message.type == 'info') && (!message.name)) {
@@ -138,7 +152,7 @@ function onConnect(client) {
     });
 
     client.on('disconnect', function() {
-        delete IDLE[client.sessionId];
+        delete PLAYERS[client.sessionId];
         socket.broadcast({ type: 'disconnected', id: client.sessionId});
     });
 }
@@ -166,7 +180,7 @@ formations.forEach(function(i, id) {
 });
 
 function pickFormation() {
-    var available = FORMATIONS[Math.max(MIN_SIZE, Math.min(ACTIVE_PLAYERS, MAX_SIZE))];
+    var available = FORMATIONS[Math.max(MIN_SIZE, Math.min(ACTIVE_PLAYERS_COUNT, MAX_SIZE))];
     if (available.length == 0) return;
     return available[Math.floor(Math.random()*available.length)];
 }
@@ -175,12 +189,12 @@ var time = 0;
 setInterval(function() {
     time -= 1;
     if (time > 0) return;
-    sys.log('There are '+ACTIVE_PLAYERS+' active players.');
+    sys.log('There are '+ACTIVE_PLAYERS_COUNT+' active players.');
     var formation = pickFormation();
     for (var id in socket.clients) {
-        if ((!PLAYERS[id]) && (!IDLE[id])) {
+        if ((!ACTIVE_PLAYERS[id]) && (!PLAYERS[id].idle)) {
             socket.broadcast({ type: 'idle', id: id });
-            IDLE[id] = true;
+            PLAYERS[id].idle = true;
         }
     }
     sweepPlayers();

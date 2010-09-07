@@ -195,7 +195,6 @@ function log(m) {
                         left: p.left,
                         top: p.top
                     });
-                    clearTimeout(p.timeout);
                     p.timeout = null;
                 }, 100);
             }
@@ -241,13 +240,20 @@ function log(m) {
 
     var board = $('#board');
 
+    function loadPlayer(data) {
+        if (!PLAYERS[data.id]) {
+            PLAYERS[data.id] = new Player(data.id, data.left, data.top);
+        }
+        if (!data.name) PLAYERS[data.id].el.removeClass('idle');
+        PLAYERS[data.id].getInfo(data);
+    }
+
     board.bind('welcome', function(event, data) {
+        for (id in data.players) loadPlayer(data.players[id]);
         if (PLAYER) {
             PLAYER.id = data.id;
         } else {
-            setTimeout(function() {
-                PLAYER = new Player(data.id, null, null, true);
-            }, 2000);
+            PLAYER = new Player(data.id, null, null, true);
         }
     });
 
@@ -256,11 +262,7 @@ function log(m) {
             PLAYER.getInfo(data);
             PLAYER.rev = data._rev;
         } else {
-            if (!PLAYERS[data.id]) {
-                PLAYERS[data.id] = new Player(data.id, data.left, data.top);
-            }
-            if (!data.name) PLAYERS[data.id].el.removeClass('idle');
-            PLAYERS[data.id].getInfo(data);
+            loadPlayer(data);
         }
     });
 
@@ -279,7 +281,7 @@ function log(m) {
     });
 
     board.bind('connected', function(event, data) {
-        if (PLAYER) PLAYER.sendInfo(true);
+        //if (PLAYER) PLAYER.sendInfo(true);
     });
 
     board.bind('disconnected', function(event, data) {

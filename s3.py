@@ -197,7 +197,6 @@ def main():
     file_list = listFiles(root, extensions=linked, exclude=EXCLUDE) + [path(f) for f in overrides.keys()]
     files = [loadFile(f, overrides) for f in file_list]
     map = getMap(root, files)
-    print map
     bucket = getBucket()
     files = skipExisting(files, map, bucket, root)
     for f in files:
