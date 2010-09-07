@@ -304,7 +304,7 @@ function log(m) {
     board.bind('nextFormation', function(event, data) {
         FORMATION = Formations[data.formation];
         $('#formation')
-            .css('background', 'url(/images/formations/'+data.formation.toLowerCase()+'.png) no-repeat center top')
+            .css('background', 'url(http://djdtqy87hg7ce.cloudfront.net/images/formations/'+data.formation+'.png) no-repeat center top')
             .text(data.formation).end();
 
         var timeleft = data.time;
