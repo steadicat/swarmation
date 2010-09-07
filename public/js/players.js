@@ -195,6 +195,7 @@ function log(m) {
                         left: p.left,
                         top: p.top
                     });
+                    clearTimeout(p.timeout);
                     p.timeout = null;
                 }, 100);
             }
