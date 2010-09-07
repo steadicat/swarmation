@@ -328,6 +328,14 @@ function log(m) {
         }, data.time*1000 - MARGIN);
     });
 
+    var RESTARTING = false;
+
+    board.bind('restart', function(event, data) {
+        RESTARTING = true;
+        socket.disconnect();
+        alert('Swarmation needs to restart for an update. Please reload the page.');
+    });
+
     // sockets
 
     io.setPath('/io/');
@@ -347,8 +355,10 @@ function log(m) {
     });
 
     socket.on('disconnect', function() {
+        if (RESTARTING) return;
         var interval;
         function connect() {
+            console.log('connecting');
             if (socket.connected) {
                 clearInterval(interval);
             } else {
@@ -356,7 +366,7 @@ function log(m) {
             }
         }
         connect();
-        interval = setInterval(connect, 5000);
+        interval = setInterval(connect, 1000);
     });
 
     sendAction = function(type, data) {

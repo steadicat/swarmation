@@ -40,8 +40,15 @@ app.get('/', function(req, res) {
 
 // Error Handling
 
-process.addListener('uncaughtException', function(e) {
+process.on('uncaughtException', function(e) {
     sys.log(e.stack);
+});
+
+process.on('SIGINT', function() {
+    if (socket) socket.broadcast({ type: 'restart' });
+    setTimeout(function() {
+        process.exit();
+    }, 2000);
 });
 
 // Player persitence
