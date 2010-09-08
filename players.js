@@ -78,6 +78,7 @@ Player.prototype = {
 
     getInfo: function() {
         return {
+            id: this.id,
             left: this.left,
             top: this.top,
             name: this.name,
