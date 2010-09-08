@@ -1,12 +1,11 @@
-var DEBUG = false;
+var DEBUG = true;
 
 // Module dependencies.
 
 var express = require('express'),
 connect = require('connect'),
 sys = require('sys'),
-io = require('./contrib/Socket.IO-node'),
-http = require('http');
+io = require('./contrib/Socket.IO-node');
 
 var app = module.exports = express.createServer();
 
@@ -33,7 +32,11 @@ app.configure('production', function(){
 app.get('/', function(req, res) {
     if (req.header('host') == 'saber-tooth-moose-lion.no.de') {
         res.redirect('http://swarmation.com/');
-    } else {
+    } if (req.header('host') == 'www.swarmation.com') {
+        res.redirect('http://swarmation.com/');
+    }/* else if ((req.header('host') == 'swarmation.com') && (Math.random() >= 0.5)) {
+        res.redirect('http://www2.swarmation.com/');
+    }*/ else {
         res.sendfile('public/index.html');
     }
 });
@@ -51,113 +54,52 @@ process.on('SIGINT', function() {
     }, 2000);
 });
 
-// Player persitence
-function makeRequest(method, path, message, callback) {
-    message = JSON.stringify(message);
-    var request = http.createClient(5984, 'swarmation.cloudant.com').request(method, '/players/' + path, { 'content-length': message ? message.length : null, authorization: 'Basic aWNoaW1tYXJldmlsaWNoaWNoYXRpb25kOlFTaXVhcENuT2huWGlTdlBTcG00RG9JcA==', host: 'swarmation.cloudant.com', 'content-type': 'application/json' });
-    if (message) request.write(message);
-    request.on('response', function(response) {
-        var body = [];
-        response.on('data', function(chunk) {
-            body.push(chunk);
-        });
-        response.on('end', function() {
-            var resp = JSON.parse(body.join(''));
-            callback(resp);
-        });
-    });
-    request.end();
-}
-function savePlayer(client, message, socket) {
-    if (!message._id) delete message._id;
-    if (!message._rev) delete message._rev;
-    delete message.type;
-    makeRequest('POST', '', message, function(doc) {
-        if (doc.error == 'conflict') {
-            sys.log('CONFLICT! ' + JSON.stringify(message));
-        }
-        if (doc.ok == true) client.send({ type: 'saved', player: doc.id, rev: doc.rev });
-    });
-}
-function loadPlayer(client, player, socket) {
-    if (!player) return;
-    makeRequest('GET', player, null, function(doc) {
-        if (!PLAYERS[client.sessionId]) PLAYERS[client.sessionId] = {};
-        copy(doc, PLAYERS[client.sessionId]);
-        doc.type = 'info';
-        doc.id = client.sessionId;
-        socket.broadcast(doc);
-    });
-}
+// Model
+var players = require('./players');
+var PLAYERS = players.PLAYERS;
+var Player = players.Player;
+
 // IO
-
-var PLAYERS = {};
-var ACTIVE_PLAYERS_COUNT = 0;
-var ACTIVE_PLAYERS = {};
-
-function setPlayerActive(id) {
-    if (!ACTIVE_PLAYERS[id]) ACTIVE_PLAYERS_COUNT++;
-    ACTIVE_PLAYERS[id] = true;
-    if (!PLAYERS[id]) PLAYERS[id] = {};
-    PLAYERS[id].idle = false;
-}
-
-function sweepPlayers() {
-    ACTIVE_PLAYERS_COUNT = 0;
-    ACTIVE_PLAYERS = {};
-}
-
-function copy(source, dest) {
-    for (var key in source) {
-        if ((source[key] !== undefined) && (source[key] !== null)) dest[key] = source[key];
-    }
-}
 
 var socket = new io.listen(app, { resource: 'socket.io' });
 
 function onConnect(client) {
 
-    client.send({ type: 'welcome', id: client.sessionId, players: PLAYERS });
+    client.send({ type: 'welcome', id: client.sessionId, players: Player.getList() });
     if (FORMATION && (TIME > 0)) client.send({ type: 'nextFormation', formation: FORMATION.name, time: TIME });
-    PLAYERS[client.sessionId] = { id: client.sessionId };
-
-    //socket.broadcast({ type: 'connected', id: client.sessionId}, [client.sessionId]);
 
     client.on('message', function(message) {
         message.id = client.sessionId;
         if (DEBUG) sys.log(JSON.stringify(message));
 
+        var player = Player.get(client);
+
         // cache state for new clients
-        if (message.type == 'info') {
-            if (!PLAYERS[message.id]) PLAYERS[message.id] = {};
-            copy(message, PLAYERS[message.id]);
-        }
+        if (message.type == 'info') player.setInfo(message);
 
         // mark players that are active
-        if ((message.type == 'info') && (!message.name)) {
-            setPlayerActive(client.sessionId);
-        }
+        if ((message.type == 'info') && (!message.name)) player.setActive();
+
         if (message.type == 'formation') {
-            setPlayerActive(message.id);
+            player.setActive();
             for (var i in message.ids) {
-                setPlayerActive(message.ids[i]);
+                Player.byId(message.ids[i]).setActive();
             }
         }
 
         // store players
         if (message.type == 'save') {
-            savePlayer(client, message, socket);
+            player.save(message);
         } else if (message.type == 'load') {
-            loadPlayer(client, message.player, socket);
+            player.load(message.player);
         } else {
-            socket.broadcast(message, [client.sessionId]);
+            client.broadcast(message);
         }
 
     });
 
     client.on('disconnect', function() {
-        delete PLAYERS[client.sessionId];
-        socket.broadcast({ type: 'disconnected', id: client.sessionId});
+        Player.get(client).disconnect(socket);
     });
 }
 
@@ -185,7 +127,7 @@ formations.forEach(function(i, id) {
 });
 
 function pickFormation() {
-    var available = FORMATIONS[Math.max(MIN_SIZE, Math.min(ACTIVE_PLAYERS_COUNT, MAX_SIZE))];
+    var available = FORMATIONS[Math.max(MIN_SIZE, Math.min(Player.getActive(), MAX_SIZE))];
     if (available.length == 0) return;
     return available[Math.floor(Math.random()*available.length)];
 }
@@ -194,15 +136,9 @@ var TIME = 1;
 setInterval(function() {
     TIME -= 1;
     if (TIME != 0) return;
-    sys.log('There are '+ACTIVE_PLAYERS_COUNT+' active players.');
+    Player.endTurn(socket);
+    sys.log('There are '+Player.getActive()+' active players.');
     FORMATION = pickFormation();
-    for (var id in socket.clients) {
-        if ((!ACTIVE_PLAYERS[id]) && (!PLAYERS[id].idle)) {
-            socket.broadcast({ type: 'idle', id: id });
-            PLAYERS[id].idle = true;
-        }
-    }
-    sweepPlayers();
     if (!FORMATION) return;
     TIME = -1;
     setTimeout(function() {
