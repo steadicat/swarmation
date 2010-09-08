@@ -36,7 +36,7 @@ function log(m) {
                 top = Math.floor(Math.random() * HEIGHT);
             }
         }
-        this.el = $('<div class="player"></div>').attr('id', 'player-'+id).appendTo('#board');
+        this.el = $('<div class="player"></div>').appendTo('#board');
         this.setPosition(left, top);
         this.isSelf = isSelf;
         this.name = NAMES[Math.floor(Math.random()*NAMES.length)];
