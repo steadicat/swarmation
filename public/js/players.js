@@ -328,18 +328,22 @@ function log(m) {
         }
     });
 
+    var time;
+    var formationInterval;
+
     board.bind('nextFormation', function(event, data) {
         FORMATION = Formations[data.formation];
         $('#formation')
             .css('background', 'url(http://djdtqy87hg7ce.cloudfront.net/images/formations/'+data.formation+'.png) no-repeat center top')
             .text(data.formation).end();
 
-        var timeleft = data.time;
-        $('#countdown').text(timeleft);
+        time = data.time;
+        $('#countdown').text(time);
 
-        var interval = setInterval(function() {
-            timeleft--;
-            $('#countdown').text(timeleft);
+        if (formationInterval) clearInterval(formationInterval);
+        formationInterval = setInterval(function() {
+            time--;
+            $('#countdown').text(time);
         }, 1000);
 
         setTimeout(function() {
@@ -348,7 +352,7 @@ function log(m) {
                 setTimeout(function() {
                     PLAYER.formationDeadline();
                     for (var id in PLAYERS) PLAYERS[id].formationDeadline();
-                    clearInterval(interval);
+                    clearInterval(formationInterval);
                     $('#countdown').text('0');
                 }, MARGIN);
             }
