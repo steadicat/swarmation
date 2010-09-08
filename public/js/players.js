@@ -97,7 +97,7 @@ function log(m) {
             if (!MAP[left]) MAP[left] = [];
             MAP[left][top] = this;
 
-            this.el.css({ left: this.getX(), top: this.getY() });
+            this.el.animate({ left: this.getX(), top: this.getY() }, MOVEMENT_RATE/3);
             return true;
         },
 
