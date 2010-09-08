@@ -109,7 +109,7 @@ function sweepPlayers() {
 
 function copy(source, dest) {
     for (var key in source) {
-        if (source[key]) dest[key] = source[key];
+        if ((source[key] !== undefined) && (source[key] !== null)) dest[key] = source[key];
     }
 }
 
