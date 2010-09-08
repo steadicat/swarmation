@@ -11,6 +11,7 @@ var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zom
 var MAX_POINTS = 26;
 var QUORUM = 2;
 var MARGIN = 1000;
+var MOVEMENT_RATE = 120;
 
 var DEBUG = false;
 
@@ -115,7 +116,7 @@ function log(m) {
             p.move(direction);
             this.moveIntervals[direction] = setInterval(function() {
                 p.move(direction);
-            }, 100);
+            }, MOVEMENT_RATE);
         },
 
         stopMove: function(direction) {
@@ -215,7 +216,7 @@ function log(m) {
                         top: p.top
                     });
                     p.timeout = null;
-                }, 100);
+                }, MOVEMENT_RATE);
             }
         },
 
