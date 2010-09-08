@@ -79,6 +79,7 @@ body
       :background-color #eee
       :border 1px solid #888
       +box-shadow(#000,0px,0px,6px)
+      :position relative
     #board
       :width 961px
       :height 601px
@@ -86,6 +87,19 @@ body
       :position relative
     #board-controls
       :padding 15px 25px
+    #message
+      :text-align center
+      :padding 240px 0
+      :font-size 36px
+      :font-weight bold
+      :position absolute
+      :width 981px
+      :height 141px
+      :top 0
+      :left 0
+      :background-color rgba(0, 0, 0, 0.2)
+      :color #fff
+      :display none
     #tooltip
       +box-shadow(#555,0px,0px,2px)
       +border-radius(2px)

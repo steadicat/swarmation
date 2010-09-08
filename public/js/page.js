@@ -1,4 +1,5 @@
 var displayNotice;
+var displayMessage;
 
 (function($, undefined) {
 
@@ -28,6 +29,10 @@ var displayNotice;
             .animate({ "opacity": "1.0" }, "slow");
 
         setTimeout(function(){div.css({ "color": "#fff" });}, 1000);
+    };
+
+    displayMessage = function(text) {
+        $('#message').show().html(text);
     };
 
     function setupPlaceholder(inputid) {

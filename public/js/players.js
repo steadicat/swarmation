@@ -363,7 +363,13 @@ function log(m) {
     board.bind('restart', function(event, data) {
         RESTARTING = true;
         socket.disconnect();
-        alert('Swarmation needs to restart for an update. Please reload the page.');
+        displayMessage('Swarmation needs to restart for an update.<br/>Please reload the page.');
+    });
+
+    board.bind('kick', function(event, data) {
+        RESTARTING = true;
+        socket.disconnect();
+        displayMessage('You have been disconnected for being idle too long.<br/>Reload the page to resume playing.');
     });
 
     // sockets
