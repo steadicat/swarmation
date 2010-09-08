@@ -64,10 +64,37 @@ var displayNotice;
 
     setupPlaceholder("username");
 
-    $(document).bind('keydown', 'up', function() { if (PLAYER) PLAYER.move('up'); return false; });
-    $(document).bind('keydown', 'down', function() { if (PLAYER) PLAYER.move('down'); return false; });
-    $(document).bind('keydown', 'left', function() { if (PLAYER) PLAYER.move('left'); return false; });
-    $(document).bind('keydown', 'right', function() { if (PLAYER) PLAYER.move('right'); return false; });
-    $(document).bind('keydown', 'space', function() { if (PLAYER) PLAYER.flash(); return false; });
+    MOVEMENTS = {
+        38: 'up',
+        40: 'down',
+        37: 'left',
+        39: 'right'
+    }
+
+    $(document).bind('keydown', function(event) {
+        if (!PLAYER) return false;
+
+        if (MOVEMENTS[event.keyCode]) {
+            PLAYER.startMove(MOVEMENTS[event.keyCode]);
+            return false;
+        } else if (event.keyCode == 32) { // space
+            PLAYER.startFlash();
+            return false;
+        }
+    });
+
+    $(document).bind('keyup', function(event) {
+        if (!PLAYER) return false;
+
+        if (MOVEMENTS[event.keyCode]) {
+            PLAYER.stopMove(MOVEMENTS[event.keyCode]);
+            return false;
+        } else if (event.keyCode == 32) { // space
+            PLAYER.stopFlash();
+            return false;
+        }
+
+    });
+
 
 })(jQuery);

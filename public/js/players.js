@@ -43,6 +43,9 @@ function log(m) {
         this.succeeded = 0;
         this.total = 0;
         this.completed = 0;
+
+        this.moveIntervals = {};
+
         if (isSelf) {
             this.el.addClass('self');
             this.load();
@@ -105,13 +108,28 @@ function log(m) {
             }
         },
 
-        flash: function() {
-            var player = this;
-            player.el.addClass('flash');
-            setTimeout(function() {
-                player.el.removeClass('flash');
-            }, 200);
+        startMove: function(direction) {
+            var p = this;
+            if (p.moveIntervals[direction]) return;
+            p.move(direction);
+            this.moveIntervals[direction] = setInterval(function() {
+                p.move(direction);
+            }, 100);
+        },
+
+        stopMove: function(direction) {
+            clearInterval(this.moveIntervals[direction]);
+            this.moveIntervals[direction] = null;
+        },
+
+        startFlash: function() {
+            this.el.addClass('flash');
             if (this.isSelf) sendAction('flash', {});
+        },
+
+        stopFlash: function() {
+            this.el.removeClass('flash');
+            if (this.isSelf) sendAction('flash', { stop: true });
         },
 
         checkFormationPoints: function(points) {
@@ -268,7 +286,13 @@ function log(m) {
     });
 
     board.bind('flash', function(event, data) {
-        if (PLAYERS[data.id]) PLAYERS[data.id].flash();
+        if (PLAYERS[data.id]) {
+            if (data.stop) {
+                PLAYERS[data.id].stopFlash();
+            } else {
+                PLAYERS[data.id].startFlash();
+            }
+        }
     });
 
     board.bind('idle', function(event, data) {
