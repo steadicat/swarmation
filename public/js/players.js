@@ -35,7 +35,7 @@ function log(m) {
                 top = Math.floor(Math.random() * HEIGHT);
             }
         }
-        this.el = $('<div class="player"></div>').appendTo('#board');
+        this.el = $('<div class="player"></div>').attr('id', 'player-'+id).appendTo('#board');
         this.setPosition(left, top);
         this.isSelf = isSelf;
         this.name = NAMES[Math.floor(Math.random()*NAMES.length)];
@@ -84,10 +84,10 @@ function log(m) {
 
         setPosition: function(left, top) {
             // cancel in case of collisions
-            if (Player.atPosition(left, top)) return;
+            if (Player.atPosition(left, top)) return false;
             // cancel if out of bounds
-            if ((left < 0) || (left >= WIDTH)) return;
-            if ((top < 0) || (top >= HEIGHT)) return;
+            if ((left < 0) || (left >= WIDTH)) return false;
+            if ((top < 0) || (top >= HEIGHT)) return false;
 
             if (!MAP[this.left]) MAP[this.left] = [];
             MAP[this.left][this.top] = null;
@@ -97,12 +97,13 @@ function log(m) {
             MAP[left][top] = this;
 
             this.el.css({ left: this.getX(), top: this.getY() });
+            return true;
         },
 
         move: function(direction) {
             var newp = Player.directions[direction](this.left, this.top);
-            this.setPosition(newp[0], newp[1]);
-            if (this.isSelf) {
+            var changed = this.setPosition(newp[0], newp[1]);
+            if (changed && this.isSelf) {
                 this.sendInfo();
                 this.el.removeClass('idle');
             }
