@@ -306,7 +306,6 @@ function log(m) {
     });
 
     board.bind('connected', function(event, data) {
-        //if (PLAYER) PLAYER.sendInfo(true);
     });
 
     board.bind('disconnected', function(event, data) {
@@ -320,7 +319,7 @@ function log(m) {
     board.bind('formation', function(event, data) {
         if ((!PLAYER) || (!PLAYER.id)) return;
         if ($.inArray(PLAYER.id, data.ids) >= 0) PLAYER.formationReported(data.formation);
-        PLAYERS[data.id].formationReported(data.formation);
+        if (PLAYERS[data.id]) PLAYERS[data.id].formationReported(data.formation);
         for (var j = 0; j < data.ids.length; j++) {
             if (PLAYERS[data.ids[j]]) {
                 PLAYERS[data.ids[j]].formationReported(data.formation);
