@@ -221,7 +221,7 @@ function log(m) {
                     succeeded: this.succeeded
                 });
             } else {
-                rateLimit(this, MOVEMENT_RATE, function() {
+                rateLimit(this, MOVEMENT_RATE/2, function() {
                     sendAction('info', { left: this.left, top: this.top })
                 });
             }
@@ -232,7 +232,6 @@ function log(m) {
         },
 
         save: function() {
-            displayNotice('Your score has been saved.');
             sendAction('save', {
                 name: this.name,
                 score: this.score,
