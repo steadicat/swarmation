@@ -1,6 +1,7 @@
 BUCKET = 'media.swarmation.com'
-HOST = 'djdtqy87hg7ce.cloudfront.net'
-ORIGIN = 'http://swarmation.com/,http://beta.swarmation.com/,http://localhost:81/'
+#HOST = 'djdtqy87hg7ce.cloudfront.net'
+HOST = 'media.swarmation.com'
+ORIGIN = 'http://swarmation.com/,http://beta.swarmation.com/,http://www2.swarmation.com/,http://localhost:81/'
 
 AMAZON_ID = '0FXHQPW21QYG3G1E7C82'
 AMAZON_KEY = '4Uh6adFlkXkWso5+VokhaMe5Jd9ho8jmjzFVli2b'

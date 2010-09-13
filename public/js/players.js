@@ -11,7 +11,7 @@ var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zom
 var MAX_POINTS = 26;
 var QUORUM = 2;
 var MARGIN = 1000;
-var MOVEMENT_RATE = 120;
+var MOVEMENT_RATE = 140;
 
 var DEBUG = false;
 
@@ -22,6 +22,14 @@ function log(m) {
 }
 
 (function($, undefined) {
+
+    function rateLimit(target, rate, f) {
+        if (target.timeout) return;
+        target.timeout = setTimeout(function() {
+            f.call(target);
+            target.timeout = null;
+        }, rate);
+    }
 
     Formations = compileFormations(Formations);
 
@@ -92,12 +100,17 @@ function log(m) {
 
             if (!MAP[this.left]) MAP[this.left] = [];
             MAP[this.left][this.top] = null;
+            var first = (this.left === undefined);
             this.left = left;
             this.top = top;
             if (!MAP[left]) MAP[left] = [];
             MAP[left][top] = this;
 
-            this.el.animate({ left: this.getX(), top: this.getY() }, MOVEMENT_RATE/3);
+            if (first) {
+                this.el.css({ left: this.getX(), top: this.getY() });
+            } else {
+                this.el.stop().animate({ left: this.getX(), top: this.getY() }, MOVEMENT_RATE);
+            }
             return true;
         },
 
@@ -197,6 +210,7 @@ function log(m) {
         },
 
         sendInfo: function(full) {
+
             if (full) {
                 sendAction('info', {
                     left: this.left,
@@ -207,16 +221,9 @@ function log(m) {
                     succeeded: this.succeeded
                 });
             } else {
-                // rate limiting
-                var p = this;
-                if (this.timeout) return;
-                this.timeout = setTimeout(function() {
-                    sendAction('info', {
-                        left: p.left,
-                        top: p.top
-                    });
-                    p.timeout = null;
-                }, MOVEMENT_RATE);
+                rateLimit(this, MOVEMENT_RATE, function() {
+                    sendAction('info', { left: this.left, top: this.top })
+                });
             }
         },
 
