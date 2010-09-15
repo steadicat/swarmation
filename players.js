@@ -1,4 +1,4 @@
-var MAX_IDLE = 3;
+var MAX_IDLE = 10;
 
 // couchdb
 var SERVER = 'swarmation.cloudant.com';
