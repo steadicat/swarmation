@@ -111,7 +111,7 @@ ox
 -xxx
 x   x   x
 -----xxx
- xxx
+-xxx
 x   x   x
 -----xxx
 """
