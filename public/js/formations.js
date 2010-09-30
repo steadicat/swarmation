@@ -1,6 +1,5 @@
 (function() {
   ((typeof exports !== "undefined" && exports !== null) ? exports : window).Formations = {
-    eyes: " 4\no o",
     triangle: " 4\n-o\no o",
     easy: " 6\nooo",
     clover: " 10\nx o\n-o\no x",
