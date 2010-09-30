@@ -1,5 +1,7 @@
 (function() {
   ((typeof exports !== "undefined" && exports !== null) ? exports : window).Formations = {
+    eyes: " 4\no o",
+    triangle: " 4\n-o\no o",
     easy: " 6\nooo",
     clover: " 10\nx o\n-o\no x",
     tetris: " 8\no\nx\no\no",
@@ -15,6 +17,8 @@
     patchwork: " 20\n-x x\no x o\n-x x\nx o x\n-x x",
     volcano: " 16\n--o\n-xxx\noxxxo",
     spiral: " 22\n-xx\nx o x\nx   x\n-oxo",
-    glider: " 13\n-o\n--o\nxox"
+    glider: " 13\n-o\n--o\nxox",
+    giraffe: " 15\nox\n-x\n-x\n-x\n-x\n-x    o\n-oxxxx\n-x   x\n-x   x",
+    wave: " 20\n-xxx\no   x   o\n-----xxx\n-xxx\nx   x   o\n-----xxx"
   };
-})();
+}).call(this);

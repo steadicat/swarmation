@@ -1,4 +1,11 @@
 (exports ? window).Formations =
+    eyes: """ 4
+o o
+"""
+    triangle: """ 4
+-o
+o o
+"""
     easy: """ 6
 ooo
 """
@@ -88,4 +95,23 @@ x   x
 -o
 --o
 xox
+"""
+    giraffe: """ 15
+ox
+-x
+-x
+-x
+-x
+-x    o
+-oxxxx
+-x   x
+-x   x
+"""
+    wave: """ 20
+-xxx
+o   x   o
+-----xxx
+-xxx
+x   x   o
+-----xxx
 """

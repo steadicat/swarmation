@@ -30,6 +30,13 @@ this.compileFormations = {};
                     }
                 }
             }
+
+            if (formation.points.length == 0) {
+                // malformed formation?
+                console.log('Formation ' + formation.name + ' is malformed!');
+                continue;
+            }
+
             formation.size = formation.points[0].length+1;
             formations[name] = formation;
         }

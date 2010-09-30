@@ -120,11 +120,11 @@ var MARGIN = 2000;
 
 for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = [];
 
-formations.forEach(function(i, id) {
+for (var id in formations) {
     for (var i=formations[id].size; i<=MAX_SIZE; i++) {
         FORMATIONS[i].push(formations[id]);
     }
-});
+};
 
 function pickFormation() {
     var available = FORMATIONS[Math.max(MIN_SIZE, Math.min(Player.getActive(), MAX_SIZE))];
