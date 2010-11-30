@@ -11,7 +11,7 @@ var app = module.exports = express.createServer();
 
 // Configuration
 
-app.configure(function(){
+app.configure(function() {
     app.set('views', __dirname + '/views');
     app.use(connect.bodyDecoder());
     app.use(connect.methodOverride());
