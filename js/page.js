@@ -9,6 +9,7 @@ Page.displayNotice = function(text) {
   Dom.addClass(div, 'notice')
   Dom.addClass(div, 'border')
   Dom.addClass(div, 'white')
+  Dom.addClass(div, 'rounded')
   div.style.opacity = 0
   notices.insertBefore(div, notices.firstChild)
   setTimeout(function() {
