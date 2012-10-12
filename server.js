@@ -4,6 +4,8 @@ var DEBUG = true
 
 var express = require('express')
 var connect = require('connect')
+var stylus = require('stylus')
+var nib = require('nib')
 var sys = require('sys')
 var http = require('http')
 
@@ -13,8 +15,22 @@ var io = require('socket.io').listen(server)
 
 // Configuration
 
+var public = __dirname + '/public'
 app.configure(function() {
-  app.use('/', express.static(__dirname + '/public'))
+  app.use(
+    stylus.middleware({
+      src: public,
+      dest: public,
+      compile: function(str, path) {
+        return stylus(str)
+          .set('filename', path)
+          .set('compress', true)
+          .define('url', stylus.url())
+          .use(nib())
+      }
+    })
+  )
+  app.use('/', express.static(public))
 })
 
 app.configure('development', function(){

@@ -7,7 +7,9 @@
   "dependencies": {
     "express": "*",
     "connect": "*",
-    "socket.io": "*"
+    "socket.io": "*",
+    "stylus": "*",
+    "nib": "*"
   },
   "engines": {
     "node": ">=0.7.7"

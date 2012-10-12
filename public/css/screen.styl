@@ -1,0 +1,148 @@
+@import nib
+global-reset()
+
+body
+  font-family Arial, sans-serif
+  font-size 13px
+  color #222
+  background #332 url(../images/bg.png)
+a
+  color #fff
+#container
+  width 1190px
+  margin 0 auto
+  overflow hidden
+#header
+  height 160px
+  font-weight bold
+  color #eee
+  text-align center
+  text-shadow #000 2px 2px 2px
+  background url(../images/swarmation.png) center 25px no-repeat
+  text-indent -9999px
+  overflow hidden
+#header, #footer, #content
+  display inline
+  float left
+  margin-right 10px
+  width 990px
+#info
+  color #fff
+  text-align center
+  border 1px solid #666
+  padding 12px 12px
+  border 1px solid #222
+  background #444 url(../images/bg-score.png)
+  margin 2px
+  margin-bottom 16px
+  border-radius 3px
+  box-shadow #1a1a1a 0px 0px 2px
+  text-shadow #000 0px 0px 2px
+  #countdown
+    font-size 60px
+  #formation
+    font-size 20px
+    padding-top 80px
+  #score
+    font-size 30px
+#sidebar
+  display inline
+  float left
+  margin-right 0
+  width 190px
+  height 620px
+  overflow hidden
+  color #eee
+  .sidebar-notice
+    box-shadow #1a1a1a 0px 0px 2px
+    border 1px solid #222
+    background #444 url(../images/bg-notice.png)
+    padding 5px 8px 6px 8px
+    margin 0px 1px 12px 0
+    color #fff
+  #arrow-image
+    position relative
+    top 2px
+  .placeholder
+    color #888
+    background-color #eee
+  #username
+    width 165px
+    border-width 0px
+    padding 2px 5px
+    font-size 13px
+  .username-box
+    padding-top 5px
+    padding-bottom 5px
+#content
+  #about
+    padding 5px 15px
+    text-align right
+    color #888
+  #board-container
+    margin 3px 0 8px 10px
+    padding 9px
+    background-color #eee
+    border 1px solid #888
+    box-shadow #000 0px 0px 6px
+    position relative
+  #board
+    width 961px
+    height 601px
+    background url(../images/cell.png)
+    position relative
+  #board-controls
+    padding 15px 25px
+  #message
+    text-align center
+    padding 240px 0
+    font-size 36px
+    font-weight bold
+    position absolute
+    width 981px
+    height 141px
+    top 0
+    left 0
+    background-color rgba(0, 0, 0, 0.2)
+    color #fff
+    display none
+  #tooltip
+    box-shadow #555 0px 0px 2px
+    border-radius 2px
+    display none
+    background-color #eee
+    padding 3px 7px 4px 7px
+    position absolute
+    .name
+      font-weight bold
+  .player
+    position absolute
+    width 6px
+    height 6px
+    border 2px solid #666
+    background #ccc
+    &.self
+      border 2px solid #07f
+      background #89cff0
+    &.idle
+      opacity 0.5
+    &.flash
+      border 2px solid #f60
+      background #ffc29b
+    &.active
+      border 2px solid #fc0
+      background #ff3
+
+#footer
+  text-align center
+  color #999
+  padding 10px 12px
+  line-height 24px
+  a
+    text-decoration none
+  #leaderboard
+    line-height 1.5em
+    a
+      padding-right 6px
+      .points
+        color #999
