@@ -38,7 +38,7 @@ process.on('uncaughtException', function(e) {
 })
 
 process.on('SIGINT', function() {
-  if (io.sockets) io.sockets.emit('message', { type: 'restart' })
+  if (io.sockets) io.sockets.emit('restart')
   setTimeout(function() {
     process.exit()
   }, 2000)
@@ -52,37 +52,43 @@ var Player = players.Player
 // IO
 
 function onConnect(client) {
-  client.emit('message', { type: 'welcome', id: client.id, players: Player.getList() })
-  if (FORMATION && (TIME > 0)) client.emit('message', { type: 'nextFormation', formation: FORMATION.name, time: TIME })
 
-  client.on('message', function(message) {
-    message.id = client.id
-    if (DEBUG) sys.log(JSON.stringify(message))
+  client.emit('welcome', { id: client.id, players: Player.getList() })
+  if (FORMATION && (TIME > 0)) client.emit('nextFormation', { formation: FORMATION.name, time: TIME })
 
-    var player = Player.get(client)
+  // cache state for new clients
+  client.on('info', function(message) {
+    Player.get(client).setInfo(message)
+  })
 
-    // cache state for new clients
-    if (message.type == 'info') player.setInfo(message)
+  // mark players that are active
+  client.on('info', function(message) {
+    if (!message.name) Player.get(client).setActive()
+  })
 
-    // mark players that are active
-    if ((message.type == 'info') && (!message.name)) player.setActive()
-
-    if (message.type == 'formation') {
-      player.setActive()
-      for (var i in message.ids) {
-        Player.byId(message.ids[i]).setActive()
-      }
+  client.on('formation', function(message) {
+    Player.get(client).setActive()
+    for (var i in message.ids) {
+      Player.byId(message.ids[i]).setActive()
     }
+  })
 
-    // store players
-    if (message.type == 'save') {
-      //player.save(message)
-    } else if (message.type == 'load') {
-      //player.load(message.player)
-    } else {
-      client.broadcast.emit('message', message)
-    }
+  // forward most events to other clients
+  function forward(client, event) {
+    client.on(event, function(message) {
+      message.id = client.id
+      client.broadcast.emit(event, message)
+    })
+  }
+  ['flash', 'formation', 'info'].map(forward.bind(null, client))
 
+  // player profile saving and loading
+  client.on('save', function(message) {
+    //Player.get(client.id).save(message)
+  })
+
+  client.on('load', function(message) {
+    //Player.get(client.id).load(message.player)
   })
 
   client.on('disconnect', function() {
@@ -130,7 +136,7 @@ setInterval(function() {
   setTimeout(function() {
     TIME = FORMATION.difficulty
     sys.log('Next formation is ' + FORMATION.name +', of size '+(FORMATION.size)+'.')
-    io.sockets.emit('message', { type: 'nextFormation', formation: FORMATION.name, time: TIME })
+    io.sockets.emit('nextFormation', { formation: FORMATION.name, time: TIME })
   }, MARGIN)
 }, 1000)
 

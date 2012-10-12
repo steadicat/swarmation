@@ -5,7 +5,6 @@ var PLAYERS = {}
 var MAP = []
 var FORMATION
 var Player
-var sendAction
 var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry']
 
 var MAX_POINTS = 26
@@ -139,12 +138,12 @@ function log(m) {
 
     startFlash: function() {
       this.el.addClass('flash')
-      if (this.isSelf) sendAction('flash', {})
+      if (this.isSelf) socket.emit('flash', {})
     },
 
     stopFlash: function() {
       this.el.removeClass('flash')
-      if (this.isSelf) sendAction('flash', { stop: true })
+      if (this.isSelf) socket.emit('flash', { stop: true })
     },
 
     checkFormationPoints: function(points) {
@@ -166,7 +165,7 @@ function log(m) {
         if (!others) continue
         this.formationReported(formation.name)
         for (var id in others) if (PLAYERS[others[id]]) PLAYERS[others[id]].formationReported(formation.name)
-        sendAction('formation', { formation: formation.name, ids: others })
+        socket.emit('formation', { formation: formation.name, ids: others })
       }
     },
 
@@ -212,7 +211,7 @@ function log(m) {
     sendInfo: function(full) {
 
       if (full) {
-        sendAction('info', {
+        socket.emit('info', {
           left: this.left,
           top: this.top,
           name: this.name,
@@ -222,17 +221,17 @@ function log(m) {
         })
       } else {
         rateLimit(this, MOVEMENT_RATE/2, function() {
-          sendAction('info', { left: this.left, top: this.top })
+          socket.emit('info', { left: this.left, top: this.top })
         })
       }
     },
 
     load: function() {
-      sendAction('load', { player: $.cookie('player') })
+      socket.emit('load', { player: $.cookie('player') })
     },
 
     save: function() {
-      sendAction('save', {
+      socket.emit('save', {
         name: this.name,
         score: this.score,
         total: this.total,
@@ -265,7 +264,9 @@ function log(m) {
     }
   }
 
-  var board = $('#board')
+  // sockets
+
+  var socket = io.connect('')
 
   function loadPlayer(data) {
     if (!PLAYERS[data.id]) {
@@ -275,7 +276,7 @@ function log(m) {
     PLAYERS[data.id].getInfo(data)
   }
 
-  board.bind('welcome', function(event, data) {
+  socket.on('welcome', function(data) {
     for (id in data.players) loadPlayer(data.players[id])
     if (PLAYER) {
         PLAYER.id = data.id
@@ -284,7 +285,7 @@ function log(m) {
     }
   })
 
-  board.bind('info', function(event, data) {
+  socket.on('info', function(data) {
     if (PLAYER && (data.id == PLAYER.id)) {
       PLAYER.getInfo(data)
       PLAYER.rev = data._rev
@@ -293,7 +294,7 @@ function log(m) {
     }
   })
 
-  board.bind('flash', function(event, data) {
+  socket.on('flash', function(data) {
     if (PLAYERS[data.id]) {
       if (data.stop) {
         PLAYERS[data.id].stopFlash()
@@ -303,20 +304,21 @@ function log(m) {
     }
   })
 
-  board.bind('idle', function(event, data) {
+  socket.on('idle', function(data) {
     if (PLAYERS[data.id]) PLAYERS[data.id].el.addClass('idle')
     if (PLAYER && (data.id == PLAYER.id)) PLAYER.el.addClass('idle')
   })
 
-  board.bind('saved', function(event, data) {
+  socket.on('saved', function(data) {
     $.cookie('player', data.player, { expires: 3650 })
     PLAYER.rev = data.rev
   })
 
-  board.bind('connected', function(event, data) {
+  socket.on('connected', function(data) {
+    console.log(data)
   })
 
-  board.bind('disconnected', function(event, data) {
+  socket.on('disconnected', function(data) {
     var p = PLAYERS[data.id]
     if (!p) return
     delete MAP[p.left][p.top]
@@ -324,7 +326,7 @@ function log(m) {
     delete PLAYERS[data.id]
   })
 
-  board.bind('formation', function(event, data) {
+  socket.on('formation', function(data) {
     if ((!PLAYER) || (!PLAYER.id)) return
     if ($.inArray(PLAYER.id, data.ids) >= 0) PLAYER.formationReported(data.formation)
     if (PLAYERS[data.id]) PLAYERS[data.id].formationReported(data.formation)
@@ -336,7 +338,7 @@ function log(m) {
   var time
   var formationInterval
 
-  board.bind('nextFormation', function(event, data) {
+  socket.on('nextFormation', function(data) {
     FORMATION = Formations[data.formation]
     $('#formation')
       .css('background', 'url(http://djdtqy87hg7ce.cloudfront.net/images/formations/'+data.formation+'.png) no-repeat center top')
@@ -366,26 +368,16 @@ function log(m) {
 
   var RESTARTING = false
 
-  board.bind('restart', function(event, data) {
+  socket.on('restart', function(data) {
     RESTARTING = true
     socket.disconnect()
     displayMessage('Swarmation needs to restart for an update.<br/>Please reload the page.')
   })
 
-  board.bind('kick', function(event, data) {
+  socket.on('kick', function(data) {
     RESTARTING = true
     socket.disconnect()
     displayMessage('You have been disconnected for being idle too long.<br/>Reload the page to resume playing.')
-  })
-
-  // sockets
-
-  //io.setPath('/io/')
-  var socket = io.connect('')
-
-  socket.on('message', function(data) {
-    log([data.id, data.type, data.left, data.top, data.score, data.succeeded, data.formation, data])
-    board.trigger(data.type, data)
   })
 
   socket.on('connect', function() {
@@ -408,12 +400,5 @@ function log(m) {
     connect()
     interval = setInterval(connect, 1000)
   })
-
-  sendAction = function(type, data) {
-    data.type = type
-    log(['sending', data.type, data.left, data.top, data.score, data.succeeded, data.formation, data])
-    socket.emit('message', data)
-  }
-
 
 })(jQuery)

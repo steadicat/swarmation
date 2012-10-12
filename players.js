@@ -98,8 +98,8 @@ Player.prototype = {
       this.idleTurns = 0
     } else {
       if (this.idleTurns == IDLE_AFTER_TURNS) {
-        this.client.emit('message', { type: 'idle', id: this.id })
-        this.client.broadcast.emit('message', { type: 'idle', id: this.id })
+        this.client.emit('idle', { id: this.id })
+        this.client.broadcast.emit('idle', { id: this.id })
       }
       this.idleTurns++
       if (this.idleTurns > MAX_IDLE) this.kick()
@@ -114,11 +114,10 @@ Player.prototype = {
     delete message.id
     var p = this
     makeRequest('POST', '', message, function(doc) {
-      console.log(doc)
       if (doc.error == 'conflict') {
         sys.log('CONFLICT! ' + JSON.stringify(message))
       }
-      if (doc.ok == true) p.client.emit('message', { type: 'saved', player: doc.id, rev: doc.rev })
+      if (doc.ok == true) p.client.emit('saved', { player: doc.id, rev: doc.rev })
     })
   },
 
@@ -127,21 +126,20 @@ Player.prototype = {
     var p = this
     makeRequest('GET', player, null, function(doc) {
       p.getInfo(doc)
-      doc.type = 'info'
       doc.id = p.id
-      p.client.emit('message', doc)
-      p.client.broadcast.emit('message', doc)
+      p.client.emit('info', doc)
+      p.client.broadcast.emit('info', doc)
     })
   },
 
   disconnect: function(sockets) {
-    sockets.emit('message', { type: 'disconnected', id: this.id })
+    sockets.emit('disconnected', { id: this.id })
     delete PLAYERS[this.id]
   },
 
   kick: function(socket) {
-    this.client.emit('message', { type: 'kick', reason: 'idle' })
-    this.client.broadcast.emit('message', { type: 'disconnected', id: this.id })
+    this.client.emit('kick', { reason: 'idle' })
+    this.client.broadcast.emit('disconnected', { id: this.id })
     this.client.connection.end()
     delete PLAYERS[this.id]
   }
