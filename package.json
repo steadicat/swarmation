@@ -1,0 +1,15 @@
+{
+  "author": "Stefano J. Attardi <stefano@attardi.org> (http://attardi.org/)",
+  "name": "swarmation",
+  "homepage": "http://swarmation.com/",
+  "description": "",
+  "version": "0.0.0",
+  "dependencies": {
+    "express": "*",
+    "connect": "*",
+    "socket.io": "*"
+  },
+  "engines": {
+    "node": ">=0.7.7"
+  }
+}

@@ -7,3 +7,5 @@
 public/css/style.css
 public/.sass-cache/
 *.pyc
+*.sublime-*
+node_modules
