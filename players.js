@@ -1,37 +1,6 @@
 var MAX_IDLE = 100
 var IDLE_AFTER_TURNS = 2
 
-// couchdb
-var SERVER = 'swarmation.cloudant.com'
-var PORT = 5984
-var DB = 'players'
-var AUTH = 'aWNoaW1tYXJldmlsaWNoaWNoYXRpb25kOlFTaXVhcENuT2huWGlTdlBTcG00RG9JcA=='
-
-var sys = require('sys')
-var http = require('http')
-
-function makeRequest(method, path, message, callback) {
-  message = JSON.stringify(message)
-  var request = http.createClient(PORT, SERVER).request(method, '/'+DB+'/' + path, {
-    'content-length': message ? message.length : null,
-    'content-type': 'application/json',
-    authorization: 'Basic ' + AUTH,
-    host: SERVER + ':' + PORT
-  })
-  if (message) request.write(message)
-  request.on('response', function(response) {
-    var body = []
-    response.on('data', function(chunk) {
-      body.push(chunk)
-    })
-    response.on('end', function() {
-      var resp = JSON.parse(body.join(''))
-      callback(resp)
-    })
-  })
-  request.end()
-}
-
 var PLAYERS = this.PLAYERS = {}
 
 var Player = this.Player = function Player(client) {
@@ -108,28 +77,15 @@ Player.prototype = {
   },
 
   save: function(message) {
-    if (!message._id) delete message._id
-    if (!message._rev) delete message._rev
-    delete message.type
-    delete message.id
-    var p = this
-    makeRequest('POST', '', message, function(doc) {
-      if (doc.error == 'conflict') {
-        sys.log('CONFLICT! ' + JSON.stringify(message))
-      }
-      if (doc.ok == true) p.client.emit('saved', { player: doc.id, rev: doc.rev })
-    })
+    // TODO: save player profiles
+    // p.client.emit('saved', { player: doc.id, rev: doc.rev })
   },
 
   load: function(player) {
     if (!player) return
-    var p = this
-    makeRequest('GET', player, null, function(doc) {
-      p.getInfo(doc)
-      doc.id = p.id
-      p.client.emit('info', doc)
-      p.client.broadcast.emit('info', doc)
-    })
+    // TODO: load player profiles
+    p.client.emit('info', doc)
+    p.client.broadcast.emit('info', doc)
   },
 
   disconnect: function(sockets) {
