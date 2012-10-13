@@ -230,9 +230,9 @@ Player.prototype = {
     Dom.removeClass(tooltip, 'off')
     tooltip.style.left = this.getX() + board.offsetLeft - 6 + 'px'
     tooltip.style.top = this.getY() + board.offsetTop + 25 + 'px'
-    Dom.ge('#tooltip-name').textContent = this.name
-    Dom.ge('#tooltip-score').textContent = this.score
-    Dom.ge('#tooltip-success').textContent = this.successRate()
+    Dom.ge('tooltip-name').textContent = this.name
+    Dom.ge('tooltip-score').textContent = this.score
+    Dom.ge('tooltip-success').textContent = this.successRate()
   },
 
   hideTooltip: function() {
@@ -319,10 +319,9 @@ var formationInterval
 
 socket.on('nextFormation', function(data) {
   FORMATION = Formations[data.formation]
-  var formation = Dom.ge('formation')
-  formation.textContent = data.formation
-  formation.style.background =
-    'url(http://djdtqy87hg7ce.cloudfront.net/images/formations/'+data.formation+'.png) no-repeat center top'
+  Dom.ge('formation-name').textContent = data.formation
+  Dom.ge('formation-image').style.backgroundImage =
+    'url(http://djdtqy87hg7ce.cloudfront.net/images/formations/'+data.formation+'.png)'
 
   time = data.time
   Dom.ge('countdown').textContent = time

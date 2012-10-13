@@ -6,9 +6,14 @@ Page.displayNotice = function(text) {
   var notices = Dom.ge('notices')
   var div = Dom.ce('p')
   div.textContent = text
-  div.setAttribute('class', 'sidebar-notice')
-  div.setAttribute('style', 'opacity: 0, color: #ffc0cb, height: 0, overflow: hidden')
+  Dom.addClass(div, 'notice')
+  Dom.addClass(div, 'border')
+  Dom.addClass(div, 'white')
+  div.style.opacity = 0
   notices.insertBefore(div, notices.firstChild)
+  setTimeout(function() {
+    div.style.opacity = 1
+  })
 }
 
 Page.displayMessage = function(text) {
