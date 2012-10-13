@@ -43,8 +43,15 @@ a
   #formation
     font-size 20px
     padding-top 80px
-  #score
-    font-size 30px
+.large
+  font-size 30px
+#arrow-image
+  background url(../images/arrows.png) no-repeat center center
+  display inline-block
+  width 57px
+  height 11px
+  position relative
+  top 2px
 #sidebar
   display inline
   float left
@@ -60,9 +67,6 @@ a
     padding 5px 8px 6px 8px
     margin 0px 1px 12px 0
     color #fff
-  #arrow-image
-    position relative
-    top 2px
   .placeholder
     color #888
     background-color #eee
@@ -115,23 +119,24 @@ a
     position absolute
     .name
       font-weight bold
-  .player
-    position absolute
-    width 6px
-    height 6px
-    border 2px solid #666
-    background #ccc
-    &.self
-      border 2px solid #07f
-      background #89cff0
-    &.idle
-      opacity 0.5
-    &.flash
-      border 2px solid #f60
-      background #ffc29b
-    &.active
-      border 2px solid #fc0
-      background #ff3
+.player
+  position absolute
+  width 6px
+  height 6px
+  border 2px solid #666
+  background #ccc
+  transition: all 0.3s
+  &.self
+    border 2px solid #07f
+    background #89cff0
+  &.idle
+    opacity 0.5
+  &.flash
+    border 2px solid #f60
+    background #ffc29b
+  &.active
+    border 2px solid #fc0
+    background #ff3
 
 #footer
   text-align center

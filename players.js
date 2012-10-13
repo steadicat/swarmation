@@ -1,5 +1,5 @@
 var MAX_IDLE = 100
-var IDLE_AFTER_TURNS = 2
+var IDLE_AFTER_TURNS = 6
 
 var PLAYERS = this.PLAYERS = {}
 

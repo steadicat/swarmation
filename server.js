@@ -116,9 +116,8 @@ io.sockets.on('connection', onConnect)
 
 // Formation countdown
 
-var formations = require('./public/js/formations.js').Formations
-var compileFormation = require('./public/js/forms.js').compileFormations
-formations = compileFormations(formations)
+var Forms = require('./js/forms.js')
+var formations = Forms.getFormations()
 
 var FORMATIONS = []
 var FORMATION

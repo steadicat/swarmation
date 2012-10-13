@@ -17,25 +17,25 @@
           <div id="message"></div>
         </div>
         <div id="tooltip">
-          <h3 class="name"></h3>
-          <p><span class="score">0</span> points</p>
-          <p><span class="success">100</span>% success</p>
+          <h3 id="tooltip-name" class="name"></h3>
+          <p><span id="tooltip-score" class="score">0</span> points</p>
+          <p><span id="tooltip-success" class="success">100</span>% success</p>
         </div>
       </div>
       <div id="sidebar">
         <div id="info">
           <h1 id="countdown">wait</h1>
           <div id="formation">&nbsp;</div>
-          <h2 id="score">
-            <span class="score">0</span>
+          <h2 class="large">
+            <span id="score">0</span>
             points
           </h2>
-          <h2 id="success">
-            <span class="success">100</span>%
+          <h2>
+            <span id="success">100</span>%
           </h2>
         </div>
         <div id="notices">
-          <p class="sidebar-notice">Use your <img id="arrow-image" src="/images/arrows.png" alt="arrow" /> keys to move</p>
+          <p class="sidebar-notice">Use your <span id="arrow-image" alt="arrows"></span> keys to move</p>
           <p class="sidebar-notice">Get into a formation with other players before the countdown expires</p>
           <p class="sidebar-notice">Welcome to life as a pixel</p>
           <div class="sidebar-notice username-box">
@@ -70,12 +70,6 @@
       </div>
     </div>
 
-    <script src="/js/jquery-1.4.2.min.js"></script>
-    <script src="/js/jquery.cookie.js"></script>
-    <script src="/js/socket.io.js"></script>
-    <script src="/js/page.js"></script>
-    <script src="/js/formations.js"></script>
-    <script src="/js/forms.js"></script>
-    <script src="/js/players.js"></script>
+    <script src="/main.js"></script>
   </body>
 </html>
