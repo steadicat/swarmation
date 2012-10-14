@@ -76,17 +76,9 @@ Player.prototype = {
     this.active = false
   },
 
-  save: function(message) {
-    // TODO: save player profiles
-    // p.client.emit('saved', { player: doc.id, rev: doc.rev })
-  },
-
   login: function(userId, token) {
     this.userId = userId
     this.token = token
-    // TODO: load player profiles
-    // p.client.emit('info', doc)
-    // p.client.broadcast.emit('info', doc)
   },
 
   disconnect: function(sockets) {

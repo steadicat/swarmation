@@ -178,7 +178,7 @@ Player.prototype = {
       }
       Dom.removeClass(this.el, 'idle')
     } else {
-      var delta = Math.round((MAX_POINTS-FORMATION.difficulty)/2)
+      var delta = Math.round((MAX_POINTS-FORMATION.difficulty)/4)
       this.score = Math.max(0, this.score-delta)
       if (this.isSelf) {
         Page.displayNotice('You did not make '+FORMATION.name+'! Lose '+delta+' points.')
@@ -186,8 +186,8 @@ Player.prototype = {
     }
     this.completed = 0
     if (this.isSelf) {
-      // save occasionally
-      //if (Math.random() < 0.3) this.save()
+      // save
+      this.save()
       Dom.ge('score').textContent = this.score
       Dom.ge('success').textContent = this.successRate()
     }
@@ -237,6 +237,14 @@ Player.prototype = {
 
   hideTooltip: function() {
     Dom.addClass(Dom.ge('tooltip'), 'off')
+  },
+
+  save: function() {
+    socket.emit('save', {
+      score: this.score,
+      total: this.total,
+      succeeded: this.succeeded
+    })
   }
 }
 
@@ -265,6 +273,7 @@ socket.on('welcome', function(data) {
 socket.on('info', function(data) {
   if (PLAYER && (data.id == PLAYER.id)) {
     PLAYER.getInfo(data)
+    if (data.score) Dom.ge('score').textContent = data.score
   } else {
     loadPlayer(data)
   }

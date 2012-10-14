@@ -63,7 +63,7 @@ app.get('/formation/:name', function(req, res) {
   res.send(
     formationPage
       .replace(/\{name\}/g, req.params.name)
-      .replace(/\{points\}/g, formations[req.params.name].difficulty)
+      .replace(/\{points\}/g, formations[req.params.name].size)
   )
 })
 
@@ -113,13 +113,11 @@ function onConnect(client) {
 
   client.on('formation', function(message) {
     Player.get(client).setActive()
-    for (var i in message.ids) {
-      Player.byId(message.ids[i]).setActive()
-    }
     client.broadcast.emit('formation', message)
     message.ids.forEach(function(id) {
-      var player = Player.get(client)
-      if (player && player.token) {
+      var player = Player.byId(id)
+      if (player) player.setActive()
+      if (player && player.userId) {
         request.post(
           'https://graph.facebook.com/'+player.userId+'/swarmation:join',
           { form: {
@@ -127,7 +125,7 @@ function onConnect(client) {
             formation: 'http://swarmation.com/formation/' + message.formation
           }},
           function(err, resp, body) {
-            console.log(body)
+            console.log('Published completion of ' + message.formation + ' for ' + player.userId, body)
           }
         )
       }
@@ -135,7 +133,35 @@ function onConnect(client) {
   })
 
   client.on('login', function(message) {
-    Player.get(client).login(message.userId, message.token)
+    var player = Player.get(client)
+    if (!player) return
+    player.login(message.userId, message.token)
+    console.log(      'https://graph.facebook.com/'+message.userId+'/scores?access_token=' + config.token)
+    request.get(
+      'https://graph.facebook.com/'+config.appId+'/scores?access_token=' + message.token,
+      function(err, resp, body) {
+        body = JSON.parse(body)
+        player.score = body.data[0].score
+        console.log('Got score for '+message.userId+': ' + player.score, body)
+        io.sockets.emit('info', { id: client.id, score: player.score })
+      }
+    )
+  })
+
+  client.on('save', function(message) {
+    // message.total, message.succeeded
+    var player = Player.get(client)
+    if (player && player.userId) {
+      request.post(
+        'https://graph.facebook.com/'+player.userId+'/scores',
+        { form: {
+          access_token: config.token,
+          score: message.score }},
+        function(err, resp, body) {
+          console.log('Saved score', message.score, body)
+        }
+      )
+    }
   })
 
   client.on('disconnect', function() {
@@ -151,18 +177,6 @@ var Forms = require('./js/forms.js')
 var formations = Forms.getFormations()
 
 var config = require('./config')
-
-/*
-for (var name in formations) {
-  request.post(
-    'https://graph.facebook.com/' + config.appId + '/achievements',
-    { form: { access_token: config.token,
-      achievement: 'http://swarmation.com/formation/' + name }},
-    function(err, res, body) {
-      console.log(body)
-    }
-  )
-}*/
 
 var FORMATIONS = []
 var FORMATION

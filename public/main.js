@@ -558,6 +558,65 @@ var io="undefined"==typeof module?{}:module.exports;(function(){(function(a,b){v
 
 });
 
+require.define("/fb.js",function(require,module,exports,__dirname,__filename,process,global){var Dom = require('./dom')
+var Players = require('./players')
+
+// Load the SDK Asynchronously
+var js
+var id = 'facebook-jssdk'
+var ref = document.getElementsByTagName('script')[0]
+if (!document.getElementById(id)) {
+  js = document.createElement('script')
+  js.id = id
+  js.async = true
+  js.src = "//connect.facebook.net/en_US/all.js"
+  ref.parentNode.insertBefore(js, ref)
+}
+
+var Fb = {}
+
+// Init the SDK upon load
+window.fbAsyncInit = function() {
+  FB.init({
+    appId: '536327243050948', // App ID
+    channelUrl: '//'+window.location.hostname+'/channel',
+    status: true,
+    cookie: true,
+    xfbml: true
+  });
+
+  // listen for and handle auth.statusChange events
+  FB.Event.subscribe('auth.statusChange', function(response) {
+    if (response.authResponse) {
+      // user has auth'd your app and is logged into Facebook
+      FB.api('/me', function(me){
+        if (me.name) {
+          Players.login(me.id, response.authResponse.accessToken, me.first_name)
+        }
+      })
+      //document.getElementById('auth-loggedout').style.display = 'none';
+      //document.getElementById('auth-loggedin').style.display = 'block';
+    } else {
+      // user has not auth'd your app, or is not logged into Facebook
+      //document.getElementById('auth-loggedout').style.display = 'block';
+      //document.getElementById('auth-loggedin').style.display = 'none';
+    }
+  });
+
+  // respond to clicks on the login and logout links
+  //document.getElementById('auth-loginlink').addEventListener('click', function(){
+  //  FB.login();
+  //});
+  //document.getElementById('auth-logoutlink').addEventListener('click', function(){
+  //  FB.logout();
+  //});
+
+}
+
+module.exports = Fb
+
+});
+
 require.define("/players.js",function(require,module,exports,__dirname,__filename,process,global){var WIDTH = 96
 var HEIGHT = 60
 var PLAYER
@@ -738,7 +797,7 @@ Player.prototype = {
       }
       Dom.removeClass(this.el, 'idle')
     } else {
-      var delta = Math.round((MAX_POINTS-FORMATION.difficulty)/2)
+      var delta = Math.round((MAX_POINTS-FORMATION.difficulty)/4)
       this.score = Math.max(0, this.score-delta)
       if (this.isSelf) {
         Page.displayNotice('You did not make '+FORMATION.name+'! Lose '+delta+' points.')
@@ -746,8 +805,8 @@ Player.prototype = {
     }
     this.completed = 0
     if (this.isSelf) {
-      // save occasionally
-      //if (Math.random() < 0.3) this.save()
+      // save
+      this.save()
       Dom.ge('score').textContent = this.score
       Dom.ge('success').textContent = this.successRate()
     }
@@ -797,6 +856,14 @@ Player.prototype = {
 
   hideTooltip: function() {
     Dom.addClass(Dom.ge('tooltip'), 'off')
+  },
+
+  save: function() {
+    socket.emit('save', {
+      score: this.score,
+      total: this.total,
+      succeeded: this.succeeded
+    })
   }
 }
 
@@ -825,6 +892,7 @@ socket.on('welcome', function(data) {
 socket.on('info', function(data) {
   if (PLAYER && (data.id == PLAYER.id)) {
     PLAYER.getInfo(data)
+    if (data.score) Dom.ge('score').textContent = data.score
   } else {
     loadPlayer(data)
   }
@@ -989,65 +1057,6 @@ Players.login = function(userId, token, name) {
 }
 
 module.exports = Players
-
-});
-
-require.define("/fb.js",function(require,module,exports,__dirname,__filename,process,global){var Dom = require('./dom')
-var Players = require('./players')
-
-// Load the SDK Asynchronously
-var js
-var id = 'facebook-jssdk'
-var ref = document.getElementsByTagName('script')[0]
-if (!document.getElementById(id)) {
-  js = document.createElement('script')
-  js.id = id
-  js.async = true
-  js.src = "//connect.facebook.net/en_US/all.js"
-  ref.parentNode.insertBefore(js, ref)
-}
-
-var Fb = {}
-
-// Init the SDK upon load
-window.fbAsyncInit = function() {
-  FB.init({
-    appId: '536327243050948', // App ID
-    channelUrl: '//'+window.location.hostname+'/channel',
-    status: true,
-    cookie: true,
-    xfbml: true
-  });
-
-  // listen for and handle auth.statusChange events
-  FB.Event.subscribe('auth.statusChange', function(response) {
-    if (response.authResponse) {
-      // user has auth'd your app and is logged into Facebook
-      FB.api('/me', function(me){
-        if (me.name) {
-          Players.login(me.id, response.authResponse.accessToken, me.first_name)
-        }
-      })
-      //document.getElementById('auth-loggedout').style.display = 'none';
-      //document.getElementById('auth-loggedin').style.display = 'block';
-    } else {
-      // user has not auth'd your app, or is not logged into Facebook
-      //document.getElementById('auth-loggedout').style.display = 'block';
-      //document.getElementById('auth-loggedin').style.display = 'none';
-    }
-  });
-
-  // respond to clicks on the login and logout links
-  //document.getElementById('auth-loginlink').addEventListener('click', function(){
-  //  FB.login();
-  //});
-  //document.getElementById('auth-logoutlink').addEventListener('click', function(){
-  //  FB.logout();
-  //});
-
-}
-
-module.exports = Fb
 
 });
 
