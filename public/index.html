@@ -17,46 +17,39 @@
 
   <body>
     <div class="container centered">
-      <div class="row">
-        <div class="sidebar col">
-          <div class="info center rounded white border pam mbl">
-            <h1 id="countdown" class="huge">wait</h1>
-            <div id="formation-image" class="formation-image"></div>
-            <div id="formation-name" class="formation-name"></div>
-            <h2 class="large mtm">
-              <span id="score">0</span>
-              points
-            </h2>
-            <h3 class="mts">
-              <span id="success">100</span>% success
-            </h3>
+      <h1 class="header">Swarmation</h1>
+      <div class="board-container rel pas">
+        <div id="board" class="board rel"></div>
+        <div class="info abs center white border pam">
+          <h1 id="countdown" class="huge">wait</h1>
+          <div id="formation-image" class="formation-image"></div>
+          <div id="formation-name" class="formation-name"></div>
+          <h2 class="large mtm">
+            <span id="score">0</span>
+            points
+          </h2>
+          <h3 class="mts">
+            <span id="success">100</span>% success
+          </h3>
+          <div id="login" class="mtm">
+            To save your score and share your achievements:
+            <div class="fb-login-button" data-show-faces="false" data-width="200" data-max-rows="1"></div>
           </div>
-          <div class="notice border white rounded">
-            <div id="login" class="center">
-              To save your score and share your achievements:
-              <div class="fb-login-button" data-show-faces="false" data-width="200" data-max-rows="1"></div>
-            </div>
-            <div id="username-box" class="off">
-              Welcome,
-              <span id="username"></span>.
-            </div>
+          <div id="username-box" class="mtm off">
+            Welcome,
+            <span id="username"></span>.
           </div>
-          <div id="notices">
-            <p class="notice border white rounded">Use your <span class="arrow-image" alt="arrows"></span> keys to move</p>
-            <p class="notice border white rounded">Get into a formation with other players before the countdown expires</p>
-            <p class="notice border white rounded">Welcome to life as a pixel</p>
-          </div>
-        </div><div class="col">
-          <h1 class="header">Swarmation</h1>
-          <div class="board-container rel pas">
-            <div id="board" class="board rel"></div>
-            <div id="message" class="message larger b center abs white off"></div>
-            <div id="tooltip" class="tooltip rounded abs off">
-              <h3 id="tooltip-name" class="b"></h3>
-              <p><span id="tooltip-score">0</span> points</p>
-              <p><span id="tooltip-success">100</span>% success</p>
-            </div>
-          </div>
+        </div>
+        <div id="message" class="message larger b center abs white off"></div>
+        <div id="tooltip" class="tooltip rounded abs off">
+          <h3 id="tooltip-name" class="b"></h3>
+          <p><span id="tooltip-score">0</span> points</p>
+          <p><span id="tooltip-success">100</span>% success</p>
+        </div>
+        <div id="welcome" class="tooltip rounded abs off">
+          <p class="notice border white rounded">Use your <span class="arrow-image" alt="arrows"></span> keys to move</p>
+          <p class="notice border white rounded">Get into a formation with other players before the countdown expires</p>
+          <p class="notice border white rounded">Welcome to life as a pixel</p>
         </div>
       </div>
       <div class="footer dark center pbl">

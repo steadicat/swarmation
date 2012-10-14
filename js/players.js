@@ -1,5 +1,7 @@
 var WIDTH = 96
 var HEIGHT = 60
+var DEAD_WIDTH = 21
+var DEAD_HEIGHT = 34
 var PLAYER
 var PLAYERS = {}
 var MAP = []
@@ -14,25 +16,35 @@ var MOVEMENT_RATE = 140
 var Dom = require('./dom')
 var Util = require('./util')
 var Forms = require('./forms')
-var Page = require('./page')
 
 var Formations = Forms.getFormations()
+
+function displayMessage(text) {
+  var message = Dom.ge('message')
+  message.innerHTML = text
+  message.setAttribute('style', 'display: block')
+}
+
+function scoreChange(delta) {
+  Util.log(delta)
+}
 
 var Player = function Player(id, left, top, isSelf) {
   this.id = id
 
-  if (!left) {
-    left = Math.floor(Math.random() * WIDTH)
-    top = Math.floor(Math.random() * HEIGHT)
-    while (Player.atPosition(left, top)) {
-      left = Math.floor(Math.random() * WIDTH)
-      top = Math.floor(Math.random() * HEIGHT)
-    }
-  }
   this.el = Dom.ce('div')
   this.el.setAttribute('class', 'player')
   Dom.ge('board').appendChild(this.el)
-  this.setPosition(left, top)
+  if (!left) {
+    left = Math.floor(Math.random() * WIDTH)
+    top = Math.floor(Math.random() * HEIGHT)
+    while (!this.setPosition(left, top)) {
+      left = Math.floor(Math.random() * WIDTH)
+      top = Math.floor(Math.random() * HEIGHT)
+    }
+  } else {
+    this.setPosition(left, top)
+  }
   this.isSelf = isSelf
   this.name = NAMES[Math.floor(Math.random()*NAMES.length)]
   this.score = 0
@@ -84,6 +96,8 @@ Player.prototype = {
     // cancel if out of bounds
     if ((left < 0) || (left >= WIDTH)) return false
     if ((top < 0) || (top >= HEIGHT)) return false
+    // cancel if in dead area
+    if ((left < DEAD_WIDTH) && (top < DEAD_HEIGHT)) return false
 
     if (!MAP[this.left]) MAP[this.left] = []
     MAP[this.left][this.top] = null
@@ -173,16 +187,12 @@ Player.prototype = {
       }, 1000)
       this.score += FORMATION.difficulty
       this.succeeded++
-      if (this.isSelf) {
-        Page.displayNotice('You completed '+FORMATION.name+'. You gain '+FORMATION.difficulty+' points!')
-      }
+      if (this.isSelf) scoreChange(+FORMATION.difficulty)
       Dom.removeClass(this.el, 'idle')
     } else {
       var delta = Math.round((MAX_POINTS-FORMATION.difficulty)/4)
       this.score = Math.max(0, this.score-delta)
-      if (this.isSelf) {
-        Page.displayNotice('You did not make '+FORMATION.name+'! Lose '+delta+' points.')
-      }
+      if (this.isSelf) scoreChange(-delta)
     }
     this.completed = 0
     if (this.isSelf) {
@@ -357,13 +367,13 @@ var RESTARTING = false
 socket.on('restart', function(data) {
   RESTARTING = true
   socket.disconnect()
-  Page.displayMessage('Swarmation needs to restart for an update.<br/>Please reload the page.')
+  displayMessage('Swarmation needs to restart for an update.<br/>Please reload the page.')
 })
 
 socket.on('kick', function(data) {
   RESTARTING = true
   socket.disconnect()
-  Page.displayMessage('You have been disconnected for being idle too long.<br/>Reload the page to resume playing.')
+  displayMessage('You have been disconnected for being idle too long.<br/>Reload the page to resume playing.')
 })
 
 socket.on('connect', function() {
