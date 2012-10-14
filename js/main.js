@@ -1,1 +1,2 @@
-var players = require('./players')
+var Players = require('./players')
+var Fb = require('./fb')

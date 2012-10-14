@@ -8,6 +8,7 @@ var stylus = require('stylus')
 var nib = require('nib')
 var sys = require('sys')
 var http = require('http')
+var request = require('request')
 
 var app = express()
 var server = module.exports = http.createServer(app)
@@ -45,6 +46,25 @@ app.configure('production', function(){
 
 app.get('/', function(req, res) {
   res.sendfile('public/index.html')
+})
+
+var formationPage = '<html>' +
+'<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# swarmation: http://ogp.me/ns/fb/swarmation#">' +
+'<meta property="fb:app_id" content="536327243050948" />' +
+'<meta property="og:type" content="game.achievement" />' +
+'<meta property="og:title" content="{name}" />' +
+'<meta property="og:description" content="Completed a formation on Swarmation." />' +
+'<meta property="og:url" content="http://swarmation.com/formations/{name}" />' +
+'<meta property="og:image" content="http://swarmation.com/images/formations/{name}.png" />' +
+'<meta property="game:points" content="{points}" />' +
+'</head></html>';
+
+app.get('/formation/:name', function(req, res) {
+  res.send(
+    formationPage
+      .replace(/\{name\}/g, req.params.name)
+      .replace(/\{points\}/g, formations[req.params.name].difficulty)
+  )
 })
 
 // Error Handling
@@ -96,15 +116,30 @@ function onConnect(client) {
       client.broadcast.emit(event, message)
     })
   }
-  ['flash', 'formation', 'info'].map(forward.bind(null, client))
+  ['flash', 'info'].map(forward.bind(null, client))
 
-  // player profile saving and loading
-  client.on('save', function(message) {
-    //Player.get(client.id).save(message)
+  client.on('formation', function(message) {
+    client.broadcast.emit('formation', message)
+    message.ids.forEach(function(id) {
+      var player = Player.get(client)
+      if (player && player.token) {
+        console.log(player.token)
+        request.post(
+          'https://graph.facebook.com/me/swarmation:join',
+          {
+            recipe: 'http://swarmation.com/formations/' + message.formation,
+            access_token: player.token
+          },
+          function(err, resp, body) {
+            console.log(body)
+          }
+        )
+      }
+    })
   })
 
-  client.on('load', function(message) {
-    //Player.get(client.id).load(message.player)
+  client.on('login', function(message) {
+    Player.get(client).login(message.userId, message.token)
   })
 
   client.on('disconnect', function() {
@@ -118,6 +153,19 @@ io.sockets.on('connection', onConnect)
 
 var Forms = require('./js/forms.js')
 var formations = Forms.getFormations()
+
+var config = require('./config')
+
+for (var name in formations) {
+  request.post(
+    'https://graph.facebook.com/' + config.appId + '/achievements',
+    { form: { access_token: config.token,
+      achievement: 'http://swarmation.com/formations/' + name }},
+    function(err, res, body) {
+      console.log(body)
+    }
+  )
+}
 
 var FORMATIONS = []
 var FORMATION

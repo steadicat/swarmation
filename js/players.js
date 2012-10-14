@@ -265,7 +265,6 @@ socket.on('welcome', function(data) {
 socket.on('info', function(data) {
   if (PLAYER && (data.id == PLAYER.id)) {
     PLAYER.getInfo(data)
-    PLAYER.rev = data._rev
   } else {
     loadPlayer(data)
   }
@@ -416,3 +415,17 @@ Dom.listen(document, 'keyup', function(event) {
     stop(event)
   }
 })
+
+var Players = {}
+
+Players.login = function(userId, token, name) {
+  if (!PLAYER) return
+  Dom.addClass(Dom.ge('login'), 'off')
+  Dom.ge('username').textContent = name
+  Dom.removeClass(Dom.ge('username-box'), 'off')
+  socket.emit('login', { token: token, userId: userId, name: name })
+  PLAYER.name = name
+  PLAYER.sendInfo(true)
+}
+
+module.exports = Players

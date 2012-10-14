@@ -5,6 +5,14 @@
 
     <link rel="shortcut icon" href="/images/favicon.ico" />
     <link href="/css/screen.css" media="screen,projection" rel="stylesheet" type="text/css" />
+
+    <meta name="og:url" value="http://swarmation.com/" />
+    <meta name="og:site_name" value="Swarmation" />
+    <meta name="og:type" value="website" />
+    <meta name="fb:app_id" value="536327243050948" />
+    <meta name="og:title" value="Swarmation" />
+    <meta name="og:description" value="The multiplayer pixel formation game." />
+    <meta name="og:image" value="/images/formations/delta.png" />
   </head>
 
   <body>
@@ -20,10 +28,19 @@
               points
             </h2>
             <h3 class="mts">
-              <span id="success">100</span>%
+              <span id="success">100</span>% success
             </h3>
           </div>
-          <div id="notices" class="notices">
+          <div class="notice border white rounded">
+            <div id="login" class="center">
+              <div class="fb-login-button" data-show-faces="false" data-width="200" data-max-rows="1"></div>
+            </div>
+            <div id="username-box" class="off">
+              Welcome,
+              <span id="username"></span>. Facebook integration is coming soon.
+            </div>
+          </div>
+          <div id="notices">
             <p class="notice border white rounded">Use your <span class="arrow-image" alt="arrows"></span> keys to move</p>
             <p class="notice border white rounded">Get into a formation with other players before the countdown expires</p>
             <p class="notice border white rounded">Welcome to life as a pixel</p>
@@ -41,15 +58,19 @@
           </div>
         </div>
       </div>
-      <div class="footer dark center">
+      <div class="footer dark center pbl">
         <p>
           A game by <a href="http://twitter.com/steadicat">Stefano J. Attardi</a>, <a href="http://twitter.com/findjoey">Zach Bialecki</a> & <a href="http://twitter.com/ollerac">David Miranda</a>.
         </p>
-        <p>
+        <p class="mts">
           Follow us on Twitter: <a href="http://twitter.com/swarmation">@swarmation</a>
+        </p>
+        <p class="mts">
+          <div class="fb-like" data-href="http://swarmation.com/" data-send="true" data-layout="button_count" data-width="450" data-show-faces="true"></div>
         </p>
       </div>
     </div>
+    <div id="fb-root"></div>
     <script src="/main.js"></script>
   </body>
 </html>

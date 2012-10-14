@@ -10,7 +10,8 @@
     "socket.io": "*",
     "stylus": "*",
     "nib": "*",
-    "browserify": "*"
+    "browserify": "*",
+    "request": "*"
   },
   "engines": {
     "node": ">=0.7.7"
