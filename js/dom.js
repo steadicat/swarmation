@@ -20,4 +20,8 @@ Dom.removeClass = function(el, cl) {
   el.setAttribute('class', newClasses.join(' '))
 }
 
+Dom.remove = function(el) {
+  el.parentNode.removeChild(el)
+}
+
 module.exports = Dom

@@ -294,7 +294,7 @@ socket.on('disconnected', function(data) {
   var p = PLAYERS[data.id]
   if (!p) return
   delete MAP[p.left][p.top]
-  PLAYERS[data.id].el.remove()
+  Dom.remove(PLAYERS[data.id].el)
   delete PLAYERS[data.id]
 })
 
@@ -361,7 +361,7 @@ socket.on('kick', function(data) {
 
 socket.on('connect', function() {
   if (PLAYER) PLAYER.sendInfo(true)
-  for (var id in PLAYERS) PLAYERS[id].el.remove()
+  for (var id in PLAYERS) Dom.remove(PLAYERS[id].el)
   PLAYERS = {}
   MAP = []
 })
