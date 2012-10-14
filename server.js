@@ -73,12 +73,16 @@ process.on('uncaughtException', function(e) {
   sys.log(e.stack)
 })
 
-process.on('SIGINT', function() {
+function shutdown() {
   if (io.sockets) io.sockets.emit('restart')
   setTimeout(function() {
     process.exit()
   }, 2000)
-})
+}
+
+process.on('SIGINT', shutdown)
+process.on('SIGTERM', shutdown)
+process.on('SIGHUP', shutdown)
 
 // Model
 var players = require('./players')
@@ -215,6 +219,6 @@ setInterval(function() {
 }, 1000)
 
 // Only listen on $ node server.js
-var port = parseInt(process.env.PORT, 10) || parseInt(process.argv[2], 10) || 3000
+var port = parseInt(process.env.PORT, 10) || parseInt(process.argv[2], 10) || 80
 if (!module.parent) server.listen(port)
 sys.log('Server now listening on port '+port+'...')
