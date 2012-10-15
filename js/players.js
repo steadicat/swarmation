@@ -2,22 +2,16 @@ var WIDTH = 96
 var HEIGHT = 60
 var DEAD_WIDTH = 21
 var DEAD_HEIGHT = 34
+var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry']
+var MAX_POINTS = 26
+var MOVEMENT_RATE = 140
+
 var PLAYER
 var PLAYERS = {}
 var MAP = []
-var FORMATION
-var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry']
-
-var MAX_POINTS = 26
-var QUORUM = 2
-var MARGIN = 1000
-var MOVEMENT_RATE = 140
 
 var Dom = require('./dom')
 var Util = require('./util')
-var Forms = require('./forms')
-
-var Formations = Forms.getFormations()
 
 function displayMessage(text) {
   var message = Dom.ge('message')
@@ -36,11 +30,11 @@ var Player = function Player(id, left, top, isSelf) {
   this.el.setAttribute('class', 'player')
   Dom.ge('board').appendChild(this.el)
   if (!left) {
-    left = Math.floor(Math.random() * WIDTH)
-    top = Math.floor(Math.random() * HEIGHT)
+    left = Math.floor(Math.random() * WIDTH/4)
+    top = Math.floor(Math.random() * HEIGHT/4)
     while (!this.setPosition(left, top)) {
-      left = Math.floor(Math.random() * WIDTH)
-      top = Math.floor(Math.random() * HEIGHT)
+      left = Math.floor(Math.random() * WIDTH/4)
+      top = Math.floor(Math.random() * HEIGHT/4)
     }
   } else {
     this.setPosition(left, top)
@@ -150,51 +144,23 @@ Player.prototype = {
     if (this.isSelf) socket.emit('flash', { stop: true })
   },
 
-  checkFormationPoints: function(points) {
-    var others = []
-    for (var i in points) {
-      var dx = points[i][0]
-      var dy = points[i][1]
-      var other = Player.atPosition(this.left+dx, this.top+dy)
-      if (!other) return
-      others.push(other.id)
-    }
-    return others
-  },
-
-  checkFormation: function(formation) {
-    if (!this.id) return
-    for (var i in formation.points) {
-      var others = this.checkFormationPoints(formation.points[i])
-      if (!others) continue
-      this.formationReported(formation.name)
-      for (var id in others) if (PLAYERS[others[id]]) PLAYERS[others[id]].formationReported(formation.name)
-      socket.emit('formation', { formation: formation.name, ids: others })
-    }
-  },
-
-  formationReported: function(name) {
-    this.completed++
-  },
-
-  formationDeadline: function() {
+  formationDeadline: function(success, difficulty) {
     this.total++
-    if (this.completed >= QUORUM) {
+    if (success) {
       Dom.addClass(this.el, 'active')
       var el = this.el
       setTimeout(function() {
         Dom.removeClass(el, 'active')
       }, 1000)
-      this.score += FORMATION.difficulty
+      this.score += difficulty
       this.succeeded++
-      if (this.isSelf) scoreChange(+FORMATION.difficulty)
+      if (this.isSelf) scoreChange(+difficulty)
       Dom.removeClass(this.el, 'idle')
     } else {
-      var delta = Math.round((MAX_POINTS-FORMATION.difficulty)/4)
+      var delta = Math.round((MAX_POINTS-difficulty)/4)
       this.score = Math.max(0, this.score-delta)
       if (this.isSelf) scoreChange(-delta)
     }
-    this.completed = 0
     if (this.isSelf) {
       // save
       this.save()
@@ -325,18 +291,16 @@ function contains(el, list) {
 
 socket.on('formation', function(data) {
   if ((!PLAYER) || (!PLAYER.id)) return
-  if (contains(PLAYER.id, data.ids) >= 0) PLAYER.formationReported(data.formation)
-  if (PLAYERS[data.id]) PLAYERS[data.id].formationReported(data.formation)
-  for (var j = 0; j < data.ids.length; j++) {
-    if (PLAYERS[data.ids[j]]) PLAYERS[data.ids[j]].formationReported(data.formation)
-  }
+  PLAYER.formationDeadline(contains(PLAYER.id, data.ids))
+  Util.each(PLAYERS, function(id, player) {
+    player.formationDeadline(contains(id, data.ids))
+  })
 })
 
 var time
 var formationInterval
 
 socket.on('nextFormation', function(data) {
-  FORMATION = Formations[data.formation]
   Dom.ge('formation-name').textContent = data.formation
   Dom.ge('formation-image').style.backgroundImage = 'url(/images/formations/'+data.formation+'.png)'
 
@@ -347,19 +311,8 @@ socket.on('nextFormation', function(data) {
   formationInterval = setInterval(function() {
     time--
     Dom.ge('countdown').textContent = time
+    if (time == 0) clearInterval(formationInterval)
   }, 1000)
-
-  setTimeout(function() {
-    if (FORMATION) {
-      PLAYER.checkFormation(FORMATION)
-      setTimeout(function() {
-        PLAYER.formationDeadline()
-        for (var id in PLAYERS) PLAYERS[id].formationDeadline()
-        clearInterval(formationInterval)
-        Dom.ge('countdown').textContent = '0'
-      }, MARGIN)
-    }
-  }, data.time*1000 - MARGIN)
 })
 
 var RESTARTING = false

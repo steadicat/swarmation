@@ -1,9 +1,11 @@
-var MAX_IDLE = 100
-var IDLE_AFTER_TURNS = 6
+var map = require('./map')
 
-var PLAYERS = this.PLAYERS = {}
+var MAX_IDLE = 120
+var IDLE_AFTER_TURNS = 2
 
-var Player = this.Player = function Player(client) {
+var PLAYERS = {}
+
+var Player = function Player(client) {
     this.id = client.id
     this.client = client
     this.idleTurns = 0
@@ -21,7 +23,7 @@ Player.byId = function(id) {
 Player.getList = function() {
   var list = []
   for (var id in PLAYERS) {
-      list.push(PLAYERS[id].getInfo())
+    list.push(PLAYERS[id].getInfo())
   }
   return list
 }
@@ -29,7 +31,7 @@ Player.getList = function() {
 Player.getActive = function() {
   var n = 0
   for (var id in PLAYERS) {
-      if (!PLAYERS[id].idleTurns) n++
+    if (!PLAYERS[id].idleTurns) n++
   }
   return n
 }
@@ -40,10 +42,13 @@ Player.endTurn = function(socket) {
 
 Player.prototype = {
   setInfo: function(info) {
+    var top = this.top
+    var left = this.left
     for (var key in info) {
-      if ((key == 'id') || (key == 'type')) continue
+      if (key == 'id') continue
       if ((info[key] !== undefined) && (info[key] !== null)) this[key] = info[key]
     }
+    map.move(left, top, this.left, this.top, this)
   },
 
   getInfo: function() {
@@ -94,3 +99,10 @@ Player.prototype = {
   }
 
 }
+
+var Players = {}
+
+Players.PLAYERS = PLAYERS
+Players.Player = Player
+
+module.exports = Players

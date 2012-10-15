@@ -9,6 +9,8 @@ var nib = require('nib')
 var sys = require('sys')
 var http = require('http')
 var request = require('request')
+var map = require('./map')
+var util = require('./js/util')
 
 var app = express()
 var server = module.exports = http.createServer(app)
@@ -85,6 +87,7 @@ process.on('SIGTERM', shutdown)
 process.on('SIGHUP', shutdown)
 
 // Model
+var map = require('./map')
 var players = require('./players')
 var PLAYERS = players.PLAYERS
 var Player = players.Player
@@ -96,51 +99,24 @@ function onConnect(client) {
   client.emit('welcome', { id: client.id, players: Player.getList() })
   if (FORMATION && (TIME > 0)) client.emit('nextFormation', { formation: FORMATION.name, time: TIME })
 
-  // cache state for new clients
   client.on('info', function(message) {
-    Player.get(client).setInfo(message)
+    var player = Player.get(client)
+    player.setInfo(message)
+    // mark players that are active
+    if (!message.name) player.setActive()
+    message.id = client.id
+    client.broadcast.emit('info', message)
   })
 
-  // mark players that are active
-  client.on('info', function(message) {
-    if (!message.name) Player.get(client).setActive()
-  })
-
-  // forward events to other clients
-  function forward(client, event) {
-    client.on(event, function(message) {
-      message.id = client.id
-      client.broadcast.emit(event, message)
-    })
-  }
-  ['flash', 'info'].map(forward.bind(null, client))
-
-  client.on('formation', function(message) {
-    Player.get(client).setActive()
-    client.broadcast.emit('formation', message)
-    message.ids.forEach(function(id) {
-      var player = Player.byId(id)
-      if (player) player.setActive()
-      if (player && player.userId) {
-        request.post(
-          'https://graph.facebook.com/'+player.userId+'/swarmation:join',
-          { form: {
-            access_token: config.token,
-            formation: 'http://swarmation.com/formation/' + message.formation
-          }},
-          function(err, resp, body) {
-            console.log('Published completion of ' + message.formation + ' for ' + player.userId, body)
-          }
-        )
-      }
-    })
+  client.on('flash', function(message) {
+    message.id = client.id
+    client.broadcast.emit('info', message)
   })
 
   client.on('login', function(message) {
     var player = Player.get(client)
     if (!player) return
     player.login(message.userId, message.token)
-    console.log(      'https://graph.facebook.com/'+message.userId+'/scores?access_token=' + config.token)
     request.get(
       'https://graph.facebook.com/'+config.appId+'/scores?access_token=' + message.token,
       function(err, resp, body) {
@@ -186,7 +162,6 @@ var FORMATIONS = []
 var FORMATION
 var MIN_SIZE = 3
 var MAX_SIZE = 20
-var MARGIN = 2000
 
 for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = []
 
@@ -202,23 +177,55 @@ function pickFormation() {
   return available[Math.floor(Math.random()*available.length)]
 }
 
-var TIME = 1
-setInterval(function() {
-  TIME -= 1
-  if (TIME != 0) return
-  Player.endTurn(io.socket)
+function startTurn() {
   sys.log('There are '+Player.getActive()+' active players.')
   FORMATION = pickFormation()
-  if (!FORMATION) return
-  TIME = -1
-  setTimeout(function() {
-    TIME = FORMATION.difficulty
-    sys.log('Next formation is ' + FORMATION.name +', of size '+(FORMATION.size)+'.')
-    io.sockets.emit('nextFormation', { formation: FORMATION.name, time: TIME })
-  }, MARGIN)
+  while (!FORMATION) FORMATION = pickFormation()
+  TIME = FORMATION.difficulty
+  sys.log('Next formation is ' + FORMATION.name +', of size '+(FORMATION.size)+'.')
+  io.sockets.emit('nextFormation', { formation: FORMATION.name, time: TIME })
+}
+
+function endTurn() {
+  var players = map.checkFormation(FORMATION, PLAYERS)
+  console.log(util.keys(players))
+  io.sockets.emit('formation', {
+    formation: FORMATION.name,
+    difficulty: FORMATION.difficulty,
+    ids: util.keys(players)
+  })
+  util.each(players, function(id, player) {
+    player.setActive()
+    if (player.userId) {
+      request.post(
+        'https://graph.facebook.com/'+player.userId+'/swarmation:join',
+        { form: {
+          access_token: config.token,
+          formation: 'http://swarmation.com/formation/' + message.formation
+        }},
+        function(err, resp, body) {
+          console.log('Published completion of ' + message.formation + ' for ' + player.userId, body)
+        }
+      )
+    }
+  })
+  Player.endTurn()
+}
+
+// main loop
+var TIME = 0
+setInterval(function() {
+  TIME--
+  if (TIME == 0) {
+    if (FORMATION) endTurn()
+  }
+  if (TIME == -1) startTurn()
 }, 1000)
 
 // Only listen on $ node server.js
 var port = parseInt(process.env.PORT, 10) || parseInt(process.argv[2], 10) || 80
 if (!module.parent) server.listen(port)
 sys.log('Server now listening on port '+port+'...')
+
+startTurn()
+
