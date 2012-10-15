@@ -20,7 +20,7 @@ function displayMessage(text) {
 }
 
 function scoreChange(delta) {
-  Util.log(delta)
+  //Util.log(delta)
 }
 
 var Player = function Player(id, left, top, isSelf) {
@@ -30,11 +30,11 @@ var Player = function Player(id, left, top, isSelf) {
   this.el.setAttribute('class', 'player')
   Dom.ge('board').appendChild(this.el)
   if (!left) {
-    left = Math.floor(Math.random() * WIDTH/4)
-    top = Math.floor(Math.random() * HEIGHT/4)
+    left = Math.floor(Math.random() * WIDTH)
+    top = Math.floor(Math.random() * HEIGHT)
     while (!this.setPosition(left, top)) {
-      left = Math.floor(Math.random() * WIDTH/4)
-      top = Math.floor(Math.random() * HEIGHT/4)
+      left = Math.floor(Math.random() * WIDTH)
+      top = Math.floor(Math.random() * HEIGHT)
     }
   } else {
     this.setPosition(left, top)

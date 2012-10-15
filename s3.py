@@ -1,14 +1,14 @@
 BUCKET = 'media.swarmation.com'
 #HOST = 'djdtqy87hg7ce.cloudfront.net'
 HOST = 'media.swarmation.com'
-ORIGIN = 'http://swarmation.com/,http://beta.swarmation.com/,http://www2.swarmation.com/,http://localhost:81/'
+ORIGIN = 'http://swarmation.com/,http://beta.swarmation.com/,http://www2.swarmation.com/,http://test.swarmation.com/'
 
 AMAZON_ID = '0FXHQPW21QYG3G1E7C82'
 AMAZON_KEY = '4Uh6adFlkXkWso5+VokhaMe5Jd9ho8jmjzFVli2b'
 AMAZON_BUCKET = BUCKET
 
 ROOT = 'public'
-EXCLUDE = []
+EXCLUDE = ['images']
 MASTER_FILES = []
 
 DEPENDENCIES = {
