@@ -291,7 +291,7 @@ function contains(el, list) {
 
 socket.on('formation', function(data) {
   if ((!PLAYER) || (!PLAYER.id)) return
-  PLAYER.formationDeadline(contains(PLAYER.id, data.ids))
+  PLAYER.formationDeadline(contains(PLAYER.id, data.ids), data.difficulty)
   Util.each(PLAYERS, function(id, player) {
     player.formationDeadline(contains(id, data.ids))
   })

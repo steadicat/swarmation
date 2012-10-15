@@ -1,6 +1,6 @@
 // compile formations
 
-var Util = require('./util')
+var Util = require('./js/util')
 var Formations = require('./formations').Formations
 
 function getPoints(diagram, y, x) {

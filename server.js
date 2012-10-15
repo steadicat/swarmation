@@ -153,7 +153,7 @@ io.sockets.on('connection', onConnect)
 
 // Formation countdown
 
-var Forms = require('./js/forms.js')
+var Forms = require('./forms')
 var formations = Forms.getFormations()
 
 var config = require('./config')
