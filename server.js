@@ -128,22 +128,6 @@ function onConnect(client) {
     )
   })
 
-  client.on('save', function(message) {
-    // message.total, message.succeeded
-    var player = Player.get(client)
-    if (player && player.userId) {
-      request.post(
-        'https://graph.facebook.com/'+player.userId+'/scores',
-        { form: {
-          access_token: config.token,
-          score: message.score }},
-        function(err, resp, body) {
-          console.log('Saved score', message.score, body)
-        }
-      )
-    }
-  })
-
   client.on('disconnect', function() {
     Player.get(client).disconnect(io.sockets)
   })
@@ -186,25 +170,47 @@ function startTurn() {
   io.sockets.emit('nextFormation', { formation: FORMATION.name, time: TIME })
 }
 
+var MAX_POINTS = 26
+
 function endTurn() {
   var players = map.checkFormation(FORMATION, PLAYERS)
-  console.log(util.keys(players))
+  var gain = FORMATION.difficulty
+  var loss = Math.round((MAX_POINTS-FORMATION.difficulty)/4)
+  var ids = Object.keys(players)
   io.sockets.emit('formation', {
     formation: FORMATION.name,
     difficulty: FORMATION.difficulty,
-    ids: util.keys(players)
+    gain: gain,
+    loss: loss,
+    ids: ids
   })
   util.each(players, function(id, player) {
     player.setActive()
+    if (ids.indexOf(id) >= 0) {
+      player.score += gain
+    } else {
+      player.score = Math.max(0, player.score-loss)
+    }
     if (player.userId) {
+      // post formation
       request.post(
         'https://graph.facebook.com/'+player.userId+'/swarmation:join',
         { form: {
           access_token: config.token,
-          formation: 'http://swarmation.com/formation/' + message.formation
+          formation: 'http://swarmation.com/formation/' + FORMATION.name
         }},
         function(err, resp, body) {
-          console.log('Published completion of ' + message.formation + ' for ' + player.userId, body)
+          console.log('Published completion of ' + FORMATION.name + ' for ' + player.userId, body)
+        }
+      )
+      // save score
+      request.post(
+        'https://graph.facebook.com/'+player.userId+'/scores',
+        { form: {
+          access_token: config.token,
+          score: player.score }},
+        function(err, resp, body) {
+          console.log('Saved score', player.score, body)
         }
       )
     }

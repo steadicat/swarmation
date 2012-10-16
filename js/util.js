@@ -33,25 +33,4 @@ Util.each = function(list, f) {
 
 Util.array = function(l) { return Array.prototype.slice.call(l) }
 
-Util.map = function(f, l) {
-  l = Util.array(l)
-  if (l.map) {
-    return l.map(f)
-  } else {
-    var res = []
-    Util.each(l, function(x) {
-      res.push(f(x))
-    })
-    return res
-  }
-}
-
-Util.keys = function(d) {
-  var keys = []
-  Util.each(d, function(k) {
-    keys.push(k)
-  })
-  return keys
-}
-
 module.exports = Util

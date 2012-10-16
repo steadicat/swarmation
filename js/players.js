@@ -3,7 +3,6 @@ var HEIGHT = 60
 var DEAD_WIDTH = 21
 var DEAD_HEIGHT = 34
 var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry']
-var MAX_POINTS = 26
 var MOVEMENT_RATE = 140
 
 var PLAYER
@@ -20,7 +19,8 @@ function displayMessage(text) {
 }
 
 function scoreChange(delta) {
-  //Util.log(delta)
+  Dom.ge('score').textContent = PLAYER.score
+  Dom.ge('success').textContent = PLAYER.successRate()
 }
 
 var Player = function Player(id, left, top, isSelf) {
@@ -144,7 +144,7 @@ Player.prototype = {
     if (this.isSelf) socket.emit('flash', { stop: true })
   },
 
-  formationDeadline: function(success, difficulty) {
+  formationDeadline: function(success, difficulty, gain, loss) {
     this.total++
     if (success) {
       Dom.addClass(this.el, 'active')
@@ -154,18 +154,11 @@ Player.prototype = {
       }, 1000)
       this.score += difficulty
       this.succeeded++
-      if (this.isSelf) scoreChange(+difficulty)
+      if (this.isSelf) scoreChange(+gain)
       Dom.removeClass(this.el, 'idle')
     } else {
-      var delta = Math.round((MAX_POINTS-difficulty)/4)
-      this.score = Math.max(0, this.score-delta)
-      if (this.isSelf) scoreChange(-delta)
-    }
-    if (this.isSelf) {
-      // save
-      this.save()
-      Dom.ge('score').textContent = this.score
-      Dom.ge('success').textContent = this.successRate()
+      this.score = Math.max(0, this.score-loss)
+      if (this.isSelf) scoreChange(-loss)
     }
   },
 
@@ -283,15 +276,12 @@ socket.on('disconnected', function(data) {
 })
 
 function contains(el, list) {
-  for (var i=0; i<list.length; i++) {
-    if (list[i] == el) return true
-  }
-  return false
+  return list.indexOf(el) >= 0
 }
 
 socket.on('formation', function(data) {
   if ((!PLAYER) || (!PLAYER.id)) return
-  PLAYER.formationDeadline(contains(PLAYER.id, data.ids), data.difficulty)
+  PLAYER.formationDeadline(contains(PLAYER.id, data.ids), data.difficulty, data.gain, data.loss)
   Util.each(PLAYERS, function(id, player) {
     player.formationDeadline(contains(id, data.ids))
   })
