@@ -101,13 +101,11 @@ Player.prototype = {
     if (!MAP[left]) MAP[left] = []
     MAP[left][top] = this
 
-    if (first) {
-      this.el.style.left = this.getX() + 'px'
-      this.el.style.top =  this.getY() + 'px'
-    } else {
-      this.el.style.left = this.getX() + 'px'
-      this.el.style.top = this.getY() + 'px'
-    }
+    this.el.style.left = this.getX() + 'px'
+    this.el.style.top =  this.getY() + 'px'
+
+    if (this.welcome) this.positionWelcome()
+
     return true
   },
 
@@ -196,25 +194,45 @@ Player.prototype = {
   showTooltip: function() {
     var tooltip = Dom.ge('tooltip')
     var board = Dom.ge('board')
-    Dom.removeClass(tooltip, 'off')
     tooltip.style.left = this.getX() + board.offsetLeft - 6 + 'px'
     tooltip.style.top = this.getY() + board.offsetTop + 25 + 'px'
+    Dom.removeClass(tooltip, 'off')
     Dom.ge('tooltip-name').textContent = this.name
     Dom.ge('tooltip-score').textContent = this.score
     Dom.ge('tooltip-success').textContent = this.successRate()
   },
 
+  showWelcome: function() {
+    var welcome = Dom.ge('welcome')
+    this.welcome = welcome
+    this.positionWelcome(true)
+    Dom.removeClass(welcome, 'off')
+  },
+
+  positionWelcome: function(first) {
+    var board = Dom.ge('board')
+    this.welcome.style.left = this.getX() + board.offsetLeft - 130 + 'px'
+    this.welcome.style.top = this.getY() + board.offsetTop - 105 + 'px'
+    if (!first) {
+      Dom.addClass(Dom.ge('welcome-1'), 'off')
+      Dom.removeClass(Dom.ge('welcome-2'), 'off')
+      this.welcomeCountdown--
+      if (this.welcomeCountdown == 0) {
+        this.welcome.style.opacity = 0
+        var self = this
+        setTimeout(function() {
+          delete self.welcomeCountdown
+          delete self.welcome
+        }, 1000)
+      }
+    } else {
+      this.welcomeCountdown = 20
+    }
+  },
+
   hideTooltip: function() {
     Dom.addClass(Dom.ge('tooltip'), 'off')
   },
-
-  save: function() {
-    socket.emit('save', {
-      score: this.score,
-      total: this.total,
-      succeeded: this.succeeded
-    })
-  }
 }
 
 // sockets
@@ -236,6 +254,7 @@ socket.on('welcome', function(data) {
     PLAYER.id = data.id
   } else {
     PLAYER = new Player(data.id, null, null, true)
+    PLAYER.showWelcome()
   }
 })
 
