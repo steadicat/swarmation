@@ -144,7 +144,7 @@ Player.prototype = {
     if (this.isSelf) socket.emit('flash', { stop: true })
   },
 
-  formationDeadline: function(success, difficulty, gain, loss) {
+  formationDeadline: function(success, gain, loss) {
     this.total++
     if (success) {
       Dom.addClass(this.el, 'active')
@@ -152,7 +152,7 @@ Player.prototype = {
       setTimeout(function() {
         Dom.removeClass(el, 'active')
       }, 1000)
-      this.score += difficulty
+      this.score += gain
       this.succeeded++
       if (this.isSelf) scoreChange(+gain)
       Dom.removeClass(this.el, 'idle')
@@ -281,9 +281,9 @@ function contains(el, list) {
 
 socket.on('formation', function(data) {
   if ((!PLAYER) || (!PLAYER.id)) return
-  PLAYER.formationDeadline(contains(PLAYER.id, data.ids), data.difficulty, data.gain, data.loss)
+  PLAYER.formationDeadline(contains(PLAYER.id, data.ids), data.gain, data.loss)
   Util.each(PLAYERS, function(id, player) {
-    player.formationDeadline(contains(id, data.ids))
+    player.formationDeadline(contains(id, data.ids), data.gain, data.loss)
   })
 })
 
