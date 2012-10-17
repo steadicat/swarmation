@@ -1,6 +1,8 @@
 @import nib
 global-reset()
 
+@import "spacing"
+
 body
   font 13px/20px 'Helvetica Neue', Helvetica, Arial, sans-serif
   color #222
@@ -42,22 +44,6 @@ a
 .border
   border 1px solid #444
 
-// margins and padding
-.pas
-  padding 9px
-.pam
-  padding 12px
-.pal
-  padding 20px
-.mbl
-  margin-bottom 16px
-.pbl
-  padding-bottom 16px
-.mts
-  margin-top 9px
-.mtm
-  margin-top 12px
-
 // colors
 a
   color #fff
@@ -66,20 +52,31 @@ a
 .dark
   color #999
 
+// transitions
+.movement
+  transition left 0.3s, top 0.3s
+.fade
+  transition left 0.3s, top 0.3s, opacity 1s
+
 // one-offs
 .container
-  width 991px
+  @extend .centered
+  width 986px
 .header
   height 140px
   background url(../images/logo.png) center top no-repeat
   text-indent -9999px
 .info
+  @extend .abs
+  @extend .center
+  @extend .white
+  @extend .border
   background #444 url(../images/board-bg.png)
   text-shadow #000 0px 0px 2px
   width 185px
   height 315px
-  top 9px
-  left 9px
+  top 12px
+  left 12px
 .formation-name
   font-size 20px
 .formation-image
@@ -93,27 +90,35 @@ a
   position relative
   top 2px
 .board-container
-  margin 3px 0 8px 10px
+  @extend .rel
   background #333 url(../images/board-bg.png)
   border 1px solid #888
   box-shadow #000 0px 0px 2px
   border-radius 7px
 .board
+  @extend .rel
   width 961px
   height 601px
   background url(../images/pixel.png)
 .message
+  @extend .larger
+  @extend .b
+  @extend .center
+  @extend .abs
+  @extend .white
   padding 240px 270px
-  width 439px
-  height 141px
+  width 444px
+  height 145px
   top 0
   left 0
   background-color rgba(0, 0, 0, 0.6)
   border-radius 7px
 .tooltip
+  @extend .rounded
+  @extend .abs
+  @extend .center
   box-shadow #555 0px 0px 2px
   background #eee
-  transition left 0.3s, top 0.3s, opacity 1s
   &:after
     content " "
     width 10px
@@ -125,15 +130,18 @@ a
     position absolute
     bottom -6px
     left 50%
-    margin-left -9px
+    margin-left -7px
+.welcome
+  @extend .tooltip
+  @extend .center
 
 .player
+  @extend .movement
   position absolute
   width 6px
   height 6px
   border 2px solid #666
   background #ccc
-  transition: left 0.3s, top 0.3s
   &.self
     border 2px solid #07f
     background #89cff0
@@ -147,4 +155,5 @@ a
     background #ff3
 
 .footer
-  padding 10px 12px
+  @extend .dark
+  @extend .center

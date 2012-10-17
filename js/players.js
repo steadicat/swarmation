@@ -193,26 +193,22 @@ Player.prototype = {
 
   showTooltip: function() {
     var tooltip = Dom.ge('tooltip')
-    var board = Dom.ge('board')
-    tooltip.style.left = this.getX() + board.offsetLeft - 6 + 'px'
-    tooltip.style.top = this.getY() + board.offsetTop + 25 + 'px'
-    Dom.removeClass(tooltip, 'off')
     Dom.ge('tooltip-name').textContent = this.name
     Dom.ge('tooltip-score').textContent = this.score
     Dom.ge('tooltip-success').textContent = this.successRate()
+    Dom.removeClass(tooltip, 'off')
+    tooltip.style.left = this.getX() - tooltip.offsetWidth/2 + 20 + 'px'
+    tooltip.style.top = this.getY() - tooltip.offsetHeight - 5 + 'px'
   },
 
   showWelcome: function() {
     var welcome = Dom.ge('welcome')
     this.welcome = welcome
-    this.positionWelcome(true)
     Dom.removeClass(welcome, 'off')
+    this.positionWelcome(true)
   },
 
   positionWelcome: function(first) {
-    var board = Dom.ge('board')
-    this.welcome.style.left = this.getX() + board.offsetLeft - 130 + 'px'
-    this.welcome.style.top = this.getY() + board.offsetTop - 105 + 'px'
     if (!first) {
       Dom.addClass(Dom.ge('welcome-1'), 'off')
       Dom.removeClass(Dom.ge('welcome-2'), 'off')
@@ -227,7 +223,14 @@ Player.prototype = {
       }
     } else {
       this.welcomeCountdown = 20
+      welcome.style.opacity = 0
+      setTimeout(function() {
+        Dom.addClass(welcome, 'fade')
+        welcome.style.opacity = 1
+      }, 100)
     }
+    this.welcome.style.left = this.getX() - this.welcome.offsetWidth/2 + 20 + 'px'
+    this.welcome.style.top = this.getY() - this.welcome.offsetHeight -5 + 'px'
   },
 
   hideTooltip: function() {

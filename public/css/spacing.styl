@@ -1,0 +1,109 @@
+small = 6px
+medium = 12px
+large = 24px
+
+// margins and padding
+.pts
+  padding-top small
+.prs
+  padding-right small
+.pbs
+  padding-bottom small
+.pls
+  padding-left small
+.pvs
+  @extend .pts
+  @extend .pbs
+.phs
+  @extend .pls
+  @extend .prs
+.pas
+  @extend .pvs
+  @extend .phs
+.mts
+  margin-top small
+.mrs
+  margin-right small
+.mbs
+  margin-bottom small
+.mls
+  margin-left small
+.mvs
+  @extend .mts
+  @extend .mbs
+.mhs
+  @extend .mls
+  @extend .mrs
+.mas
+  @extend .mvs
+  @extend .mhs
+
+.ptm
+  padding-top medium
+.prm
+  padding-right medium
+.pbm
+  padding-bottom medium
+.plm
+  padding-left medium
+.pvm
+  @extend .ptm
+  @extend .pbm
+.phm
+  @extend .plm
+  @extend .prm
+.pam
+  @extend .pvm
+  @extend .phm
+.mtm
+  margin-top medium
+.mrm
+  margin-right medium
+.mbm
+  margin-bottom medium
+.mlm
+  margin-left medium
+.mvm
+  @extend .mtm
+  @extend .mbm
+.mhm
+  @extend .mlm
+  @extend .mrm
+.mam
+  @extend .mvm
+  @extend .mhm
+
+.ptl
+  padding-top large
+.prl
+  padding-right large
+.pbl
+  padding-bottom large
+.pll
+  padding-left large
+.pvl
+  @extend .ptl
+  @extend .pbl
+.phl
+  @extend .pll
+  @extend .prl
+.pal
+  @extend .pvl
+  @extend .phl
+.mtl
+  margin-top large
+.mrl
+  margin-right large
+.mbl
+  margin-bottom large
+.mll
+  margin-left large
+.mvl
+  @extend .mtl
+  @extend .mbl
+.mhl
+  @extend .mll
+  @extend .mrl
+.mal
+  @extend .mvl
+  @extend .mhl
