@@ -1,6 +1,6 @@
 // compile formations
 
-var Util = require('./js/util')
+var sys = require('sys')
 var Formations = require('./formations').Formations
 
 function getPoints(diagram, y, x) {
@@ -35,7 +35,7 @@ Forms.getFormations = function() {
 
     if (formation.points.length == 0) {
       // malformed formation?
-      Util.log('Formation ' + formation.name + ' is malformed!')
+      sys.log('Formation ' + formation.name + ' is malformed!')
       continue
     }
 

@@ -1,5 +1,3 @@
-var DEBUG = true
-
 // Module dependencies.
 
 var express = require('express')
@@ -8,9 +6,9 @@ var stylus = require('stylus')
 var nib = require('nib')
 var sys = require('sys')
 var http = require('http')
-var request = require('request')
 var map = require('./map')
 var util = require('./js/util')
+var fb = require('./fb')
 
 var app = express()
 var server = module.exports = http.createServer(app)
@@ -36,12 +34,29 @@ app.configure(function() {
   app.use('/', express.static(public))
 })
 
-app.configure('development', function(){
+app.configure('development', function() {
   app.use(connect.errorHandler({ dumpExceptions: true, showStack: true }))
 })
 
-app.configure('production', function(){
+app.configure('production', function() {
   app.use(connect.errorHandler())
+})
+
+io.configure('development', function() {
+  io.set('log level', 2)
+})
+io.configure('production', function() {
+  io.set('log level', 1)
+  io.set('transports', [
+    'websocket',
+    'flashsocket',
+    'htmlfile',
+    'xhr-polling',
+    'jsonp-polling'
+  ])
+  io.enable('browser client minification')
+  io.enable('browser client etag')
+  io.enable('browser client gzip')
 })
 
 // Routes
@@ -117,15 +132,12 @@ function onConnect(client) {
     var player = Player.get(client)
     if (!player) return
     player.login(message.userId, message.token)
-    request.get(
-      'https://graph.facebook.com/'+config.appId+'/scores?access_token=' + message.token,
-      function(err, resp, body) {
-        body = JSON.parse(body)
-        player.score = body.data[0].score
-        console.log('Got score for '+message.userId+': ' + player.score, body)
-        io.sockets.emit('info', { id: client.id, score: player.score })
-      }
-    )
+    fb.get(config.appId + '/scores', message.token, function(err, res) {
+      if (err) throw err
+      player.score = res.data[0].score
+      sys.log('FB: Loaded score for user '+message.userId+': ' + player.score)
+      io.sockets.emit('info', { id: client.id, score: player.score })
+    })
   })
 
   client.on('disconnect', function() {
@@ -193,24 +205,23 @@ function endTurn() {
     }
     if (player.userId) {
       // post formation
-      request.post(
-        'https://graph.facebook.com/'+player.userId+'/swarmation:join',
-        { form: {
-          access_token: config.token,
-          formation: 'http://swarmation.com/formation/' + FORMATION.name
-        }},
-        function(err, resp, body) {
-          console.log('Published completion of ' + FORMATION.name + ' for ' + player.userId, body)
+      fb.post(
+        player.userId+'/swarmation:join',
+        config.token,
+        { formation: 'http://swarmation.com/formation/' + FORMATION.name },
+        function(err, res) {
+          if (err) throw err
+          sys.log('FB: Published completion of ' + FORMATION.name + ' for ' + player.userId)
         }
       )
       // save score
-      request.post(
-        'https://graph.facebook.com/'+player.userId+'/scores',
-        { form: {
-          access_token: config.token,
-          score: player.score }},
-        function(err, resp, body) {
-          console.log('Saved score', player.score, body)
+      fb.post(
+        player.userId+'/scores',
+        config.token,
+        { score: player.score },
+        function(err, res) {
+          if (err) throw err
+          sys.log('FB: Saved score of ' + player.score + ' for ' + player.userId)
         }
       )
     }
@@ -232,6 +243,4 @@ setInterval(function() {
 var port = parseInt(process.env.PORT, 10) || parseInt(process.argv[2], 10) || 80
 if (!module.parent) server.listen(port)
 sys.log('Server now listening on port '+port+'...')
-
-startTurn()
 

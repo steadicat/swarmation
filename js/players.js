@@ -286,7 +286,6 @@ socket.on('idle', function(data) {
 })
 
 socket.on('connected', function(data) {
-  Util.log(data)
 })
 
 socket.on('disconnected', function(data) {

@@ -31,15 +31,13 @@ Map.exists = function(x, y) {
 
 Map.checkFormationAtOrigin = function(formation, x, y) {
   var players = []
-  util.each(formation.points[0], function(point) {
+  var success = formation.points[0].every(function(point) {
     var player = Map.get(x+point[0], y+point[1])
-    if (!player) {
-      players = []
-      return false
-    }
     players.push(player)
+    return !!player
   })
-  if (players.length > 0) players.push(Map.get(x, y))
+  if (!success) return []
+  players.push(Map.get(x, y))
   return players
 }
 
@@ -47,9 +45,7 @@ Map.checkFormation = function(formation, players) {
   var winners = {}
   util.each(players, function(id, player) {
     var f = Map.checkFormationAtOrigin(formation, player.left, player.top)
-    util.each(f, function(p) {
-      winners[p.id] = p
-    })
+    f.forEach(function(p) { winners[p.id] = p })
   })
   return winners
 }
