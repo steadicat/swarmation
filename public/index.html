@@ -5,7 +5,7 @@
 
     <link rel="shortcut icon" href="/images/favicon.ico" />
     <link href="/css/screen.css" media="screen,projection" rel="stylesheet" type="text/css" />
-
+    <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet" type="text/css" />
     <meta name="og:url" value="http://swarmation.com/" />
     <meta name="og:site_name" value="Swarmation" />
     <meta name="og:type" value="website" />
@@ -20,27 +20,30 @@
       <h1 class="header">Swarmation</h1>
       <div class="board-container pam">
         <div id="board" class="board"></div>
-        <div class="info pam">
-          <h1 id="countdown" class="huge">wait</h1>
+        <div class="info">
+          <h1 id="countdown" class="b huge">wait</h1>
           <div id="formation-image" class="formation-image">&nbsp;</div>
-          <div id="formation-name" class="formation-name">&nbsp;</div>
-          <h2 class="large mtm">
-            <span id="score">0</span>
+          <div id="formation-name" class="medium b pvm">&nbsp;</div>
+          <h2 class="top-border pvm">
+            <div id="score" class="huge b">0</div>
             points
           </h2>
-          <h3 class="mts">
-            <span id="success">100</span>% success
+          <h3 class="dim top-border pvl">
+            <div class="large b">
+              <span id="success">100</span>%
+            </div>
+            success
           </h3>
-          <div id="login" class="mtm">
-            To save your score and share your achievements:
-            <div class="fb-login-button" data-show-faces="false" data-width="200" data-max-rows="1"></div>
+          <div id="login" class="top-border pvm phm">
+            <span class="dim">Save your score and share your achievements:</span>
+            <div class="fb-login-button mtm" data-show-faces="false" data-width="200" data-max-rows="1"></div>
           </div>
           <div id="username-box" class="mtm off">
             Welcome,
             <span id="username"></span>.
           </div>
         </div>
-        <div id="welcome" class="welcome pal off" style="width: 240px">
+        <div id="welcome" class="welcome pam off" style="width: 240px">
           <div id="welcome-1">
             <h3 class="b">Welcome to life as a pixel</h3>
             <p class="mtm">Use your <span class="arrow-image" alt="arrows"></span> keys to move</p>
@@ -51,8 +54,15 @@
         </div>
         <div id="tooltip" class="tooltip pas off">
           <h3 id="tooltip-name" class="b"></h3>
-          <p><span id="tooltip-score">0</span> points</p>
-          <p><span id="tooltip-success">100</span>% success</p>
+          <div class="col mrs">
+            <div id="tooltip-score" class="medium b">0</div>
+            points
+          </div><div class="col dim">
+            <div class="medium b">
+              <span id="tooltip-success">100</span>%
+            </div>
+            success
+          </div>
         </div>
         <div id="message" class="message off"></div>
       </div>

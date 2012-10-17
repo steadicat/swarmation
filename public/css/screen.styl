@@ -4,7 +4,7 @@ global-reset()
 @import "spacing"
 
 body
-  font 13px/20px 'Helvetica Neue', Helvetica, Arial, sans-serif
+  font 13px/20px 'Source Sans Pro', sans-serif
   color #222
   background #332 url(../images/bg.png)
 .off
@@ -24,6 +24,9 @@ a
 .large
   font-size 30px
   line-height 40px
+.medium
+  font-size 20px
+  line-height 20px
 
 // layout
 .center
@@ -43,6 +46,9 @@ a
   border-radius 3px
 .border
   border 1px solid #444
+.top-border
+  border-top 1px solid #444
+  margin-top -1px
 
 // colors
 a
@@ -51,6 +57,8 @@ a
   color #fff
 .dark
   color #999
+.dim
+  opacity 0.5
 
 // transitions
 .movement
@@ -61,7 +69,7 @@ a
 // one-offs
 .container
   @extend .centered
-  width 986px
+  width 984px
 .header
   height 140px
   background url(../images/logo.png) center top no-repeat
@@ -73,15 +81,15 @@ a
   @extend .border
   background #444 url(../images/board-bg.png)
   text-shadow #000 0px 0px 2px
-  width 185px
-  height 315px
-  top 12px
-  left 12px
+  width 119px
+  height 599px
+  top 10px
+  left 10px
 .formation-name
   font-size 20px
 .formation-image
   background no-repeat center center
-  height: 80px
+  height: 100px
 .arrow-image
   background url(../images/arrows.png) no-repeat center center
   display inline-block
@@ -106,9 +114,10 @@ a
   @extend .center
   @extend .abs
   @extend .white
-  padding 240px 270px
-  width 444px
-  height 145px
+  padding 200px 260px
+  box-sizing border-box
+  width 100%
+  height 100%
   top 0
   left 0
   background-color rgba(0, 0, 0, 0.6)

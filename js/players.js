@@ -1,7 +1,7 @@
 var WIDTH = 96
 var HEIGHT = 60
-var DEAD_WIDTH = 21
-var DEAD_HEIGHT = 34
+var DEAD_WIDTH = 12
+var DEAD_HEIGHT = 60
 var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry']
 var MOVEMENT_RATE = 140
 
@@ -197,7 +197,7 @@ Player.prototype = {
     Dom.ge('tooltip-score').textContent = this.score
     Dom.ge('tooltip-success').textContent = this.successRate()
     Dom.removeClass(tooltip, 'off')
-    tooltip.style.left = this.getX() - tooltip.offsetWidth/2 + 20 + 'px'
+    tooltip.style.left = this.getX() - tooltip.offsetWidth/2 + 17 + 'px'
     tooltip.style.top = this.getY() - tooltip.offsetHeight - 5 + 'px'
   },
 
@@ -229,7 +229,7 @@ Player.prototype = {
         welcome.style.opacity = 1
       }, 100)
     }
-    this.welcome.style.left = this.getX() - this.welcome.offsetWidth/2 + 20 + 'px'
+    this.welcome.style.left = this.getX() - this.welcome.offsetWidth/2 + 17 + 'px'
     this.welcome.style.top = this.getY() - this.welcome.offsetHeight -5 + 'px'
   },
 
