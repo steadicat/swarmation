@@ -167,8 +167,7 @@ io.sockets.on('connection', onConnect)
 
 // Formation countdown
 
-var Forms = require('./forms')
-var formations = Forms.getFormations()
+var formations = require('./formations').getFormations()
 
 var config = require('./config')
 

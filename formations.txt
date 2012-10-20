@@ -1,0 +1,102 @@
+== eyes (4) ==
+x x
+== triangle (4) ==
+ x
+x x
+== easy (6) ==
+xxx
+== clover (10) ==
+x x
+ x
+x x
+== tetris (8) ==
+x
+x
+x
+x
+== gap (8) ==
+x
+
+
+
+x
+== delta (12) ==
+  x
+ x x
+x   x
+== tank (14) ==
+ x
+x x
+x x
+ x
+== block (12) ==
+xxx
+xxx
+xxx
+== fortress (20) ==
+xxxxx
+x   x
+x x x
+x   x
+xxxxx
+== snake (16) ==
+  x
+ x
+  x
+ x
+x
+== lobster (16) ==
+x x
+x x
+ x
+ x
+ x
+== hat (14) ==
+ xxx
+ x x
+xxxxx
+== arrow (20) ==
+  x
+ xxx
+xxxxx
+ xxx
+ xxx
+== table (16) ==
+xxxxx
+ x x
+== patchwork (20) ==
+ x x
+x x x
+ x x
+x x x
+ x x
+== volcano (16) ==
+  x
+ xxx
+xxxxx
+== spiral (22) ==
+ xx
+x x x
+x   x
+ xxx
+== glider (13) ==
+ x
+  x
+xxx
+== giraffe (15) ==
+xx
+ x
+ x
+ x
+ x
+ x    x
+ xxxxx
+ x   x
+ x   x
+== wave (20) ==
+ xxx
+x   x   x
+     xxx
+ xxx
+x   x   x
+     xxx
