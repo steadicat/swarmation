@@ -12,10 +12,12 @@ Element.prototype.getAttribute = function(key) {
 }
 
 Element.prototype.setAttribute = function(key, val) {
+  if (this._el) this._el.setAttribute(key, val)
   this.attrs[key] = val
 }
 
 Element.prototype.appendChild = function(child) {
+  if (this._el) this._el.appendChild(child)
   this.children.push(child)
 }
 
@@ -46,6 +48,7 @@ Element.prototype.renderServerSide = function() {
 
 Element.prototype.renderClientSide = function() {
   var el = document.createElement(this.tagName)
+  this._el = el
   Util.each(this.attrs, el.setAttribute.bind(el))
   this.children.forEach(function(child) {
     if (child === null) return

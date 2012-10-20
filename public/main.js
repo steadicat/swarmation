@@ -416,6 +416,7 @@ Dom.removeClass = function(el, cl) {
 }
 
 Dom.remove = function(el) {
+  if (el._el) el = el._el
   el.parentNode.removeChild(el)
 }
 
@@ -424,6 +425,74 @@ Dom.isEl = function(el) {
 }
 
 module.exports = Dom
+
+});
+
+require.define("/element.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
+
+function Element(type) {
+  this.tagName = type
+  this.attrs = {}
+  this.children = []
+  this.style = {}
+}
+
+Element.prototype.getAttribute = function(key) {
+  return this.attrs[key]
+}
+
+Element.prototype.setAttribute = function(key, val) {
+  if (this._el) this._el.setAttribute(key, val)
+  this.attrs[key] = val
+}
+
+Element.prototype.appendChild = function(child) {
+  if (this._el) this._el.appendChild(child)
+  this.children.push(child)
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') ;
+}
+
+/*
+Element.prototype.renderServerSide = function() {
+  if (this.id) this.attrs['id'] = this.id
+  var attrs = []
+  Util.each(this.attrs, function(key, val) {
+    attrs.push([key, '="', val, '"'].join(''))
+  })
+  var tag = this.tagName.toLowerCase()
+  attrs.unshift(tag)
+  if (this.children.length) {
+    var children = Func.interleave(Func.flatten(this.children).map(function(child) {
+      if (child === null) return ''
+      return Util.isString(child) ? escapeHtml(child) : child.render(true)
+    }))
+    return ['<', attrs.join(' '), '>', children[0].join(''), '</', this.tagName.toLowerCase(), '>'].join('')
+  } else {
+    return ['<', attrs.join(' '), '/>'].join('')
+  }
+}
+*/
+
+Element.prototype.renderClientSide = function() {
+  var el = document.createElement(this.tagName)
+  this._el = el
+  Util.each(this.attrs, el.setAttribute.bind(el))
+  this.children.forEach(function(child) {
+    if (child === null) return
+    el.appendChild(Util.isString(child) ? document.createTextNode(child) : child.renderClientSide())
+  })
+  Util.each(this.style, function(key, val) {
+    el.style[key] = val
+  })
+  return el
+}
+
+Element.prototype.render = Element.prototype.renderClientSide
+
+module.exports = Element
 
 });
 
@@ -608,71 +677,6 @@ module.exports = Fb
 
 });
 
-require.define("/element.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
-
-function Element(type) {
-  this.tagName = type
-  this.attrs = {}
-  this.children = []
-  this.style = {}
-}
-
-Element.prototype.getAttribute = function(key) {
-  return this.attrs[key]
-}
-
-Element.prototype.setAttribute = function(key, val) {
-  this.attrs[key] = val
-}
-
-Element.prototype.appendChild = function(child) {
-  this.children.push(child)
-}
-
-function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') ;
-}
-
-/*
-Element.prototype.renderServerSide = function() {
-  if (this.id) this.attrs['id'] = this.id
-  var attrs = []
-  Util.each(this.attrs, function(key, val) {
-    attrs.push([key, '="', val, '"'].join(''))
-  })
-  var tag = this.tagName.toLowerCase()
-  attrs.unshift(tag)
-  if (this.children.length) {
-    var children = Func.interleave(Func.flatten(this.children).map(function(child) {
-      if (child === null) return ''
-      return Util.isString(child) ? escapeHtml(child) : child.render(true)
-    }))
-    return ['<', attrs.join(' '), '>', children[0].join(''), '</', this.tagName.toLowerCase(), '>'].join('')
-  } else {
-    return ['<', attrs.join(' '), '/>'].join('')
-  }
-}
-*/
-
-Element.prototype.renderClientSide = function() {
-  var el = document.createElement(this.tagName)
-  Util.each(this.attrs, el.setAttribute.bind(el))
-  this.children.forEach(function(child) {
-    if (child === null) return
-    el.appendChild(Util.isString(child) ? document.createTextNode(child) : child.renderClientSide())
-  })
-  Util.each(this.style, function(key, val) {
-    el.style[key] = val
-  })
-  return el
-}
-
-Element.prototype.render = Element.prototype.renderClientSide
-
-module.exports = Element
-
-});
-
 require.define("/players.js",function(require,module,exports,__dirname,__filename,process,global){var WIDTH = 96
 var HEIGHT = 60
 var DEAD_WIDTH = 12
@@ -694,6 +698,13 @@ function displayMessage(text) {
   message.setAttribute('style', 'display: block')
 }
 
+function animate(duration, start, end) {
+  setTimeout(function() {
+    start()
+    if (end) setTimeout(end, duration)
+  }, 0)
+}
+
 function scoreChange(delta) {
   Dom.ge('score').textContent = PLAYER.score
   Dom.ge('success').textContent = PLAYER.successRate()
@@ -702,14 +713,8 @@ function scoreChange(delta) {
   Dom.addClass(popup, delta > 0 ? 'positive' : 'negative')
   popup.style.left =  PLAYER.getX() -200 + 'px'
   popup.style.top = PLAYER.getY() -50 + 'px'
-  var el = popup.render()
-  board.appendChild(el)
-  setTimeout(function() {
-    Dom.addClass(el, 'scale')
-    setTimeout(function() {
-      Dom.remove(el)
-    }, 600)
-  }, 10)
+  board.appendChild(popup.render())
+  animate(600, Dom.addClass.bind(null, popup, 'scale'), Dom.remove.bind(null, popup), 600)
 }
 
 var Player = function Player(id, left, top, isSelf) {
@@ -895,6 +900,16 @@ Player.prototype = {
     this.welcome = welcome
     Dom.removeClass(welcome, 'off')
     this.positionWelcome(true)
+    setTimeout(this.hideWelcome.bind(this), 10000)
+  },
+
+  hideWelcome: function() {
+    this.welcome.style.opacity = 0
+    var self = this
+    setTimeout(function() {
+      delete self.welcomeCountdown
+      delete self.welcome
+    }, 1000)
   },
 
   positionWelcome: function(first) {
@@ -903,12 +918,7 @@ Player.prototype = {
       Dom.removeClass(Dom.ge('welcome-2'), 'off')
       this.welcomeCountdown--
       if (this.welcomeCountdown == 0) {
-        this.welcome.style.opacity = 0
-        var self = this
-        setTimeout(function() {
-          delete self.welcomeCountdown
-          delete self.welcome
-        }, 1000)
+        this.hideWelcome()
       }
     } else {
       this.welcomeCountdown = 20

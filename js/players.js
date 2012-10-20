@@ -19,6 +19,13 @@ function displayMessage(text) {
   message.setAttribute('style', 'display: block')
 }
 
+function animate(duration, start, end) {
+  setTimeout(function() {
+    start()
+    if (end) setTimeout(end, duration)
+  }, 0)
+}
+
 function scoreChange(delta) {
   Dom.ge('score').textContent = PLAYER.score
   Dom.ge('success').textContent = PLAYER.successRate()
@@ -27,14 +34,8 @@ function scoreChange(delta) {
   Dom.addClass(popup, delta > 0 ? 'positive' : 'negative')
   popup.style.left =  PLAYER.getX() -200 + 'px'
   popup.style.top = PLAYER.getY() -50 + 'px'
-  var el = popup.render()
-  board.appendChild(el)
-  setTimeout(function() {
-    Dom.addClass(el, 'scale')
-    setTimeout(function() {
-      Dom.remove(el)
-    }, 600)
-  }, 10)
+  board.appendChild(popup.render())
+  animate(600, Dom.addClass.bind(null, popup, 'scale'), Dom.remove.bind(null, popup), 600)
 }
 
 var Player = function Player(id, left, top, isSelf) {
@@ -220,6 +221,16 @@ Player.prototype = {
     this.welcome = welcome
     Dom.removeClass(welcome, 'off')
     this.positionWelcome(true)
+    setTimeout(this.hideWelcome.bind(this), 10000)
+  },
+
+  hideWelcome: function() {
+    this.welcome.style.opacity = 0
+    var self = this
+    setTimeout(function() {
+      delete self.welcomeCountdown
+      delete self.welcome
+    }, 1000)
   },
 
   positionWelcome: function(first) {
@@ -228,12 +239,7 @@ Player.prototype = {
       Dom.removeClass(Dom.ge('welcome-2'), 'off')
       this.welcomeCountdown--
       if (this.welcomeCountdown == 0) {
-        this.welcome.style.opacity = 0
-        var self = this
-        setTimeout(function() {
-          delete self.welcomeCountdown
-          delete self.welcome
-        }, 1000)
+        this.hideWelcome()
       }
     } else {
       this.welcomeCountdown = 20

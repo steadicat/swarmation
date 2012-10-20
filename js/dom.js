@@ -23,6 +23,7 @@ Dom.removeClass = function(el, cl) {
 }
 
 Dom.remove = function(el) {
+  if (el._el) el = el._el
   el.parentNode.removeChild(el)
 }
 
