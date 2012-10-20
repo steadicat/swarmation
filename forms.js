@@ -23,24 +23,28 @@ Forms.getFormations = function() {
     var diagram = Formations[name].split('\n')
     var formation = {}
     formation.name = name
-    formation.points = []
     formation.difficulty = parseInt(diagram[0], 10)
+    formation.map = []
     for (var i in diagram) {
       for (var j=0; j < diagram[i].length; j++) {
-        if (diagram[i].charAt(j) == 'o') {
-          formation.points.push(getPoints(diagram, i, j))
+        var c = diagram[i].charAt(j)
+        if ((c == 'o') || (c == 'x')) {
+          formation.map[i] || (formation.map[i] = [])
+          formation.map[i][j] = true
+          if (!formation.points) formation.points = getPoints(diagram, i, j)
         }
       }
     }
 
-    if (formation.points.length == 0) {
+    if (!formation.points) {
       // malformed formation?
       sys.log('Formation ' + formation.name + ' is malformed!')
       continue
     }
 
-    formation.size = formation.points[0].length+1
+    formation.size = formation.points.length+1
     formations[name] = formation
+    formation.map = formation.map.slice(1)
   }
   return formations
 }

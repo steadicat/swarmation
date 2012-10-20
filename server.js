@@ -71,20 +71,38 @@ var formationPage = '<html>' +
 '<meta property="og:type" content="swarmation:formation" />' +
 '<meta property="og:title" content="{name}" />' +
 '<meta property="og:description" content="A formation of {points} players on Swarmation." />' +
-'<meta property="og:url" content="http://swarmation.com/formations/{name}" />' +
-'<meta property="og:image" content="http://swarmation.com/images/formations/{name}.png" />' +
+'<meta property="og:url" content="http://swarmation.com/formation/{name}" />' +
+'<meta property="og:image" content="http://swarmation.com/formation/{name}.png" />' +
 '<meta property="swarmation:size" content="{points}" />' +
 '</head></html>';
 
+var images = require('./images')
+
+app.get('/formation/:name.png', function(req, res) {
+  var formation = formations[req.params.name]
+  if (!formation) res.send(404)
+  images.getImage(formation, function(err, buffer) {
+    if (err) throw err
+    res.type('png').send(buffer)
+  })
+})
+
 app.get('/formation/:name', function(req, res) {
+  var formation = formations[req.params.name]
+  if (!formation) res.send(404)
   res.send(
     formationPage
       .replace(/\{name\}/g, req.params.name)
-      .replace(/\{points\}/g, formations[req.params.name].size)
+      .replace(/\{points\}/g, formation.size)
   )
 })
 
+
 // Error Handling
+app.use(function(err, req, res, next){
+  console.error(err.stack);
+  res.send(500, 'Something broke!');
+});
 
 process.on('uncaughtException', function(e) {
   sys.log(e.stack)

@@ -31,7 +31,7 @@ Map.exists = function(x, y) {
 
 Map.checkFormationAtOrigin = function(formation, x, y) {
   var players = []
-  var success = formation.points[0].every(function(point) {
+  var success = formation.points.every(function(point) {
     var player = Map.get(x+point[0], y+point[1])
     players.push(player)
     return !!player

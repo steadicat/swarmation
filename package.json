@@ -11,7 +11,8 @@
     "stylus": "*",
     "nib": "*",
     "browserify": "*",
-    "request": "*"
+    "request": "*",
+    "canvas": "*"
   },
   "engines": {
     "node": ">=0.7.7"

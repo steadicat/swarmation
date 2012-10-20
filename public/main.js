@@ -1012,7 +1012,7 @@ var formationInterval
 
 socket.on('nextFormation', function(data) {
   Dom.ge('formation-name').textContent = data.formation
-  Dom.ge('formation-image').style.backgroundImage = 'url(/images/formations/'+data.formation+'.png)'
+  Dom.ge('formation-image').style.backgroundImage = 'url(/formation/'+data.formation+'.png)'
 
   time = data.time
   Dom.ge('countdown').textContent = time
