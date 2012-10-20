@@ -391,7 +391,9 @@ process.binding = function (name) {
 
 });
 
-require.define("/dom.js",function(require,module,exports,__dirname,__filename,process,global){var Dom = {}
+require.define("/dom.js",function(require,module,exports,__dirname,__filename,process,global){var Element = require('./element')
+
+var Dom = {}
 
 Dom.ge = function(id) { return document.getElementById(id) }
 Dom.ce = function(tag) { return document.createElement(tag) }
@@ -417,6 +419,10 @@ Dom.remove = function(el) {
   el.parentNode.removeChild(el)
 }
 
+Dom.isEl = function(el) {
+  return el instanceof (typeof HTMLElement !== 'undefined' ? HTMLElement : Element)
+}
+
 module.exports = Dom
 
 });
@@ -435,7 +441,106 @@ Util.each = function(list, f) {
   for (var key in list) f(key, list[key])
 }
 
+Util.isArray = Array.isArray
+Util.isFunc = function(x) { return typeof x == 'function' }
+Util.isObject = function(x) { return Object.prototype.toString.call(x) == '[object Object]' }
+Util.isString = function(x) { return Object.prototype.toString.call(x) == '[object String]' }
+
+function flatten(input, shallow, output) {
+  input.forEach(function(value) {
+    if (Util.isArray(value)) {
+      shallow ? push.apply(output, value) : flatten(value, shallow, output)
+    } else {
+      output.push(value)
+    }
+  })
+  return output
+}
+
+Util.flatten = function(array, shallow) {
+  return flatten(array, shallow, []);
+}
+
 module.exports = Util
+
+});
+
+require.define("/html.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
+var Tag = require('./tag')
+
+var Html = {}
+
+function create(name) { Html[name] = Tag.tag.bind(null, name) }
+
+create('div')
+create('span')
+create('button')
+create('input')
+create('option')
+create('select')
+create('h1')
+create('h2')
+create('h3')
+create('a')
+create('br')
+create('li')
+create('ul')
+create('p')
+create('em')
+create('title')
+create('head')
+create('body')
+create('link')
+create('html')
+create('script')
+
+module.exports = Html
+
+});
+
+require.define("/tag.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
+var Dom = require('./dom')
+var Element = require('./element')
+
+var Tag = {}
+
+Tag.tag = function(tag, selector, attrs, children, text) {
+  var args = [selector, attrs, children, text]
+  selector = args.filter(Util.isString)[0] || ''
+  if (selector.length > 0 && selector.indexOf('#') !== 0 && selector.indexOf('.') !== 0) {
+    text = selector
+    selector = ''
+  } else {
+    text = args.filter(Util.isString)[1] || null
+  }
+  attrs = args.filter(Util.isObject)[0] || {}
+  children = args.filter(Util.isArray)[0] || args.filter(Dom.isEl)[0] || []
+  children = Util.isArray(children) ? children : [children]
+
+  var element = new Element(tag.toUpperCase())
+
+  if (selector) {
+    selector = selector.match(/([#\.][^#\.]+)/g)
+    selector.forEach(function(bit) {
+      switch (bit.charAt(0)) {
+      case '#':
+        element.id = bit.substring(1)
+        break
+      case '.':
+        Dom.addClass(element, bit.substring(1))
+        break
+      }
+    })
+  }
+
+  element.appendChild(text)
+  Util.each(attrs, element.setAttribute.bind(element))
+  Util.flatten(children).forEach(element.appendChild.bind(element))
+  return element
+}
+
+module.exports = Tag
+
 
 });
 
@@ -503,6 +608,71 @@ module.exports = Fb
 
 });
 
+require.define("/element.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
+
+function Element(type) {
+  this.tagName = type
+  this.attrs = {}
+  this.children = []
+  this.style = {}
+}
+
+Element.prototype.getAttribute = function(key) {
+  return this.attrs[key]
+}
+
+Element.prototype.setAttribute = function(key, val) {
+  this.attrs[key] = val
+}
+
+Element.prototype.appendChild = function(child) {
+  this.children.push(child)
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') ;
+}
+
+/*
+Element.prototype.renderServerSide = function() {
+  if (this.id) this.attrs['id'] = this.id
+  var attrs = []
+  Util.each(this.attrs, function(key, val) {
+    attrs.push([key, '="', val, '"'].join(''))
+  })
+  var tag = this.tagName.toLowerCase()
+  attrs.unshift(tag)
+  if (this.children.length) {
+    var children = Func.interleave(Func.flatten(this.children).map(function(child) {
+      if (child === null) return ''
+      return Util.isString(child) ? escapeHtml(child) : child.render(true)
+    }))
+    return ['<', attrs.join(' '), '>', children[0].join(''), '</', this.tagName.toLowerCase(), '>'].join('')
+  } else {
+    return ['<', attrs.join(' '), '/>'].join('')
+  }
+}
+*/
+
+Element.prototype.renderClientSide = function() {
+  var el = document.createElement(this.tagName)
+  Util.each(this.attrs, el.setAttribute.bind(el))
+  this.children.forEach(function(child) {
+    if (child === null) return
+    el.appendChild(Util.isString(child) ? document.createTextNode(child) : child.renderClientSide())
+  })
+  Util.each(this.style, function(key, val) {
+    el.style[key] = val
+  })
+  return el
+}
+
+Element.prototype.render = Element.prototype.renderClientSide
+
+module.exports = Element
+
+});
+
 require.define("/players.js",function(require,module,exports,__dirname,__filename,process,global){var WIDTH = 96
 var HEIGHT = 60
 var DEAD_WIDTH = 12
@@ -516,6 +686,7 @@ var MAP = []
 
 var Dom = require('./dom')
 var Util = require('./util')
+var Html = require('./html')
 
 function displayMessage(text) {
   var message = Dom.ge('message')
@@ -526,6 +697,19 @@ function displayMessage(text) {
 function scoreChange(delta) {
   Dom.ge('score').textContent = PLAYER.score
   Dom.ge('success').textContent = PLAYER.successRate()
+  var board = Dom.ge('board')
+  var popup = Html.div('.score.abs.center', (delta>0 ? '+' : '')+delta)
+  Dom.addClass(popup, delta > 0 ? 'positive' : 'negative')
+  popup.style.left =  PLAYER.getX() -200 + 'px'
+  popup.style.top = PLAYER.getY() -50 + 'px'
+  var el = popup.render()
+  board.appendChild(el)
+  setTimeout(function() {
+    Dom.addClass(el, 'scale')
+    setTimeout(function() {
+      Dom.remove(el)
+    }, 600)
+  }, 10)
 }
 
 var Player = function Player(id, left, top, isSelf) {
@@ -920,7 +1104,10 @@ module.exports = Players
 
 });
 
-require.define("/main.js",function(require,module,exports,__dirname,__filename,process,global){[].indexOf||(Array.prototype.indexOf=function(a,b,c,r){for(b=this,c=b.length,r=-1;~c;r=b[--c]===a?c:r);return r})
+require.define("/main.js",function(require,module,exports,__dirname,__filename,process,global){;[].indexOf||(Array.prototype.indexOf=function(a,b,c,r){for(b=this,c=b.length,r=-1;~c;r=b[--c]===a?c:r);return r})
+;[].filter||(Array.prototype.filter=function(a,b,c,d,e){for(b=this,d=0,c=[];d<b.length;d++)if(a.call(b,e=b[d]))c.push(e);return c})
+Function.prototype.bind=(function(){}).bind||function(a,b){b=this;return function(){b.apply(a,arguments)}}
+Array.isArray||(Array.isArray=function(a){return{}.toString.call(a)=='[object Array]'});
 
 var Players = require('./players')
 var Fb = require('./fb')

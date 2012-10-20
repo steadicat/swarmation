@@ -11,6 +11,7 @@ var MAP = []
 
 var Dom = require('./dom')
 var Util = require('./util')
+var Html = require('./html')
 
 function displayMessage(text) {
   var message = Dom.ge('message')
@@ -21,6 +22,19 @@ function displayMessage(text) {
 function scoreChange(delta) {
   Dom.ge('score').textContent = PLAYER.score
   Dom.ge('success').textContent = PLAYER.successRate()
+  var board = Dom.ge('board')
+  var popup = Html.div('.score.abs.center', (delta>0 ? '+' : '')+delta)
+  Dom.addClass(popup, delta > 0 ? 'positive' : 'negative')
+  popup.style.left =  PLAYER.getX() -200 + 'px'
+  popup.style.top = PLAYER.getY() -50 + 'px'
+  var el = popup.render()
+  board.appendChild(el)
+  setTimeout(function() {
+    Dom.addClass(el, 'scale')
+    setTimeout(function() {
+      Dom.remove(el)
+    }, 600)
+  }, 10)
 }
 
 var Player = function Player(id, left, top, isSelf) {

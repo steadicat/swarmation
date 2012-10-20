@@ -1,3 +1,5 @@
+var Element = require('./element')
+
 var Dom = {}
 
 Dom.ge = function(id) { return document.getElementById(id) }
@@ -22,6 +24,10 @@ Dom.removeClass = function(el, cl) {
 
 Dom.remove = function(el) {
   el.parentNode.removeChild(el)
+}
+
+Dom.isEl = function(el) {
+  return el instanceof (typeof HTMLElement !== 'undefined' ? HTMLElement : Element)
 }
 
 module.exports = Dom
