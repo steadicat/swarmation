@@ -5,7 +5,7 @@ var Image = Canvas.Image
 var images = {}
 
 var PIXEL = new Image
-PIXEL.src = fs.readFileSync(__dirname + 'public/images/pixel.png')
+PIXEL.src = fs.readFileSync(__dirname + '/public/images/pixel.png')
 var PIXEL_SIZE = 15
 var PADDING = 15
 
