@@ -10,3 +10,4 @@ public/.sass-cache/
 *.sublime-*
 node_modules
 config.js
+config.py
