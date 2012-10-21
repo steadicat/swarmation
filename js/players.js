@@ -41,8 +41,7 @@ function scoreChange(delta) {
 var Player = function Player(id, left, top, isSelf) {
   this.id = id
 
-  this.el = Dom.ce('div')
-  this.el.setAttribute('class', 'player')
+  this.el = Html.div('.player').render()
   Dom.ge('board').appendChild(this.el)
   if (!left) {
     left = Math.floor(Math.random() * WIDTH)
@@ -328,12 +327,32 @@ socket.on('formation', function(data) {
   })
 })
 
+function showFormation(map) {
+  var f = Dom.ge('formation-image')
+  Dom.empty(f)
+  var width = 0
+  var height = 0
+  map.forEach(function(row, y) {
+    if (row) row.forEach(function(cell, x) {
+      if (!cell) return
+      var p = Html.div('.ref').render()
+      f.appendChild(p)
+      p.style.top = y * (p.offsetHeight+1) + 'px'
+      p.style.left = x * (p.offsetWidth+1) + 'px'
+      width = Math.max(width, x * (p.offsetWidth+1) + p.offsetWidth)
+      height = Math.max(height, y * (p.offsetHeight+1) + p.offsetHeight)
+    })
+  })
+  f.style.width = width + 'px'
+  f.style.top = 50-(height/2) + 'px'
+}
+
 var time
 var formationInterval
 
 socket.on('nextFormation', function(data) {
   Dom.ge('formation-name').textContent = data.formation
-  Dom.ge('formation-image').style.backgroundImage = 'url(/formation/'+data.formation+'.png)'
+  showFormation(data.map)
 
   time = data.time
   Dom.ge('countdown').textContent = time

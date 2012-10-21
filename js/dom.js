@@ -31,4 +31,8 @@ Dom.isEl = function(el) {
   return el instanceof (typeof HTMLElement !== 'undefined' ? HTMLElement : Element)
 }
 
+Dom.empty = function(el) {
+  el.innerHTML = ''
+}
+
 module.exports = Dom

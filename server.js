@@ -130,7 +130,7 @@ var Player = players.Player
 function onConnect(client) {
 
   client.emit('welcome', { id: client.id, players: Player.getList() })
-  if (FORMATION && (TIME > 0)) client.emit('nextFormation', { formation: FORMATION.name, time: TIME })
+  if (FORMATION && (TIME > 0)) client.emit('nextFormation', { formation: FORMATION.name, time: TIME, map: FORMATION.map })
 
   client.on('info', function(message) {
     var player = Player.get(client)
@@ -168,7 +168,6 @@ io.sockets.on('connection', onConnect)
 // Formation countdown
 
 var formations = require('./formations').getFormations()
-
 var config = require('./config')
 
 var FORMATIONS = []
@@ -185,7 +184,7 @@ for (var id in formations) {
 }
 
 function pickFormation() {
-  var available = FORMATIONS[Math.max(MIN_SIZE, Math.min(Player.getActive(), MAX_SIZE))]
+  var available = FORMATIONS[Math.max(MIN_SIZE, Math.min(20, MAX_SIZE))]
   if (available.length == 0) return
   return available[Math.floor(Math.random()*available.length)]
 }
@@ -196,7 +195,7 @@ function startTurn() {
   while (!FORMATION) FORMATION = pickFormation()
   TIME = FORMATION.difficulty
   sys.log('Next formation is ' + FORMATION.name +', of size '+(FORMATION.size)+'.')
-  io.sockets.emit('nextFormation', { formation: FORMATION.name, time: TIME })
+  io.sockets.emit('nextFormation', { formation: FORMATION.name, time: TIME, map: FORMATION.map })
 }
 
 var MAX_POINTS = 26

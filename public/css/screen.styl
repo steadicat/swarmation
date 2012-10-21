@@ -88,7 +88,8 @@ a
 .formation-name
   font-size 20px
 .formation-image
-  background no-repeat center center
+  @extend .col
+  @extend .rel
   height: 100px
 .arrow-image
   background url(../images/arrows.png) no-repeat center center
@@ -146,7 +147,7 @@ a
 
 .player
   @extend .movement
-  position absolute
+  @extend .abs
   width 6px
   height 6px
   border 2px solid #666
@@ -162,6 +163,11 @@ a
   &.active
     border 2px solid #fc0
     background #ff3
+.ref
+  @extend .abs
+  @extend .player.active
+  width 10px
+  height 10px
 
 .score
   @extend .b

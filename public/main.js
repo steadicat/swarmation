@@ -391,43 +391,6 @@ process.binding = function (name) {
 
 });
 
-require.define("/dom.js",function(require,module,exports,__dirname,__filename,process,global){var Element = require('./element')
-
-var Dom = {}
-
-Dom.ge = function(id) { return document.getElementById(id) }
-Dom.ce = function(tag) { return document.createElement(tag) }
-Dom.listen = function(el, event, cb) { el.addEventListener(event, cb) }
-
-Dom.addClass = function(el, cl) {
-  var cls = el.getAttribute('class')
-  var classes = cls ? cls.split(' ') : []
-  el.setAttribute('class', classes.concat([cl]).join(' '))
-}
-
-Dom.removeClass = function(el, cl) {
-  var cls = el.getAttribute('class')
-  var classes = cls ? cls.split(' ') : []
-  var newClasses = []
-  for (var i=0; i<classes.length; i++) {
-    if (classes[i] != cl) newClasses.push(classes[i])
-  }
-  el.setAttribute('class', newClasses.join(' '))
-}
-
-Dom.remove = function(el) {
-  if (el._el) el = el._el
-  el.parentNode.removeChild(el)
-}
-
-Dom.isEl = function(el) {
-  return el instanceof (typeof HTMLElement !== 'undefined' ? HTMLElement : Element)
-}
-
-module.exports = Dom
-
-});
-
 require.define("/element.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
 
 function Element(type) {
@@ -677,6 +640,47 @@ module.exports = Fb
 
 });
 
+require.define("/dom.js",function(require,module,exports,__dirname,__filename,process,global){var Element = require('./element')
+
+var Dom = {}
+
+Dom.ge = function(id) { return document.getElementById(id) }
+Dom.ce = function(tag) { return document.createElement(tag) }
+Dom.listen = function(el, event, cb) { el.addEventListener(event, cb) }
+
+Dom.addClass = function(el, cl) {
+  var cls = el.getAttribute('class')
+  var classes = cls ? cls.split(' ') : []
+  el.setAttribute('class', classes.concat([cl]).join(' '))
+}
+
+Dom.removeClass = function(el, cl) {
+  var cls = el.getAttribute('class')
+  var classes = cls ? cls.split(' ') : []
+  var newClasses = []
+  for (var i=0; i<classes.length; i++) {
+    if (classes[i] != cl) newClasses.push(classes[i])
+  }
+  el.setAttribute('class', newClasses.join(' '))
+}
+
+Dom.remove = function(el) {
+  if (el._el) el = el._el
+  el.parentNode.removeChild(el)
+}
+
+Dom.isEl = function(el) {
+  return el instanceof (typeof HTMLElement !== 'undefined' ? HTMLElement : Element)
+}
+
+Dom.empty = function(el) {
+  el.innerHTML = ''
+}
+
+module.exports = Dom
+
+});
+
 require.define("/players.js",function(require,module,exports,__dirname,__filename,process,global){var WIDTH = 96
 var HEIGHT = 60
 var DEAD_WIDTH = 12
@@ -720,8 +724,7 @@ function scoreChange(delta) {
 var Player = function Player(id, left, top, isSelf) {
   this.id = id
 
-  this.el = Dom.ce('div')
-  this.el.setAttribute('class', 'player')
+  this.el = Html.div('.player').render()
   Dom.ge('board').appendChild(this.el)
   if (!left) {
     left = Math.floor(Math.random() * WIDTH)
@@ -1007,12 +1010,32 @@ socket.on('formation', function(data) {
   })
 })
 
+function showFormation(map) {
+  var f = Dom.ge('formation-image')
+  Dom.empty(f)
+  var width = 0
+  var height = 0
+  map.forEach(function(row, y) {
+    if (row) row.forEach(function(cell, x) {
+      if (!cell) return
+      var p = Html.div('.ref').render()
+      f.appendChild(p)
+      p.style.top = y * (p.offsetHeight+1) + 'px'
+      p.style.left = x * (p.offsetWidth+1) + 'px'
+      width = Math.max(width, x * (p.offsetWidth+1) + p.offsetWidth)
+      height = Math.max(height, y * (p.offsetHeight+1) + p.offsetHeight)
+    })
+  })
+  f.style.width = width + 'px'
+  f.style.top = 50-(height/2) + 'px'
+}
+
 var time
 var formationInterval
 
 socket.on('nextFormation', function(data) {
   Dom.ge('formation-name').textContent = data.formation
-  Dom.ge('formation-image').style.backgroundImage = 'url(/formation/'+data.formation+'.png)'
+  showFormation(data.map)
 
   time = data.time
   Dom.ge('countdown').textContent = time
