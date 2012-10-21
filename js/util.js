@@ -1,5 +1,7 @@
 var Util = {}
 
+Util.array = function(l, s, e) { return [].slice.call(l, s, e) }
+
 Util.rateLimit = function(target, rate, f) {
   if (target.timeout) return
   target.timeout = setTimeout(function() {

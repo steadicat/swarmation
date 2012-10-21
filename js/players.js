@@ -14,9 +14,9 @@ var Util = require('./util')
 var Html = require('./html')
 
 function displayMessage(text) {
-  var message = Dom.ge('message')
-  message.innerHTML = text
-  message.setAttribute('style', 'display: block')
+  PLAYER.hideWelcome()
+  var message = Html.div('.message', text)
+  Dom.get('board-container').appendChild(message)
 }
 
 function animate(duration, start, end) {
@@ -27,22 +27,20 @@ function animate(duration, start, end) {
 }
 
 function scoreChange(delta) {
-  Dom.ge('score').textContent = PLAYER.score
-  Dom.ge('success').textContent = PLAYER.successRate()
-  var board = Dom.ge('board')
+  Dom.get('score').textContent = PLAYER.score
+  Dom.get('success').textContent = PLAYER.successRate()
   var popup = Html.div('.score.abs.center', (delta>0 ? '+' : '')+delta)
   Dom.addClass(popup, delta > 0 ? 'positive' : 'negative')
-  popup.style.left =  PLAYER.getX() -200 + 'px'
-  popup.style.top = PLAYER.getY() -50 + 'px'
-  board.appendChild(popup.render())
+  popup.style.left =  PLAYER.getScreenLeft() -200 + 'px'
+  popup.style.top = PLAYER.getScreenTop() -50 + 'px'
+  document.body.appendChild(popup)
   animate(600, Dom.addClass.bind(null, popup, 'scale'), Dom.remove.bind(null, popup), 600)
 }
 
 var Player = function Player(id, left, top, isSelf) {
   this.id = id
-
-  this.el = Html.div('.player').render()
-  Dom.ge('board').appendChild(this.el)
+  this.el = Html.div('.player')
+  Dom.get('board').appendChild(this.el)
   if (!left) {
     left = Math.floor(Math.random() * WIDTH)
     top = Math.floor(Math.random() * HEIGHT)
@@ -66,13 +64,8 @@ var Player = function Player(id, left, top, isSelf) {
     Dom.addClass(this.el, 'self')
     this.sendInfo()
   }
-  var p = this
-  Dom.listen(this.el, 'mouseover', function() {
-    p.showTooltip()
-  })
-  Dom.listen(this.el, 'mouseout', function() {
-    p.hideTooltip()
-  })
+  Dom.listen(this.el, 'mouseover', this.showTooltip.bind(this))
+  Dom.listen(this.el, 'mouseout', this.hideTooltip.bind(this))
 }
 
 Player.atPixel = function(x, y) {
@@ -97,6 +90,9 @@ Player.directions = {
 Player.prototype = {
   getX: function() { return this.left * 10 + 1 },
   getY: function() { return this.top * 10 + 1 },
+
+  getScreenLeft: function() { return this.getX() + Dom.left(this.el.offsetParent) },
+  getScreenTop: function() { return this.getY() + Dom.top(this.el.offsetParent) },
 
   setPosition: function(left, top) {
     // cancel in case of collisions
@@ -206,27 +202,52 @@ Player.prototype = {
   },
 
   showTooltip: function() {
-    var tooltip = Dom.ge('tooltip')
-    Dom.ge('tooltip-name').textContent = this.name
-    Dom.ge('tooltip-score').textContent = this.score
-    Dom.ge('tooltip-success').textContent = this.successRate()
-    Dom.removeClass(tooltip, 'off')
-    tooltip.style.left = this.getX() - tooltip.offsetWidth/2 + 17 + 'px'
-    tooltip.style.top = this.getY() - tooltip.offsetHeight - 5 + 'px'
+    var tooltip = Html.div('.tooltip.pas', [
+      Html.h3('.b', this.name),
+      Html.div('.col.mrs', [
+        Html.div('.medium.b', this.score),
+        'points'
+      ]),
+      Html.div('.col.dim', [
+        Html.div('.medium.b', this.successRate() + '%'),
+        'success'
+      ])
+    ])
+    document.body.appendChild(tooltip)
+    tooltip.style.left = this.getScreenLeft() - tooltip.offsetWidth/2 + 5 + 'px'
+    tooltip.style.top = this.getScreenTop() - tooltip.offsetHeight - 15 + 'px'
+    this.tooltip = tooltip
+  },
+
+  hideTooltip: function() {
+    if (this.tooltip) {
+      Dom.remove(this.tooltip)
+      delete this.tooltip
+    }
   },
 
   showWelcome: function() {
-    var welcome = Dom.ge('welcome')
+    var welcome = Html.div('.welcome.pam', {}, { width: '240px' }, [
+      Html.h3('.b', 'Welcome to life as a pixel'),
+      Html.p('.mtm', [
+        'Use your ',
+        Html.span('.arrow-image', 'arrows'),
+        ' keys to move'
+      ])
+    ])
+
     this.welcome = welcome
-    Dom.removeClass(welcome, 'off')
+    document.body.appendChild(welcome)
     this.positionWelcome(true)
-    setTimeout(this.hideWelcome.bind(this), 10000)
   },
 
   hideWelcome: function() {
+    if (!this.welcome) return
     this.welcome.style.opacity = 0
     var self = this
     setTimeout(function() {
+      if (!self.welcome) return
+      Dom.remove(self.welcome)
       delete self.welcomeCountdown
       delete self.welcome
     }, 1000)
@@ -234,12 +255,15 @@ Player.prototype = {
 
   positionWelcome: function(first) {
     if (!first) {
-      Dom.addClass(Dom.ge('welcome-1'), 'off')
-      Dom.removeClass(Dom.ge('welcome-2'), 'off')
+      Dom.empty(this.welcome)
+      this.welcome.appendChild(
+        Html.p('Get into a formation with other players before the countdown expires.')
+      )
       this.welcomeCountdown--
       if (this.welcomeCountdown == 0) {
         this.hideWelcome()
       }
+      setTimeout(this.hideWelcome.bind(this), 10000)
     } else {
       this.welcomeCountdown = 20
       var welcome = this.welcome
@@ -249,13 +273,10 @@ Player.prototype = {
         welcome.style.opacity = 1
       }, 100)
     }
-    this.welcome.style.left = this.getX() - this.welcome.offsetWidth/2 + 17 + 'px'
-    this.welcome.style.top = this.getY() - this.welcome.offsetHeight -5 + 'px'
-  },
+    this.welcome.style.left = this.getScreenLeft() - this.welcome.offsetWidth/2 + 5 + 'px'
+    this.welcome.style.top = this.getScreenTop() - this.welcome.offsetHeight - 15 + 'px'
+  }
 
-  hideTooltip: function() {
-    Dom.addClass(Dom.ge('tooltip'), 'off')
-  },
 }
 
 // sockets
@@ -284,7 +305,7 @@ socket.on('welcome', function(data) {
 socket.on('info', function(data) {
   if (PLAYER && (data.id == PLAYER.id)) {
     PLAYER.getInfo(data)
-    if (data.score) Dom.ge('score').textContent = data.score
+    if (data.score) Dom.get('score').textContent = data.score
   } else {
     loadPlayer(data)
   }
@@ -329,14 +350,14 @@ socket.on('formation', function(data) {
 })
 
 function showFormation(map) {
-  var f = Dom.ge('formation-image')
+  var f = Dom.get('formation-image')
   Dom.empty(f)
   var width = 0
   var height = 0
   map.forEach(function(row, y) {
     if (row) row.forEach(function(cell, x) {
       if (!cell) return
-      var p = Html.div('.ref').render()
+      var p = Html.div('.ref')
       f.appendChild(p)
       p.style.top = y * (p.offsetHeight+1) + 'px'
       p.style.left = x * (p.offsetWidth+1) + 'px'
@@ -352,16 +373,16 @@ var time
 var formationInterval
 
 socket.on('nextFormation', function(data) {
-  Dom.ge('formation-name').textContent = data.formation
+  Dom.get('formation-name').textContent = data.formation
   showFormation(data.map)
 
   time = data.time
-  Dom.ge('countdown').textContent = time
+  Dom.get('countdown').textContent = time
 
   if (formationInterval) clearInterval(formationInterval)
   formationInterval = setInterval(function() {
     time--
-    Dom.ge('countdown').textContent = time
+    Dom.get('countdown').textContent = time
     if (time == 0) clearInterval(formationInterval)
   }, 1000)
 })
@@ -371,13 +392,13 @@ var RESTARTING = false
 socket.on('restart', function(data) {
   RESTARTING = true
   socket.disconnect()
-  displayMessage('Swarmation needs to restart for an update.<br/>Please reload the page.')
+  displayMessage('Swarmation needs to restart for an update. Please reload the page.')
 })
 
 socket.on('kick', function(data) {
   RESTARTING = true
   socket.disconnect()
-  displayMessage('You have been disconnected for being idle too long.<br/>Reload the page to resume playing.')
+  displayMessage('You have been disconnected for being idle too long. Reload the page to resume playing.')
 })
 
 socket.on('connect', function() {
@@ -443,9 +464,11 @@ var Players = {}
 
 Players.login = function(userId, token, name) {
   if (!PLAYER) return
-  Dom.addClass(Dom.ge('login'), 'off')
-  Dom.ge('username').textContent = name
-  Dom.removeClass(Dom.ge('username-box'), 'off')
+  var login = Dom.get('login')
+  var username = Html.div('.top-border.pvm.phm', 'Welcome, ' + name)
+  var parent = login.parentNode
+  Dom.remove(login)
+  parent.appendChild(username)
   socket.emit('login', { token: token, userId: userId, name: name })
   PLAYER.name = name
   PLAYER.sendInfo(true)

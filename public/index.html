@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Swarmation :: The Pixel Formation Game</title>
+    <title>Swarmation :: The Multiplayer Pixel Formation Game</title>
 
     <link rel="shortcut icon" href="/images/favicon.ico" />
     <link href="/css/screen.css" media="screen,projection" rel="stylesheet" type="text/css" />
@@ -12,13 +12,13 @@
     <meta name="fb:app_id" value="536327243050948" />
     <meta name="og:title" value="Swarmation" />
     <meta name="og:description" value="The multiplayer pixel formation game." />
-    <meta name="og:image" value="/images/formations/delta.png" />
+    <meta name="og:image" value="/formation/delta.png" />
   </head>
 
   <body>
     <div class="container">
       <h1 class="header">Swarmation</h1>
-      <div class="board-container pam">
+      <div id="board-container" class="board-container pam">
         <div id="board" class="board"></div>
         <div class="info">
           <h1 id="countdown" class="b huge">wait</h1>
@@ -40,33 +40,7 @@
             <span class="dim">Save your score and share your achievements:</span>
             <div class="fb-login-button mtm" data-show-faces="false" data-width="200" data-max-rows="1"></div>
           </div>
-          <div id="username-box" class="mtm off">
-            Welcome,
-            <span id="username"></span>.
-          </div>
         </div>
-        <div id="welcome" class="welcome pam off" style="width: 240px">
-          <div id="welcome-1">
-            <h3 class="b">Welcome to life as a pixel</h3>
-            <p class="mtm">Use your <span class="arrow-image" alt="arrows"></span> keys to move</p>
-          </div>
-          <div id="welcome-2" class="off">
-            <p>Get into a formation with other players before the countdown expires</p>
-          </div>
-        </div>
-        <div id="tooltip" class="tooltip pas off">
-          <h3 id="tooltip-name" class="b"></h3>
-          <div class="col mrs">
-            <div id="tooltip-score" class="medium b">0</div>
-            points
-          </div><div class="col dim">
-            <div class="medium b">
-              <span id="tooltip-success">100</span>%
-            </div>
-            success
-          </div>
-        </div>
-        <div id="message" class="message off"></div>
       </div>
       <div class="footer pvl">
         <p>

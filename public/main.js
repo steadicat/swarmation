@@ -391,112 +391,6 @@ process.binding = function (name) {
 
 });
 
-require.define("/element.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
-
-function Element(type) {
-  this.tagName = type
-  this.attrs = {}
-  this.children = []
-  this.style = {}
-}
-
-Element.prototype.getAttribute = function(key) {
-  return this.attrs[key]
-}
-
-Element.prototype.setAttribute = function(key, val) {
-  if (this._el) this._el.setAttribute(key, val)
-  this.attrs[key] = val
-}
-
-Element.prototype.appendChild = function(child) {
-  if (this._el) this._el.appendChild(child)
-  this.children.push(child)
-}
-
-function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') ;
-}
-
-/*
-Element.prototype.renderServerSide = function() {
-  if (this.id) this.attrs['id'] = this.id
-  var attrs = []
-  Util.each(this.attrs, function(key, val) {
-    attrs.push([key, '="', val, '"'].join(''))
-  })
-  var tag = this.tagName.toLowerCase()
-  attrs.unshift(tag)
-  if (this.children.length) {
-    var children = Func.interleave(Func.flatten(this.children).map(function(child) {
-      if (child === null) return ''
-      return Util.isString(child) ? escapeHtml(child) : child.render(true)
-    }))
-    return ['<', attrs.join(' '), '>', children[0].join(''), '</', this.tagName.toLowerCase(), '>'].join('')
-  } else {
-    return ['<', attrs.join(' '), '/>'].join('')
-  }
-}
-*/
-
-Element.prototype.renderClientSide = function() {
-  var el = document.createElement(this.tagName)
-  this._el = el
-  Util.each(this.attrs, el.setAttribute.bind(el))
-  this.children.forEach(function(child) {
-    if (child === null) return
-    el.appendChild(Util.isString(child) ? document.createTextNode(child) : child.renderClientSide())
-  })
-  Util.each(this.style, function(key, val) {
-    el.style[key] = val
-  })
-  return el
-}
-
-Element.prototype.render = Element.prototype.renderClientSide
-
-module.exports = Element
-
-});
-
-require.define("/util.js",function(require,module,exports,__dirname,__filename,process,global){var Util = {}
-
-Util.rateLimit = function(target, rate, f) {
-  if (target.timeout) return
-  target.timeout = setTimeout(function() {
-    f.call(target)
-    target.timeout = null
-  }, rate)
-}
-
-Util.each = function(list, f) {
-  for (var key in list) f(key, list[key])
-}
-
-Util.isArray = Array.isArray
-Util.isFunc = function(x) { return typeof x == 'function' }
-Util.isObject = function(x) { return Object.prototype.toString.call(x) == '[object Object]' }
-Util.isString = function(x) { return Object.prototype.toString.call(x) == '[object String]' }
-
-function flatten(input, shallow, output) {
-  input.forEach(function(value) {
-    if (Util.isArray(value)) {
-      shallow ? push.apply(output, value) : flatten(value, shallow, output)
-    } else {
-      output.push(value)
-    }
-  })
-  return output
-}
-
-Util.flatten = function(array, shallow) {
-  return flatten(array, shallow, []);
-}
-
-module.exports = Util
-
-});
-
 require.define("/html.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
 var Tag = require('./tag')
 
@@ -527,52 +421,6 @@ create('html')
 create('script')
 
 module.exports = Html
-
-});
-
-require.define("/tag.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
-var Dom = require('./dom')
-var Element = require('./element')
-
-var Tag = {}
-
-Tag.tag = function(tag, selector, attrs, children, text) {
-  var args = [selector, attrs, children, text]
-  selector = args.filter(Util.isString)[0] || ''
-  if (selector.length > 0 && selector.indexOf('#') !== 0 && selector.indexOf('.') !== 0) {
-    text = selector
-    selector = ''
-  } else {
-    text = args.filter(Util.isString)[1] || null
-  }
-  attrs = args.filter(Util.isObject)[0] || {}
-  children = args.filter(Util.isArray)[0] || args.filter(Dom.isEl)[0] || []
-  children = Util.isArray(children) ? children : [children]
-
-  var element = new Element(tag.toUpperCase())
-
-  if (selector) {
-    selector = selector.match(/([#\.][^#\.]+)/g)
-    selector.forEach(function(bit) {
-      switch (bit.charAt(0)) {
-      case '#':
-        element.id = bit.substring(1)
-        break
-      case '.':
-        Dom.addClass(element, bit.substring(1))
-        break
-      }
-    })
-  }
-
-  element.appendChild(text)
-  Util.each(attrs, element.setAttribute.bind(element))
-  Util.flatten(children).forEach(element.appendChild.bind(element))
-  return element
-}
-
-module.exports = Tag
-
 
 });
 
@@ -640,12 +488,10 @@ module.exports = Fb
 
 });
 
-require.define("/dom.js",function(require,module,exports,__dirname,__filename,process,global){var Element = require('./element')
+require.define("/dom.js",function(require,module,exports,__dirname,__filename,process,global){var Dom = {}
 
-var Dom = {}
-
-Dom.ge = function(id) { return document.getElementById(id) }
-Dom.ce = function(tag) { return document.createElement(tag) }
+Dom.get = function(id) { return document.getElementById(id) }
+Dom.create = function(tag) { return document.createElement(tag) }
 Dom.listen = function(el, event, cb) { el.addEventListener(event, cb) }
 
 Dom.addClass = function(el, cl) {
@@ -665,16 +511,27 @@ Dom.removeClass = function(el, cl) {
 }
 
 Dom.remove = function(el) {
-  if (el._el) el = el._el
   el.parentNode.removeChild(el)
 }
 
 Dom.isEl = function(el) {
-  return el instanceof (typeof HTMLElement !== 'undefined' ? HTMLElement : Element)
+  return el instanceof HTMLElement
 }
 
 Dom.empty = function(el) {
   el.innerHTML = ''
+}
+
+Dom.left = function(el) {
+  var sum = el.offsetLeft
+  while (el = el.offsetParent) sum += el.offsetLeft + el.clientLeft
+  return sum
+}
+
+Dom.top = function(el) {
+  var sum = el.offsetTop
+  while (el = el.offsetParent) sum += el.offsetTop + el.clientTop
+  return sum
 }
 
 module.exports = Dom
@@ -697,9 +554,9 @@ var Util = require('./util')
 var Html = require('./html')
 
 function displayMessage(text) {
-  var message = Dom.ge('message')
-  message.innerHTML = text
-  message.setAttribute('style', 'display: block')
+  PLAYER.hideWelcome()
+  var message = Html.div('.message', text)
+  Dom.get('board-container').appendChild(message)
 }
 
 function animate(duration, start, end) {
@@ -710,22 +567,20 @@ function animate(duration, start, end) {
 }
 
 function scoreChange(delta) {
-  Dom.ge('score').textContent = PLAYER.score
-  Dom.ge('success').textContent = PLAYER.successRate()
-  var board = Dom.ge('board')
+  Dom.get('score').textContent = PLAYER.score
+  Dom.get('success').textContent = PLAYER.successRate()
   var popup = Html.div('.score.abs.center', (delta>0 ? '+' : '')+delta)
   Dom.addClass(popup, delta > 0 ? 'positive' : 'negative')
-  popup.style.left =  PLAYER.getX() -200 + 'px'
-  popup.style.top = PLAYER.getY() -50 + 'px'
-  board.appendChild(popup.render())
+  popup.style.left =  PLAYER.getScreenLeft() -200 + 'px'
+  popup.style.top = PLAYER.getScreenTop() -50 + 'px'
+  document.body.appendChild(popup)
   animate(600, Dom.addClass.bind(null, popup, 'scale'), Dom.remove.bind(null, popup), 600)
 }
 
 var Player = function Player(id, left, top, isSelf) {
   this.id = id
-
-  this.el = Html.div('.player').render()
-  Dom.ge('board').appendChild(this.el)
+  this.el = Html.div('.player')
+  Dom.get('board').appendChild(this.el)
   if (!left) {
     left = Math.floor(Math.random() * WIDTH)
     top = Math.floor(Math.random() * HEIGHT)
@@ -749,13 +604,8 @@ var Player = function Player(id, left, top, isSelf) {
     Dom.addClass(this.el, 'self')
     this.sendInfo()
   }
-  var p = this
-  Dom.listen(this.el, 'mouseover', function() {
-    p.showTooltip()
-  })
-  Dom.listen(this.el, 'mouseout', function() {
-    p.hideTooltip()
-  })
+  Dom.listen(this.el, 'mouseover', this.showTooltip.bind(this))
+  Dom.listen(this.el, 'mouseout', this.hideTooltip.bind(this))
 }
 
 Player.atPixel = function(x, y) {
@@ -780,6 +630,9 @@ Player.directions = {
 Player.prototype = {
   getX: function() { return this.left * 10 + 1 },
   getY: function() { return this.top * 10 + 1 },
+
+  getScreenLeft: function() { return this.getX() + Dom.left(this.el.offsetParent) },
+  getScreenTop: function() { return this.getY() + Dom.top(this.el.offsetParent) },
 
   setPosition: function(left, top) {
     // cancel in case of collisions
@@ -889,27 +742,52 @@ Player.prototype = {
   },
 
   showTooltip: function() {
-    var tooltip = Dom.ge('tooltip')
-    Dom.ge('tooltip-name').textContent = this.name
-    Dom.ge('tooltip-score').textContent = this.score
-    Dom.ge('tooltip-success').textContent = this.successRate()
-    Dom.removeClass(tooltip, 'off')
-    tooltip.style.left = this.getX() - tooltip.offsetWidth/2 + 17 + 'px'
-    tooltip.style.top = this.getY() - tooltip.offsetHeight - 5 + 'px'
+    var tooltip = Html.div('.tooltip.pas', [
+      Html.h3('.b', this.name),
+      Html.div('.col.mrs', [
+        Html.div('.medium.b', this.score),
+        'points'
+      ]),
+      Html.div('.col.dim', [
+        Html.div('.medium.b', this.successRate() + '%'),
+        'success'
+      ])
+    ])
+    document.body.appendChild(tooltip)
+    tooltip.style.left = this.getScreenLeft() - tooltip.offsetWidth/2 + 5 + 'px'
+    tooltip.style.top = this.getScreenTop() - tooltip.offsetHeight - 15 + 'px'
+    this.tooltip = tooltip
+  },
+
+  hideTooltip: function() {
+    if (this.tooltip) {
+      Dom.remove(this.tooltip)
+      delete this.tooltip
+    }
   },
 
   showWelcome: function() {
-    var welcome = Dom.ge('welcome')
+    var welcome = Html.div('.welcome.pam', {}, { width: '240px' }, [
+      Html.h3('.b', 'Welcome to life as a pixel'),
+      Html.p('.mtm', [
+        'Use your ',
+        Html.span('.arrow-image', 'arrows'),
+        ' keys to move'
+      ])
+    ])
+
     this.welcome = welcome
-    Dom.removeClass(welcome, 'off')
+    document.body.appendChild(welcome)
     this.positionWelcome(true)
-    setTimeout(this.hideWelcome.bind(this), 10000)
   },
 
   hideWelcome: function() {
+    if (!this.welcome) return
     this.welcome.style.opacity = 0
     var self = this
     setTimeout(function() {
+      if (!self.welcome) return
+      Dom.remove(self.welcome)
       delete self.welcomeCountdown
       delete self.welcome
     }, 1000)
@@ -917,12 +795,15 @@ Player.prototype = {
 
   positionWelcome: function(first) {
     if (!first) {
-      Dom.addClass(Dom.ge('welcome-1'), 'off')
-      Dom.removeClass(Dom.ge('welcome-2'), 'off')
+      Dom.empty(this.welcome)
+      this.welcome.appendChild(
+        Html.p('Get into a formation with other players before the countdown expires.')
+      )
       this.welcomeCountdown--
       if (this.welcomeCountdown == 0) {
         this.hideWelcome()
       }
+      setTimeout(this.hideWelcome.bind(this), 10000)
     } else {
       this.welcomeCountdown = 20
       var welcome = this.welcome
@@ -932,13 +813,10 @@ Player.prototype = {
         welcome.style.opacity = 1
       }, 100)
     }
-    this.welcome.style.left = this.getX() - this.welcome.offsetWidth/2 + 17 + 'px'
-    this.welcome.style.top = this.getY() - this.welcome.offsetHeight -5 + 'px'
-  },
+    this.welcome.style.left = this.getScreenLeft() - this.welcome.offsetWidth/2 + 5 + 'px'
+    this.welcome.style.top = this.getScreenTop() - this.welcome.offsetHeight - 15 + 'px'
+  }
 
-  hideTooltip: function() {
-    Dom.addClass(Dom.ge('tooltip'), 'off')
-  },
 }
 
 // sockets
@@ -967,7 +845,7 @@ socket.on('welcome', function(data) {
 socket.on('info', function(data) {
   if (PLAYER && (data.id == PLAYER.id)) {
     PLAYER.getInfo(data)
-    if (data.score) Dom.ge('score').textContent = data.score
+    if (data.score) Dom.get('score').textContent = data.score
   } else {
     loadPlayer(data)
   }
@@ -1012,14 +890,14 @@ socket.on('formation', function(data) {
 })
 
 function showFormation(map) {
-  var f = Dom.ge('formation-image')
+  var f = Dom.get('formation-image')
   Dom.empty(f)
   var width = 0
   var height = 0
   map.forEach(function(row, y) {
     if (row) row.forEach(function(cell, x) {
       if (!cell) return
-      var p = Html.div('.ref').render()
+      var p = Html.div('.ref')
       f.appendChild(p)
       p.style.top = y * (p.offsetHeight+1) + 'px'
       p.style.left = x * (p.offsetWidth+1) + 'px'
@@ -1035,16 +913,16 @@ var time
 var formationInterval
 
 socket.on('nextFormation', function(data) {
-  Dom.ge('formation-name').textContent = data.formation
+  Dom.get('formation-name').textContent = data.formation
   showFormation(data.map)
 
   time = data.time
-  Dom.ge('countdown').textContent = time
+  Dom.get('countdown').textContent = time
 
   if (formationInterval) clearInterval(formationInterval)
   formationInterval = setInterval(function() {
     time--
-    Dom.ge('countdown').textContent = time
+    Dom.get('countdown').textContent = time
     if (time == 0) clearInterval(formationInterval)
   }, 1000)
 })
@@ -1054,13 +932,13 @@ var RESTARTING = false
 socket.on('restart', function(data) {
   RESTARTING = true
   socket.disconnect()
-  displayMessage('Swarmation needs to restart for an update.<br/>Please reload the page.')
+  displayMessage('Swarmation needs to restart for an update. Please reload the page.')
 })
 
 socket.on('kick', function(data) {
   RESTARTING = true
   socket.disconnect()
-  displayMessage('You have been disconnected for being idle too long.<br/>Reload the page to resume playing.')
+  displayMessage('You have been disconnected for being idle too long. Reload the page to resume playing.')
 })
 
 socket.on('connect', function() {
@@ -1126,15 +1004,108 @@ var Players = {}
 
 Players.login = function(userId, token, name) {
   if (!PLAYER) return
-  Dom.addClass(Dom.ge('login'), 'off')
-  Dom.ge('username').textContent = name
-  Dom.removeClass(Dom.ge('username-box'), 'off')
+  var login = Dom.get('login')
+  var username = Html.div('.top-border.pvm.phm', 'Welcome, ' + name)
+  var parent = login.parentNode
+  Dom.remove(login)
+  parent.appendChild(username)
   socket.emit('login', { token: token, userId: userId, name: name })
   PLAYER.name = name
   PLAYER.sendInfo(true)
 }
 
 module.exports = Players
+
+});
+
+require.define("/util.js",function(require,module,exports,__dirname,__filename,process,global){var Util = {}
+
+Util.array = function(l, s, e) { return [].slice.call(l, s, e) }
+
+Util.rateLimit = function(target, rate, f) {
+  if (target.timeout) return
+  target.timeout = setTimeout(function() {
+    f.call(target)
+    target.timeout = null
+  }, rate)
+}
+
+Util.each = function(list, f) {
+  for (var key in list) f(key, list[key])
+}
+
+Util.isArray = Array.isArray
+Util.isFunc = function(x) { return typeof x == 'function' }
+Util.isObject = function(x) { return Object.prototype.toString.call(x) == '[object Object]' }
+Util.isString = function(x) { return Object.prototype.toString.call(x) == '[object String]' }
+
+function flatten(input, shallow, output) {
+  input.forEach(function(value) {
+    if (Util.isArray(value)) {
+      shallow ? push.apply(output, value) : flatten(value, shallow, output)
+    } else {
+      output.push(value)
+    }
+  })
+  return output
+}
+
+Util.flatten = function(array, shallow) {
+  return flatten(array, shallow, []);
+}
+
+module.exports = Util
+
+});
+
+require.define("/tag.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
+var Dom = require('./dom')
+
+var Tag = {}
+
+function isSelector(string) {
+  if (!string) return true
+  if (string.indexOf(' ') >= 0) return false
+  return (string.charAt(0) == '#') || (string.charAt(0) == '.')
+}
+
+function nonNull(x) { return x !== null }
+
+Tag.tag = function(tag) {
+  var args = Util.array(arguments, 1)
+  var selector = isSelector(args[0]) ? args.shift() : ''
+  var attrs = Util.isObject(args[0]) ? args.shift() : {}
+  var style = Util.isObject(args[0]) ? args.shift() : {}
+
+  var children = Util.flatten(args).filter(nonNull).map(function(child) {
+    return !Dom.isEl(child) ? document.createTextNode(child) : child
+  })
+
+  var element = Dom.create(tag.toUpperCase())
+  if (selector) {
+    selector = selector.match(/([#\.][^#\.]+)/g)
+    selector.forEach(function(bit) {
+      switch (bit.charAt(0)) {
+      case '#':
+        element.id = bit.substring(1)
+        break
+      case '.':
+        Dom.addClass(element, bit.substring(1))
+        break
+      }
+    })
+  }
+
+  Util.each(attrs, element.setAttribute.bind(element))
+  Util.each(style, function(key, val) {
+    element.style[key] = val
+  })
+  children.forEach(element.appendChild.bind(element))
+  return element
+}
+
+module.exports = Tag
+
 
 });
 
