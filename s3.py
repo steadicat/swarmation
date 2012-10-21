@@ -7,7 +7,7 @@ from config import AMAZON_ID, AMAZON_KEY
 AMAZON_BUCKET = BUCKET
 
 ROOT = 'public'
-EXCLUDE = ['images']
+EXCLUDE = []
 MASTER_FILES = []
 
 DEPENDENCIES = {
