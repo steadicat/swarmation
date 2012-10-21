@@ -32,11 +32,11 @@ body{font:14px/20px 'Source Sans Pro',sans-serif;color:#024;background:#abbdd1}
 .off{display:none}
 a{text-decoration:none;font-weight:bold}
 .b,.message,.score{font-weight:bold}
-.countdown{font-size:80px;line-height:80px}
-.huge{font-size:60px;line-height:60px}
-.larger,.message{font-size:36px;line-height:50px}
-.large{font-size:24px;line-height:26px}
-.medium{font-size:16px;line-height:16px}
+.countdown{font-size:80px;line-height:75px}
+.huge{font-size:60px;line-height:65px}
+.larger,.message{font-size:36px;line-height:35px}
+.large{font-size:24px;line-height:25px}
+.medium{font-size:16px;line-height:20px}
 .center,.info,.message,.tooltip,.welcome,.welcome,.footer{text-align:center}
 .centered,.container{margin:0 auto}
 .abs,.info,.message,.tooltip,.welcome,.player,.ref{position:absolute}
