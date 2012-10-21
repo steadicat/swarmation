@@ -62,9 +62,9 @@ a
 
 // transitions
 .movement
-  transition left 0.3s, top 0.3s
+  transition left 0.3s ease-in-out, top 0.3s ease-in-out
 .fade
-  transition left 0.3s, top 0.3s, opacity 1s
+  transition left 0.3s ease-in-out, top 0.3s ease-in-out, opacity 1s ease-in-out
 
 // one-offs
 .container
@@ -171,7 +171,7 @@ a
 
 .score
   @extend .b
-  transition: 0.6s all
+  transition: 0.6s all ease-in
   transform: scale(0.1, 0.1)
   transform-origin: 50% 100%
   font-size: 300px

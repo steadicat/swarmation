@@ -184,7 +184,7 @@ for (var id in formations) {
 }
 
 function pickFormation() {
-  var available = FORMATIONS[Math.max(MIN_SIZE, Math.min(20, MAX_SIZE))]
+  var available = FORMATIONS[Math.max(MIN_SIZE, Math.min(Player.getActive(), MAX_SIZE))]
   if (available.length == 0) return
   return available[Math.floor(Math.random()*available.length)]
 }

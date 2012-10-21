@@ -242,6 +242,7 @@ Player.prototype = {
       }
     } else {
       this.welcomeCountdown = 20
+      var welcome = this.welcome
       welcome.style.opacity = 0
       setTimeout(function() {
         Dom.addClass(welcome, 'fade')
