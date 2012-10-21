@@ -3,8 +3,7 @@ BUCKET = 'media.swarmation.com'
 HOST = 'media.swarmation.com'
 ORIGIN = 'http://swarmation.com/,http://beta.swarmation.com/,http://www2.swarmation.com/,http://test.swarmation.com/'
 
-AMAZON_ID = '0FXHQPW21QYG3G1E7C82'
-AMAZON_KEY = '4Uh6adFlkXkWso5+VokhaMe5Jd9ho8jmjzFVli2b'
+from config import AMAZON_ID, AMAZON_KEY
 AMAZON_BUCKET = BUCKET
 
 ROOT = 'public'
