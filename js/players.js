@@ -203,13 +203,13 @@ Player.prototype = {
 
   showTooltip: function() {
     var tooltip = Html.div('.tooltip.pas', [
-      Html.h3('.b', this.name),
-      Html.div('.col.mrs', [
-        Html.div('.medium.b', this.score),
+      Html.h3('.b.medium.mbs', this.name),
+      Html.div('.col.mrs.light', [
+        Html.div('.large.b', this.score),
         'points'
       ]),
       Html.div('.col.dim', [
-        Html.div('.medium.b', this.successRate() + '%'),
+        Html.div('.large.b', this.successRate() + '%'),
         'success'
       ])
     ])
@@ -228,7 +228,7 @@ Player.prototype = {
 
   showWelcome: function() {
     var welcome = Html.div('.welcome.pam', {}, { width: '240px' }, [
-      Html.h3('.b', 'Welcome to life as a pixel'),
+      Html.h3('.b.medium', 'Welcome to life as a pixel'),
       Html.p('.mtm', [
         'Use your ',
         Html.span('.arrow-image', 'arrows'),
@@ -465,7 +465,7 @@ var Players = {}
 Players.login = function(userId, token, name) {
   if (!PLAYER) return
   var login = Dom.get('login')
-  var username = Html.div('.top-border.pvm.phm', 'Welcome, ' + name)
+  var username = Html.div('.top-border.pvm.phm.light', 'Welcome, ' + name)
   var parent = login.parentNode
   Dom.remove(login)
   parent.appendChild(username)

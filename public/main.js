@@ -391,6 +391,96 @@ process.binding = function (name) {
 
 });
 
+require.define("/dom.js",function(require,module,exports,__dirname,__filename,process,global){var Dom = {}
+
+Dom.get = function(id) { return document.getElementById(id) }
+Dom.create = function(tag) { return document.createElement(tag) }
+Dom.listen = function(el, event, cb) { el.addEventListener(event, cb) }
+
+Dom.addClass = function(el, cl) {
+  var cls = el.getAttribute('class')
+  var classes = cls ? cls.split(' ') : []
+  el.setAttribute('class', classes.concat([cl]).join(' '))
+}
+
+Dom.removeClass = function(el, cl) {
+  var cls = el.getAttribute('class')
+  var classes = cls ? cls.split(' ') : []
+  var newClasses = []
+  for (var i=0; i<classes.length; i++) {
+    if (classes[i] != cl) newClasses.push(classes[i])
+  }
+  el.setAttribute('class', newClasses.join(' '))
+}
+
+Dom.remove = function(el) {
+  el.parentNode.removeChild(el)
+}
+
+Dom.isEl = function(el) {
+  return el instanceof HTMLElement
+}
+
+Dom.empty = function(el) {
+  el.innerHTML = ''
+}
+
+Dom.left = function(el) {
+  var sum = el.offsetLeft
+  while (el = el.offsetParent) sum += el.offsetLeft + el.clientLeft
+  return sum
+}
+
+Dom.top = function(el) {
+  var sum = el.offsetTop
+  while (el = el.offsetParent) sum += el.offsetTop + el.clientTop
+  return sum
+}
+
+module.exports = Dom
+
+});
+
+require.define("/util.js",function(require,module,exports,__dirname,__filename,process,global){var Util = {}
+
+Util.array = function(l, s, e) { return [].slice.call(l, s, e) }
+
+Util.rateLimit = function(target, rate, f) {
+  if (target.timeout) return
+  target.timeout = setTimeout(function() {
+    f.call(target)
+    target.timeout = null
+  }, rate)
+}
+
+Util.each = function(list, f) {
+  for (var key in list) f(key, list[key])
+}
+
+Util.isArray = Array.isArray
+Util.isFunc = function(x) { return typeof x == 'function' }
+Util.isObject = function(x) { return Object.prototype.toString.call(x) == '[object Object]' }
+Util.isString = function(x) { return Object.prototype.toString.call(x) == '[object String]' }
+
+function flatten(input, shallow, output) {
+  input.forEach(function(value) {
+    if (Util.isArray(value)) {
+      shallow ? push.apply(output, value) : flatten(value, shallow, output)
+    } else {
+      output.push(value)
+    }
+  })
+  return output
+}
+
+Util.flatten = function(array, shallow) {
+  return flatten(array, shallow, []);
+}
+
+module.exports = Util
+
+});
+
 require.define("/html.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
 var Tag = require('./tag')
 
@@ -421,6 +511,57 @@ create('html')
 create('script')
 
 module.exports = Html
+
+});
+
+require.define("/tag.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
+var Dom = require('./dom')
+
+var Tag = {}
+
+function isSelector(string) {
+  if (!string) return true
+  if (string.indexOf(' ') >= 0) return false
+  return (string.charAt(0) == '#') || (string.charAt(0) == '.')
+}
+
+function nonNull(x) { return x !== null }
+
+Tag.tag = function(tag) {
+  var args = Util.array(arguments, 1)
+  var selector = isSelector(args[0]) ? args.shift() : ''
+  var attrs = Util.isObject(args[0]) ? args.shift() : {}
+  var style = Util.isObject(args[0]) ? args.shift() : {}
+
+  var children = Util.flatten(args).filter(nonNull).map(function(child) {
+    return !Dom.isEl(child) ? document.createTextNode(child) : child
+  })
+
+  var element = Dom.create(tag.toUpperCase())
+  if (selector) {
+    selector = selector.match(/([#\.][^#\.]+)/g)
+    selector.forEach(function(bit) {
+      switch (bit.charAt(0)) {
+      case '#':
+        element.id = bit.substring(1)
+        break
+      case '.':
+        Dom.addClass(element, bit.substring(1))
+        break
+      }
+    })
+  }
+
+  Util.each(attrs, element.setAttribute.bind(element))
+  Util.each(style, function(key, val) {
+    element.style[key] = val
+  })
+  children.forEach(element.appendChild.bind(element))
+  return element
+}
+
+module.exports = Tag
+
 
 });
 
@@ -485,56 +626,6 @@ window.fbAsyncInit = function() {
 }
 
 module.exports = Fb
-
-});
-
-require.define("/dom.js",function(require,module,exports,__dirname,__filename,process,global){var Dom = {}
-
-Dom.get = function(id) { return document.getElementById(id) }
-Dom.create = function(tag) { return document.createElement(tag) }
-Dom.listen = function(el, event, cb) { el.addEventListener(event, cb) }
-
-Dom.addClass = function(el, cl) {
-  var cls = el.getAttribute('class')
-  var classes = cls ? cls.split(' ') : []
-  el.setAttribute('class', classes.concat([cl]).join(' '))
-}
-
-Dom.removeClass = function(el, cl) {
-  var cls = el.getAttribute('class')
-  var classes = cls ? cls.split(' ') : []
-  var newClasses = []
-  for (var i=0; i<classes.length; i++) {
-    if (classes[i] != cl) newClasses.push(classes[i])
-  }
-  el.setAttribute('class', newClasses.join(' '))
-}
-
-Dom.remove = function(el) {
-  el.parentNode.removeChild(el)
-}
-
-Dom.isEl = function(el) {
-  return el instanceof HTMLElement
-}
-
-Dom.empty = function(el) {
-  el.innerHTML = ''
-}
-
-Dom.left = function(el) {
-  var sum = el.offsetLeft
-  while (el = el.offsetParent) sum += el.offsetLeft + el.clientLeft
-  return sum
-}
-
-Dom.top = function(el) {
-  var sum = el.offsetTop
-  while (el = el.offsetParent) sum += el.offsetTop + el.clientTop
-  return sum
-}
-
-module.exports = Dom
 
 });
 
@@ -743,13 +834,13 @@ Player.prototype = {
 
   showTooltip: function() {
     var tooltip = Html.div('.tooltip.pas', [
-      Html.h3('.b', this.name),
-      Html.div('.col.mrs', [
-        Html.div('.medium.b', this.score),
+      Html.h3('.b.medium.mbs', this.name),
+      Html.div('.col.mrs.light', [
+        Html.div('.large.b', this.score),
         'points'
       ]),
       Html.div('.col.dim', [
-        Html.div('.medium.b', this.successRate() + '%'),
+        Html.div('.large.b', this.successRate() + '%'),
         'success'
       ])
     ])
@@ -768,7 +859,7 @@ Player.prototype = {
 
   showWelcome: function() {
     var welcome = Html.div('.welcome.pam', {}, { width: '240px' }, [
-      Html.h3('.b', 'Welcome to life as a pixel'),
+      Html.h3('.b.medium', 'Welcome to life as a pixel'),
       Html.p('.mtm', [
         'Use your ',
         Html.span('.arrow-image', 'arrows'),
@@ -1005,7 +1096,7 @@ var Players = {}
 Players.login = function(userId, token, name) {
   if (!PLAYER) return
   var login = Dom.get('login')
-  var username = Html.div('.top-border.pvm.phm', 'Welcome, ' + name)
+  var username = Html.div('.top-border.pvm.phm.light', 'Welcome, ' + name)
   var parent = login.parentNode
   Dom.remove(login)
   parent.appendChild(username)
@@ -1015,97 +1106,6 @@ Players.login = function(userId, token, name) {
 }
 
 module.exports = Players
-
-});
-
-require.define("/tag.js",function(require,module,exports,__dirname,__filename,process,global){var Util = require('./util')
-var Dom = require('./dom')
-
-var Tag = {}
-
-function isSelector(string) {
-  if (!string) return true
-  if (string.indexOf(' ') >= 0) return false
-  return (string.charAt(0) == '#') || (string.charAt(0) == '.')
-}
-
-function nonNull(x) { return x !== null }
-
-Tag.tag = function(tag) {
-  var args = Util.array(arguments, 1)
-  var selector = isSelector(args[0]) ? args.shift() : ''
-  var attrs = Util.isObject(args[0]) ? args.shift() : {}
-  var style = Util.isObject(args[0]) ? args.shift() : {}
-
-  var children = Util.flatten(args).filter(nonNull).map(function(child) {
-    return !Dom.isEl(child) ? document.createTextNode(child) : child
-  })
-
-  var element = Dom.create(tag.toUpperCase())
-  if (selector) {
-    selector = selector.match(/([#\.][^#\.]+)/g)
-    selector.forEach(function(bit) {
-      switch (bit.charAt(0)) {
-      case '#':
-        element.id = bit.substring(1)
-        break
-      case '.':
-        Dom.addClass(element, bit.substring(1))
-        break
-      }
-    })
-  }
-
-  Util.each(attrs, element.setAttribute.bind(element))
-  Util.each(style, function(key, val) {
-    element.style[key] = val
-  })
-  children.forEach(element.appendChild.bind(element))
-  return element
-}
-
-module.exports = Tag
-
-
-});
-
-require.define("/util.js",function(require,module,exports,__dirname,__filename,process,global){var Util = {}
-
-Util.array = function(l, s, e) { return [].slice.call(l, s, e) }
-
-Util.rateLimit = function(target, rate, f) {
-  if (target.timeout) return
-  target.timeout = setTimeout(function() {
-    f.call(target)
-    target.timeout = null
-  }, rate)
-}
-
-Util.each = function(list, f) {
-  for (var key in list) f(key, list[key])
-}
-
-Util.isArray = Array.isArray
-Util.isFunc = function(x) { return typeof x == 'function' }
-Util.isObject = function(x) { return Object.prototype.toString.call(x) == '[object Object]' }
-Util.isString = function(x) { return Object.prototype.toString.call(x) == '[object String]' }
-
-function flatten(input, shallow, output) {
-  input.forEach(function(value) {
-    if (Util.isArray(value)) {
-      shallow ? push.apply(output, value) : flatten(value, shallow, output)
-    } else {
-      output.push(value)
-    }
-  })
-  return output
-}
-
-Util.flatten = function(array, shallow) {
-  return flatten(array, shallow, []);
-}
-
-module.exports = Util
 
 });
 
