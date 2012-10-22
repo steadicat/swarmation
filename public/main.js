@@ -590,39 +590,23 @@ var Fb = {}
 // Init the SDK upon load
 window.fbAsyncInit = function() {
   FB.init({
-    appId: '536327243050948', // App ID
+    appId: '536327243050948',
     channelUrl: '//'+window.location.hostname+'/channel',
     status: true,
     cookie: true,
     xfbml: true
-  });
+  })
 
   // listen for and handle auth.statusChange events
   FB.Event.subscribe('auth.statusChange', function(response) {
     if (response.authResponse) {
-      // user has auth'd your app and is logged into Facebook
       FB.api('/me', function(me){
         if (me.name) {
           Players.login(me.id, response.authResponse.accessToken, me.first_name)
         }
       })
-      //document.getElementById('auth-loggedout').style.display = 'none';
-      //document.getElementById('auth-loggedin').style.display = 'block';
-    } else {
-      // user has not auth'd your app, or is not logged into Facebook
-      //document.getElementById('auth-loggedout').style.display = 'block';
-      //document.getElementById('auth-loggedin').style.display = 'none';
     }
-  });
-
-  // respond to clicks on the login and logout links
-  //document.getElementById('auth-loginlink').addEventListener('click', function(){
-  //  FB.login();
-  //});
-  //document.getElementById('auth-logoutlink').addEventListener('click', function(){
-  //  FB.logout();
-  //});
-
+  })
 }
 
 module.exports = Fb
@@ -1028,23 +1012,16 @@ var requestPopup
 
 function showRequestPopup() {
   if (requestPopupShown) return
-  var button = Html.a('.button.mlm', { 'href': '' }, 'Invite your friends')
-  button.addEventListener('click', showRequestDialog)
+  var button = Html.div('.fb-send', { 'data-href': 'http://swarmation.com' })
   requestPopup = Html.div('.megaphone.pvs', [
-    'Swarmation is more fun with more people. ',
+    'Swarmation is more fun with more people. Ask some friends to join: ',
     button
   ])
   Dom.get('container').appendChild(requestPopup)
   requestPopupShown = true
-}
-
-function showRequestDialog(event) {
-  if (event) {
-    event.preventDefault()
-    event.stopPropagation()
-  }
-  Dom.remove(requestPopup)
-  FB.ui({ method: 'apprequests', message: 'Come join me on Swarmation right now!'})
+  button.addEventListener('click', function() {
+    if (requestPopup) Dom.remove(requestPopup)
+  })
 }
 
 var RESTARTING = false

@@ -179,19 +179,19 @@ var MAX_SIZE = 20
 
 for (var i=0; i<=MAX_SIZE; i++) FORMATIONS[i] = []
 
-for (var id in formations) {
-  for (var i=formations[id].size; i<=MAX_SIZE; i++) {
-    FORMATIONS[i].push(formations[id])
+util.each(formations, function(id, formation) {
+  for (var i=formation.size; i<=MAX_SIZE; i++) {
+    FORMATIONS[i].push(formation)
   }
 
   // register achievements with FB
   fb.post(config.appId + '/achievements', config.token, {
-    achievement: 'http://swarmation.com/formation/' + formations[id].name
+    achievement: 'http://swarmation.com/formation/' + formation.name
   }, function(err, res) {
     if (err) throw err
-    sys.log('FB: Registered formation ' + formations[id].name)
+    sys.log('FB: Registered formation ' + formation.name)
   })
-}
+})
 
 function pickFormation() {
   var available = FORMATIONS[Math.max(MIN_SIZE, Math.min(Player.getActive(), MAX_SIZE))]
