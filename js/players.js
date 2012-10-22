@@ -397,16 +397,15 @@ var requestPopup
 
 function showRequestPopup() {
   if (requestPopupShown) return
-  var button = Html.div('.fb-send', { 'data-href': 'http://swarmation.com' })
+  var button = Dom.get('send')
+  Dom.remove(button)
+  Dom.removeClass(button, 'off')
   requestPopup = Html.div('.megaphone.pvs', [
     'Swarmation is more fun with more people. Ask some friends to join: ',
     button
   ])
   Dom.get('container').appendChild(requestPopup)
   requestPopupShown = true
-  button.addEventListener('click', function() {
-    if (requestPopup) Dom.remove(requestPopup)
-  })
 }
 
 var RESTARTING = false

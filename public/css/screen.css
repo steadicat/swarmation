@@ -29,7 +29,6 @@ a img{border:none}
 .mbl,.mvl,.mal{margin-bottom:20px}
 .mll,.mhl,.mal{margin-left:20px}
 body{font:14px/20px 'Source Sans Pro',sans-serif;color:#024;background:#abbdd1}
-.off{display:none}
 a{text-decoration:none;font-weight:bold}
 .b,.message,.score{font-weight:bold}
 .countdown{font-size:80px;line-height:75px}
@@ -40,8 +39,8 @@ a{text-decoration:none;font-weight:bold}
 .center,.info,.message,.tooltip,.welcome,.megaphone,.footer{text-align:center}
 .centered,.container{margin:0 auto}
 .abs,.info,.message,.tooltip,.welcome,.player,.ref,.megaphone{position:absolute}
-.rel,.container,.formation-image,.board-container,.board,.fb-send{position:relative}
-.col,.formation-image,.tooltip,.welcome,.fb-send{display:inline-block;vertical-align:top}
+.rel,.container,.formation-image,.board-container,.board,.send{position:relative}
+.col,.formation-image,.tooltip,.welcome,.send{display:inline-block;vertical-align:top}
 .rounded,.tooltip,.welcome,.megaphone{-webkit-border-radius:3px;border-radius:3px}
 .border,.info{border:1px solid #ddd}
 .top-border{border-top:1px solid #ddd;margin-top:-1px}
@@ -76,4 +75,5 @@ a{color:#fff}
 .score.negative{color:#f85}
 .score.scale{-webkit-transform:scale(1,1);-moz-transform:scale(1,1);-o-transform:scale(1,1);-ms-transform:scale(1,1);transform:scale(1,1);opacity:0;-ms-filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=0);filter:alpha(opacity=0)}
 .megaphone{top:105px;width:600px;left:190px;background:#fd9}
-.fb-send{top:1px;left:3px;width:52px;height:20px}
+.send{top:1px;left:3px;width:52px;height:20px}
+.off{display:none}
