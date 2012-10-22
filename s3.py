@@ -47,6 +47,7 @@ def download(url):
     return _download
 
 OVERRIDES = {
+    'static/main.js': download('http://localhost:8001/main.js'),
 }
 
 FORCE = False

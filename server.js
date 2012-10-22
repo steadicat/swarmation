@@ -6,6 +6,7 @@ var stylus = require('stylus')
 var nib = require('nib')
 var sys = require('sys')
 var http = require('http')
+var browserify = require('browserify')
 var map = require('./map')
 var util = require('./js/util')
 var fb = require('./fb')
@@ -31,6 +32,7 @@ app.configure(function() {
       }
     })
   )
+  app.use(browserify({ entry: __dirname + '/js/main.js', mount: '/main.js' }))
   app.use('/', express.static(public))
 })
 
@@ -268,7 +270,7 @@ setInterval(function() {
 }, 1000)
 
 // Only listen on $ node server.js
-var port = parseInt(process.env.PORT, 10) || parseInt(process.argv[2], 10) || 80
+var port = parseInt(process.env.PORT, 10) || parseInt(process.argv[2], 10) || 3000
 if (!module.parent) server.listen(port)
 sys.log('Server now listening on port '+port+'...')
 
