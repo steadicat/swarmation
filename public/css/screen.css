@@ -5,9 +5,9 @@ table{border-collapse:separate;border-spacing:0;vertical-align:middle}
 caption,th,td{text-align:left;font-weight:normal;vertical-align:middle}
 a img{border:none}
 .pts,.pvs,.pas{padding-top:5px}
-.prs,.phs,.pas{padding-right:5px}
+.prs,.phs,.pas,.button{padding-right:5px}
 .pbs,.pvs,.pas{padding-bottom:5px}
-.pls,.phs,.pas{padding-left:5px}
+.pls,.phs,.pas,.button{padding-left:5px}
 .mts,.mvs,.mas{margin-top:5px}
 .mrs,.mhs,.mas{margin-right:5px}
 .mbs,.mvs,.mas{margin-bottom:5px}
@@ -31,22 +31,22 @@ a img{border:none}
 body{font:14px/20px 'Source Sans Pro',sans-serif;color:#024;background:#abbdd1}
 .off{display:none}
 a{text-decoration:none;font-weight:bold}
-.b,.message,.score{font-weight:bold}
+.b,.message,.score,.button{font-weight:bold}
 .countdown{font-size:80px;line-height:75px}
 .huge{font-size:60px;line-height:65px}
 .larger,.message{font-size:36px;line-height:35px}
 .large{font-size:24px;line-height:25px}
-.medium{font-size:16px;line-height:20px}
-.center,.info,.message,.tooltip,.welcome,.welcome,.footer{text-align:center}
+.medium,.megaphone{font-size:16px;line-height:20px}
+.center,.info,.message,.tooltip,.welcome,.megaphone,.footer{text-align:center}
 .centered,.container{margin:0 auto}
-.abs,.info,.message,.tooltip,.welcome,.player,.ref{position:absolute}
-.rel,.formation-image,.board-container,.board{position:relative}
+.abs,.info,.message,.tooltip,.welcome,.player,.ref,.megaphone{position:absolute}
+.rel,.container,.formation-image,.board-container,.board{position:relative}
 .col,.formation-image,.tooltip,.welcome{display:inline-block;vertical-align:top}
-.rounded,.tooltip,.welcome{-webkit-border-radius:3px;border-radius:3px}
+.rounded,.tooltip,.welcome,.megaphone{-webkit-border-radius:3px;border-radius:3px}
 .border,.info{border:1px solid #ddd}
 .top-border{border-top:1px solid #ddd;margin-top:-1px}
 .dark-border,.board-container,.tooltip,.welcome{border:1px solid #798796}
-.shadow,.board-container,.tooltip,.welcome{-webkit-box-shadow:rgba(0,36,62,0.2) 2px 2px 0;box-shadow:rgba(0,36,62,0.2) 2px 2px 0}
+.shadow,.board-container,.tooltip,.welcome,.megaphone{-webkit-box-shadow:rgba(0,36,62,0.2) 2px 2px 0;box-shadow:rgba(0,36,62,0.2) 2px 2px 0}
 .text-shadow,.footer{text-shadow:rgba(0,36,62,0.2) 1px 1px 0}
 a{color:#fff}
 .white,.message,.footer{color:#fff}
@@ -66,7 +66,7 @@ a{color:#fff}
 .tooltip,.welcome{background:#fff;}
 .tooltip:after,.welcome:after{background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAKCAMAAACZt25aAAAAA3NCSVQICAjb4U/gAAAAPFBMVEX///8AIkR5h5YAIkR5h5Y7U2w5Umu+xcyFkZ9neIp5h5ZdcINecIPr7e/h5ejb3+N5h5ZgcoX///95h5bZBWhpAAAAFHRSTlMAIjMzRGZmu8zM3d3d7u7u7u7//6F3LUEAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAAcdEVYdFNvZnR3YXJlAEFkb2JlIEZpcmV3b3JrcyBDUzbovLKMAAAAFnRFWHRDcmVhdGlvbiBUaW1lADEwLzIxLzEy5x6DlgAAAFBJREFUCJl1jVsSgCAMxAqiKAr1cf+7ysKMFIR8Jt0prcDeApsUAXP64r0z9KFLqXzcuJA9X8ukZNFPKrw3PhZsfvf5T+Cj4/Fnm3seqIGXvIamBQEJu5FBAAAAAElFTkSuQmCC") no-repeat center center;content:" ";width:24px;height:10px;position:absolute;bottom:-10px;left:50%;margin-left:-12px}
 .player{width:10px;height:10px;-webkit-box-shadow:inset -1px -1px 0 rgba(0,36,62,0.2),inset 1px 1px 0 rgba(255,255,255,0.3);box-shadow:inset -1px -1px 0 rgba(0,36,62,0.2),inset 1px 1px 0 rgba(255,255,255,0.3);background:#aaa;}
-.player.self{background:#6dd}
+.player.self,.button{background:#6dd}
 .player.idle{opacity:.5;-ms-filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=50);filter:alpha(opacity=50)}
 .player.flash{background:#f85}
 .player.active,.ref{-webkit-box-shadow:inset -1px -1px 0 rgba(0,36,62,0.2),inset 1px 1px 0 rgba(255,255,255,0.4);box-shadow:inset -1px -1px 0 rgba(0,36,62,0.2),inset 1px 1px 0 rgba(255,255,255,0.4);background:#fb3}
@@ -75,3 +75,5 @@ a{color:#fff}
 .score.positive{color:#6dd}
 .score.negative{color:#f85}
 .score.scale{-webkit-transform:scale(1,1);-moz-transform:scale(1,1);-o-transform:scale(1,1);-ms-transform:scale(1,1);transform:scale(1,1);opacity:0;-ms-filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=0);filter:alpha(opacity=0)}
+.megaphone{top:105px;width:600px;left:180px;background:#fd9}
+.button{color:#fff;padding-top:3px;padding-bottom:3px;white-space:nowrap;-webkit-box-shadow:inset -1px -1px 0 rgba(0,36,62,0.2),inset 1px 1px 0 rgba(255,255,255,0.3);box-shadow:inset -1px -1px 0 rgba(0,36,62,0.2),inset 1px 1px 0 rgba(255,255,255,0.3)}

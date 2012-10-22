@@ -81,6 +81,7 @@ a
 // one-offs
 .container
   @extend .centered
+  @extend .rel
   width 984px
 .header
   height 140px
@@ -154,7 +155,6 @@ a
     margin-left -12px
 .welcome
   @extend .tooltip
-  @extend .center
 
 .player
   @extend .movement
@@ -193,6 +193,26 @@ a
   &.scale
     transform scale(1, 1)
     opacity 0
+
+.megaphone
+  @extend .rounded
+  @extend .abs
+  @extend .center
+  @extend .shadow
+  @extend .medium
+  top 105px
+  width 600px
+  left 180px
+  background lighten(#fb3, 50%)
+.button
+  @extend .b
+  @extend .player.self
+  @extend .phs
+  color white
+  padding-top: 3px
+  padding-bottom: 3px
+  white-space nowrap
+  box-shadow inset -1px -1px 0px shadow, inset 1px 1px 0 rgba(255,255,255,0.3)
 
 .footer
   @extend .white

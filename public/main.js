@@ -635,6 +635,7 @@ var DEAD_WIDTH = 12
 var DEAD_HEIGHT = 60
 var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry']
 var MOVEMENT_RATE = 140
+var MIN_ACTIVE = 6
 
 var PLAYER
 var PLAYERS = {}
@@ -1016,7 +1017,35 @@ socket.on('nextFormation', function(data) {
     Dom.get('countdown').textContent = time
     if (time == 0) clearInterval(formationInterval)
   }, 1000)
+
+  if (PLAYER.loggedin && (data.active < MIN_ACTIVE)) {
+    showRequestPopup()
+  }
 })
+
+var requestPopupShown = false
+var requestPopup
+
+function showRequestPopup() {
+  if (requestPopupShown) return
+  var button = Html.a('.button.mlm', { 'href': '' }, 'Invite your friends')
+  button.addEventListener('click', showRequestDialog)
+  requestPopup = Html.div('.megaphone.pvs', [
+    'Swarmation is more fun with more people. ',
+    button
+  ])
+  Dom.get('container').appendChild(requestPopup)
+  requestPopupShown = true
+}
+
+function showRequestDialog(event) {
+  if (event) {
+    event.preventDefault()
+    event.stopPropagation()
+  }
+  Dom.remove(requestPopup)
+  FB.ui({ method: 'apprequests', message: 'Come join me on Swarmation right now!'})
+}
 
 var RESTARTING = false
 
@@ -1102,6 +1131,7 @@ Players.login = function(userId, token, name) {
   parent.appendChild(username)
   socket.emit('login', { token: token, userId: userId, name: name })
   PLAYER.name = name
+  PLAYER.loggedin = true
   PLAYER.sendInfo(true)
 }
 

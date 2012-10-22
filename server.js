@@ -68,12 +68,12 @@ app.get('/', function(req, res) {
 var formationPage = '<html>' +
 '<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# swarmation: http://ogp.me/ns/fb/swarmation#">' +
 '<meta property="fb:app_id" content="536327243050948" />' +
-'<meta property="og:type" content="swarmation:formation" />' +
+'<meta property="og:type" content="game.achievement" />' +
 '<meta property="og:title" content="{name}" />' +
-'<meta property="og:description" content="A formation of {points} players on Swarmation." />' +
+'<meta property="og:description" content="Joined a formation of {points} players on Swarmation." />' +
 '<meta property="og:url" content="http://swarmation.com/formation/{name}" />' +
 '<meta property="og:image" content="http://swarmation.com/formation/{name}.png" />' +
-'<meta property="swarmation:size" content="{points}" />' +
+'<meta property="game:points" content="{points}" />' +
 '</head></html>';
 
 var images = require('./images')
@@ -130,7 +130,9 @@ var Player = players.Player
 function onConnect(client) {
 
   client.emit('welcome', { id: client.id, players: Player.getList() })
-  if (FORMATION && (TIME > 0)) client.emit('nextFormation', { formation: FORMATION.name, time: TIME, map: FORMATION.map })
+  if (FORMATION && (TIME > 0)) client.emit('nextFormation', {
+    formation: FORMATION.name, time: TIME, map: FORMATION.map, active: Player.getActive()
+  })
 
   client.on('info', function(message) {
     var player = Player.get(client)
@@ -181,6 +183,14 @@ for (var id in formations) {
   for (var i=formations[id].size; i<=MAX_SIZE; i++) {
     FORMATIONS[i].push(formations[id])
   }
+
+  // register achievements with FB
+  fb.post(config.appId + '/achievements', config.token, {
+    achievement: 'http://swarmation.com/formation/' + formations[id].name
+  }, function(err, res) {
+    if (err) throw err
+    sys.log('FB: Registered formation ' + formations[id].name)
+  })
 }
 
 function pickFormation() {
@@ -195,7 +205,9 @@ function startTurn() {
   while (!FORMATION) FORMATION = pickFormation()
   TIME = FORMATION.difficulty
   sys.log('Next formation is ' + FORMATION.name +', of size '+(FORMATION.size)+'.')
-  io.sockets.emit('nextFormation', { formation: FORMATION.name, time: TIME, map: FORMATION.map })
+  io.sockets.emit('nextFormation', {
+    formation: FORMATION.name, time: TIME, map: FORMATION.map, active: Player.getActive()
+  })
 }
 
 var MAX_POINTS = 26
@@ -222,9 +234,9 @@ function endTurn() {
     if (player.userId) {
       // post formation
       fb.post(
-        player.userId+'/swarmation:join',
+        player.userId+'/achievements',
         config.token,
-        { formation: 'http://swarmation.com/formation/' + FORMATION.name },
+        { achievement: 'http://swarmation.com/formation/' + FORMATION.name },
         function(err, res) {
           if (err) throw err
           sys.log('FB: Published completion of ' + FORMATION.name + ' for ' + player.userId)
