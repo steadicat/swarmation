@@ -20,6 +20,19 @@ x
 
 
 x
+== house (14) ==
+  xx
+ x  x
+x    x
+x xx x
+x xx x
+== ball (18) ==
+  xxxxx
+ x     x
+x       x
+x       x
+ x     x
+  xxxxx
 == delta (12) ==
   x
  x x
@@ -100,3 +113,10 @@ x   x   x
  xxx
 x   x   x
      xxx
+== castle (40) ==
+xxxx    xxxx
+x  xxxxxx  x
+ xx      xx
+ xx xxxx xx
+ xx x  x xx
+ xx x  x xx
