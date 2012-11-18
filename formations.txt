@@ -1,15 +1,15 @@
 == eyes (4) ==
 x x
-== triangle (4) ==
+== triangle (5) ==
  x
 x x
-== easy (6) ==
+== easy (4) ==
 xxx
 == clover (10) ==
 x x
  x
 x x
-== tetris (8) ==
+== tetris (7) ==
 x
 x
 x
@@ -20,12 +20,6 @@ x
 
 
 x
-== house (14) ==
-  xx
- x  x
-x    x
-x xx x
-x xx x
 == ball (18) ==
   xxxx
  x    x
@@ -33,7 +27,7 @@ x      x
 x      x
  x    x
   xxxx
-== delta (12) ==
+== delta (8) ==
   x
  x x
 x   x
@@ -52,7 +46,7 @@ x   x
 x x x
 x   x
 xxxxx
-== snake (16) ==
+== snake (12) ==
   x
  x
   x
@@ -92,7 +86,7 @@ xxxxx
 x x x
 x   x
  xxx
-== glider (13) ==
+== glider (10) ==
  x
   x
 xxx
