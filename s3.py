@@ -113,7 +113,10 @@ def listFiles(dir, extensions=[], exclude=[]):
     return [f for f in dir.files() if f.ext in extensions] + reduce(lambda a,b: a+b, dirs, [])
 
 def loadFile(file, overrides):
-    return file, overrides[file](file) if file in overrides else file.bytes()
+    content = overrides[file](file) if file in overrides else file.bytes()
+    if file.ext in MINIFY:
+        content = minify(content, file.ext)
+    return file, content
 
 def getMap(root, files):
     return dict([(localPath(file[0], root), remotePath(file[0], root, content=file[1])) for file in files])
@@ -166,9 +169,6 @@ def uploadFile(local, remote, content, bucket):
     headers['Access-Control-Allow-Origin'] = ORIGIN
     headers['Expires'] = (datetime.utcnow() + timedelta(days=365)).strftime('%a, %d %b %Y %H:%M:%S GMT')
     headers['Cache-Control'] = 'max-age=%d' % (30*24*60*60)
-
-    if local.ext in MINIFY:
-        content = minify(content, local.ext)
 
     if local.ext in GZIP_TYPES:
         content = compress(content)
