@@ -43,8 +43,9 @@ def download(url):
         return urlopen(url).read()
     return _download
 
+import config
 OVERRIDES = {
-    'public/main.js': download('http://localhost:8001/main.js'),
+    'public/main.js': download('http://localhost:%d/main.js' % config.PORT),
 }
 
 FORCE = False
