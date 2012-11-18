@@ -27,12 +27,12 @@ x    x
 x xx x
 x xx x
 == ball (18) ==
-  xxxxx
- x     x
-x       x
-x       x
- x     x
-  xxxxx
+  xxxx
+ x    x
+x      x
+x      x
+ x    x
+  xxxx
 == delta (12) ==
   x
  x x
@@ -107,16 +107,9 @@ xx
  x   x
  x   x
 == wave (20) ==
- xxx
-x   x   x
-     xxx
- xxx
-x   x   x
-     xxx
-== castle (40) ==
-xxxx    xxxx
-x  xxxxxx  x
- xx      xx
- xx xxxx xx
- xx x  x xx
- xx x  x xx
+ xx
+x  x  x
+    xx
+ xx
+x  x  x
+    xx
