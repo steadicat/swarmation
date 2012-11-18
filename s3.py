@@ -32,10 +32,7 @@ TYPES = {
 NO_REVISION = [ 'public/images/formations' ]
 
 MINIFY = {
-    #  --compilation_level ADVANCED_OPTIMIZATIONS
-#    '.js': 'java -jar contrib/closure.jar --js %(file)s',
-#    '.js': 'java -jar contrib/jquery/build/yuicompressor-2.4.2.jar --type js',
-#    '.css': 'java -jar contrib/yuicompressor.jar --type css',
+    '.js': 'uglify %(file)s',
 }
 
 GZIP_TYPES = ['.js', '.css', '.ttf', '.otf']
