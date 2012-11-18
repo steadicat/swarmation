@@ -45,7 +45,11 @@ Map.checkFormation = function(formation, players) {
   var winners = {}
   util.each(players, function(id, player) {
     var f = Map.checkFormationAtOrigin(formation, player.left, player.top)
-    f.forEach(function(p) { winners[p.id] = p })
+    f.forEach(function(p) {
+      // work around dirty map bug
+      if (!p) return
+      winners[p.id] = p
+    })
   })
   return winners
 }
