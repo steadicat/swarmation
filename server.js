@@ -147,7 +147,7 @@ function onConnect(client) {
 
   client.on('flash', function(message) {
     message.id = client.id
-    client.broadcast.emit('info', message)
+    client.broadcast.emit('flash', message)
   })
 
   client.on('login', function(message) {
@@ -273,4 +273,3 @@ setInterval(function() {
 var port = parseInt(process.env.PORT, 10) || parseInt(process.argv[2], 10) || 3000
 if (!module.parent) server.listen(port)
 sys.log('Server now listening on port '+port+'...')
-
