@@ -32,7 +32,7 @@ TYPES = {
 NO_REVISION = [ 'public/images/formations' ]
 
 MINIFY = {
-    '.js': 'uglify %(file)s',
+    '.js': 'uglifyjs %(file)s',
 }
 
 GZIP_TYPES = ['.js', '.css', '.ttf', '.otf']
