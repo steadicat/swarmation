@@ -94,7 +94,7 @@ Player.prototype = {
   kick: function(socket) {
     this.client.emit('kick', { reason: 'idle' })
     this.client.broadcast.emit('disconnected', { id: this.id })
-    this.client.connection.end()
+    this.client.connection && this.client.connection.end()
     delete PLAYERS[this.id]
   }
 
