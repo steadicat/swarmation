@@ -1,4 +1,4 @@
-var sys = require('sys')
+var util = require('util')
 var fs = require('fs')
 
 function getPoints(diagram, y, x) {
@@ -60,7 +60,7 @@ Formations.getFormations = function() {
 
     if (!formation.points) {
       // malformed formation?
-      sys.log('Formation ' + formation.name + ' is malformed!')
+      console.log('Formation ' + formation.name + ' is malformed!')
       continue
     }
 

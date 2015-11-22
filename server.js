@@ -1,70 +1,33 @@
 // Module dependencies.
 
 var express = require('express')
-var connect = require('connect')
-var stylus = require('stylus')
-var nib = require('nib')
-var sys = require('sys')
+var errorhandler = require('errorhandler')
+var util = require('util')
 var http = require('http')
-var browserify = require('browserify')
 var map = require('./map')
 var util = require('./js/util')
 var fb = require('./fb')
 
 var app = express()
 var server = module.exports = http.createServer(app)
-var io = require('socket.io').listen(server)
+var io = require('socket.io')(server)
 
 // Configuration
 
-var public = __dirname + '/public'
-app.configure(function() {
-  app.use(
-    stylus.middleware({
-      src: public,
-      dest: public,
-      compile: function(str, path) {
-        return stylus(str)
-          .set('filename', path)
-          .set('compress', true)
-          .define('url', stylus.url())
-          .use(nib())
-      }
-    })
-  )
-  app.use(browserify({ entry: __dirname + '/js/main.js', mount: '/main.js' }))
-  app.use('/', express.static(public))
-})
+var DEBUG = process.env.NODE_ENV !== 'production';
 
-app.configure('development', function() {
-  app.use(connect.errorHandler({ dumpExceptions: true, showStack: true }))
-})
+if (DEBUG) {
+  app.use(errorhandler({ dumpExceptions: true, showStack: true }))
+} else {
+  app.use(errorhandler())
+}
 
-app.configure('production', function() {
-  app.use(connect.errorHandler())
-})
-
-io.configure('development', function() {
-  io.set('log level', 2)
-})
-io.configure('production', function() {
-  io.set('log level', 1)
-  io.set('transports', [
-    'websocket',
-    'flashsocket',
-    'htmlfile',
-    'xhr-polling',
-    'jsonp-polling'
-  ])
-  io.enable('browser client minification')
-  io.enable('browser client etag')
-  io.enable('browser client gzip')
-})
+app.use('/', express.static(__dirname + '/public'))
 
 // Routes
 
 app.get('/', function(req, res) {
-  res.sendfile('public/index.html')
+  res.sendFile('public/index.html')
 })
 
 var formationPage = '<html>' +
@@ -107,7 +70,7 @@ app.use(function(err, req, res, next){
 });
 
 process.on('uncaughtException', function(e) {
-  sys.log(e.stack)
+  console.log(e.stack)
 })
 
 function shutdown() {
@@ -157,7 +120,7 @@ function onConnect(client) {
     fb.get(config.appId + '/scores', message.token, function(err, res) {
       if (err) throw err
       player.score = res.data[0].score
-      sys.log('FB: Loaded score for user '+message.userId+': ' + player.score)
+      console.log('FB: Loaded score for user '+message.userId+': ' + player.score)
       io.sockets.emit('info', { id: client.id, score: player.score })
     })
   })
@@ -191,7 +154,7 @@ util.each(formations, function(id, formation) {
     achievement: 'http://swarmation.com/formation/' + formation.name
   }, function(err, res) {
     if (err) throw err
-    sys.log('FB: Registered formation ' + formation.name)
+    console.log('FB: Registered formation ' + formation.name)
   })
 })
 
@@ -202,11 +165,11 @@ function pickFormation() {
 }
 
 function startTurn() {
-  sys.log('There are '+Player.getActive()+' active players.')
+  console.log('There are '+Player.getActive()+' active players.')
   FORMATION = pickFormation()
   while (!FORMATION) FORMATION = pickFormation()
   TIME = FORMATION.difficulty
-  sys.log('Next formation is ' + FORMATION.name +', of size '+(FORMATION.size)+'.')
+  console.log('Next formation is ' + FORMATION.name +', of size '+(FORMATION.size)+'.')
   io.sockets.emit('nextFormation', {
     formation: FORMATION.name, time: TIME, map: FORMATION.map, active: Player.getActive()
   })
@@ -241,7 +204,7 @@ function endTurn() {
         { achievement: 'http://swarmation.com/formation/' + FORMATION.name },
         function(err, res) {
           if (err) throw err
-          sys.log('FB: Published completion of ' + FORMATION.name + ' for ' + player.userId)
+          console.log('FB: Published completion of ' + FORMATION.name + ' for ' + player.userId)
         }
       )
       // save score
@@ -251,7 +214,7 @@ function endTurn() {
         { score: player.score },
         function(err, res) {
           if (err) throw err
-          sys.log('FB: Saved score of ' + player.score + ' for ' + player.userId)
+          console.log('FB: Saved score of ' + player.score + ' for ' + player.userId)
         }
       )
     }
@@ -272,4 +235,4 @@ setInterval(function() {
 // Only listen on $ node server.js
 var port = parseInt(process.env.PORT, 10) || parseInt(process.argv[2], 10) || 3000
 if (!module.parent) server.listen(port)
-sys.log('Server now listening on port '+port+'...')
+console.log('Server now listening on port '+port+'...')

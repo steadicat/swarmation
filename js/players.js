@@ -282,7 +282,7 @@ Player.prototype = {
 
 // sockets
 
-var io = require('./socketio')
+var io = require('socket.io-client')
 var socket = io.connect('')
 
 function loadPlayer(data) {
