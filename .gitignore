@@ -8,7 +8,7 @@
 *.sublime-*
 node_modules
 config.js
-config.py
 /public/css/screen.css
 /public/main.js.map
 /public/main.js
+/public/formation

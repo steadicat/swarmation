@@ -26,10 +26,6 @@ app.use('/', express.static(__dirname + '/public'))
 
 // Routes
 
-app.get('/', function(req, res) {
-  res.sendFile('public/index.html')
-})
-
 var formationPage = '<html>' +
 '<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# swarmation: http://ogp.me/ns/fb/swarmation#">' +
 '<meta property="fb:app_id" content="536327243050948" />' +
@@ -41,17 +37,6 @@ var formationPage = '<html>' +
 '<meta property="game:points" content="{points}" />' +
 '</head></html>';
 
-var images = require('./images')
-
-app.get('/formation/:name.png', function(req, res) {
-  var formation = formations[req.params.name]
-  if (!formation) res.send(404)
-  images.getImage(formation, function(err, buffer) {
-    if (err) throw err
-    res.type('png').send(buffer)
-  })
-})
-
 app.get('/formation/:name', function(req, res) {
   var formation = formations[req.params.name]
   if (!formation) res.send(404)
@@ -62,11 +47,10 @@ app.get('/formation/:name', function(req, res) {
   )
 })
 
-
 // Error Handling
 app.use(function(err, req, res, next){
   console.error(err.stack);
-  res.send(500, 'Something broke!');
+  res.status(500).send('Something broke!');
 });
 
 process.on('uncaughtException', function(e) {
