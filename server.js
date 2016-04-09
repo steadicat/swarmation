@@ -18,11 +18,10 @@ var DEBUG = process.env.NODE_ENV !== 'production';
 
 if (DEBUG) {
   app.use(errorhandler({ dumpExceptions: true, showStack: true }))
+  app.use('/', express.static(__dirname + '/public'))
 } else {
   app.use(errorhandler())
 }
-
-app.use('/', express.static(__dirname + '/public'))
 
 // Routes
 

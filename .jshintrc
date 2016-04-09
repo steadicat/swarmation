@@ -1,7 +1,0 @@
-{
-  "globals": {
-      "__dirname": false,
-  },
-  "asi": true,
-  "curly": false
-}
