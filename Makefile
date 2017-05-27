@@ -76,7 +76,7 @@ setup-done: etc/setup.sh
 	touch setup-done
 remote-setup: setup-done
 
-nginx-done: etc/nginx.conf
+nginx-done: etc/nginx.conf etc/swarmation.com.crt
 	cp etc/nginx.conf /etc/nginx/sites-available/swarmation.conf
 	ln -sf /etc/nginx/sites-available/swarmation.conf /etc/nginx/sites-enabled/swarmation.conf
 	rm -f /etc/nginx/sites-enabled/default
