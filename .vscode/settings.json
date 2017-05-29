@@ -1,0 +1,8 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "prettier.jsxBracketSameLine": true,
+    "prettier.singleQuote": true,
+    "prettier.bracketSpacing": false,
+    "prettier.trailingComma": "all",
+    "prettier.printWidth": 120
+}
