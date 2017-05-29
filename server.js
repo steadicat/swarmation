@@ -143,7 +143,7 @@ util.each(formations, function(id, formation) {
     function(err, res) {
       if (err) throw err;
       console.log('FB: Registered formation ' + formation.name);
-    },
+    }
   );
 });
 
@@ -198,7 +198,7 @@ function endTurn() {
         function(err, res) {
           if (err) throw err;
           console.log('FB: Published completion of ' + FORMATION.name + ' for ' + player.userId);
-        },
+        }
       );
       // save score
       fb.post(player.userId + '/scores', config.token, {score: player.score}, function(err, res) {

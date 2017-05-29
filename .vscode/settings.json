@@ -3,6 +3,6 @@
     "prettier.jsxBracketSameLine": true,
     "prettier.singleQuote": true,
     "prettier.bracketSpacing": false,
-    "prettier.trailingComma": "all",
+    "prettier.trailingComma": "es5",
     "prettier.printWidth": 120
 }

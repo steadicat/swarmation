@@ -22,7 +22,7 @@ fb.get = function(path, token, cb) {
       qs: {access_token: token},
       json: true,
     },
-    response(cb),
+    response(cb)
   );
 };
 
@@ -35,7 +35,7 @@ fb.post = function(path, token, data, cb) {
       form: data,
       json: true,
     },
-    response(cb),
+    response(cb)
   );
 };
 
