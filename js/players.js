@@ -2,7 +2,7 @@ var WIDTH = 96
 var HEIGHT = 60
 var DEAD_WIDTH = 12
 var DEAD_HEIGHT = 60
-var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry']
+var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry', 'Pipa', 'Walnut']
 var MOVEMENT_RATE = 140
 var MIN_ACTIVE = 6
 
