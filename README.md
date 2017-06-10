@@ -2,4 +2,4 @@
 
 The multiplayer pixel formation game. Winner of the 2010 Node.js Knockout.
 
-Arrow keys to move, space bar for action. Move into formations with other pixels for points.
+Arrow keys to move, "s" to lock into place, spacebar to flash with color. Move into formations with other pixels for points.
