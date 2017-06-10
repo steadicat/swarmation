@@ -6,9 +6,9 @@ var IDLE_AFTER_TURNS = 2
 var PLAYERS = {}
 
 var Player = function Player(client) {
-    this.id = client.id
-    this.client = client
-    this.idleTurns = 0
+  this.id = client.id
+  this.client = client
+  this.idleTurns = 0
 }
 
 Player.get = function(client) {
