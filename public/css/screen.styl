@@ -173,6 +173,7 @@ a
   &.locked-in
     box-shadow inset -1px -1px 0px #000, inset 1px 1px 0 rgba(255,255,255,0.25)
     background #444
+    animation bounceIn .75s cubic-bezier(0.215, 0.610, 0.355, 1.000)
 .ref
   @extend .abs
   @extend .player.active
@@ -230,3 +231,20 @@ a
 
 .off
   display none
+
+
+
+@keyframes bounceIn 
+  0%
+    transform scale3d(.3, .3, .3)
+  20% 
+    transform scale3d(1.2, 1.2, 1.2)
+  40% 
+    transform scale3d(.85, .85, .85)
+  60% 
+    transform scale3d(1.08, 1.08, 1.08)
+  80% 
+    transform scale3d(.95, .95, .95)
+  100% 
+    transform scale3d(1, 1, 1)
+
