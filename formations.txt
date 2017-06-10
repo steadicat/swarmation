@@ -20,6 +20,14 @@ x
 
 
 x
+== stairs (15) ==
+      xxxx
+   xxxx
+xxxx
+== W (15) ==
+x     x
+ x x x
+  x x
 == ball (18) ==
   xxxx
  x    x
@@ -52,7 +60,7 @@ xxxxx
   x
  x
 x
-== lobster (16) ==
+== lobster (18) ==
 x x
 x x
  x
@@ -71,7 +79,7 @@ xxxxx
 == table (16) ==
 xxxxx
  x x
-== patchwork (20) ==
+== patchwork (25) ==
  x x
 x x x
  x x
@@ -90,7 +98,7 @@ x   x
  x
   x
 xxx
-== giraffe (15) ==
+== giraffe (24) ==
 xx
  x
  x
@@ -100,7 +108,7 @@ xx
  xxxxx
  x   x
  x   x
-== wave (20) ==
+== wave (30) ==
  xx
 x  x  x
     xx
