@@ -12,6 +12,6 @@ Restart=on-failure
 RestartSec=4
 
 WorkingDirectory=/opt/swarmation
-ExecStart=/usr/bin/node --harmony server.js
+ExecStart=/usr/bin/node --harmony server/server/main.js
 ExecStop=/bin/kill $MAINPID
 ExecReload=/bin/kill -HUP $MAINPID

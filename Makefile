@@ -1,8 +1,8 @@
-NODE=node --harmony
+NODE=ts-node --compilerOptions '{"module": "commonjs"}'
 NODE_BIN=./node_modules/.bin
 
 PORT=243
-DEPLOY_FILES=etc public server.js config.js map.js players.js formations.txt formations.js fb.js js Makefile Secrets package.json
+DEPLOY_FILES=etc public server Makefile package.json
 DEPLOY_TARGET=/opt/swarmation
 DEPLOY_SERVER=root@104.236.28.138
 REMOTE_EXEC=ssh $(DEPLOY_SERVER) -p $(PORT)
@@ -19,10 +19,11 @@ SSH_KEY=122656
 clean:
 	rm public/main.js &
 	rm public/css/screen.css &
-	rm -rf public/formation
+	rm -rf public/formation &
+	rm -rf server
 
 node_modules/update: package.json
-	npm install
+	yarn
 	touch node_modules/update
 dependencies: node_modules/update
 
@@ -31,13 +32,13 @@ dependencies-done: package.json
 	touch dependencies-done
 remote-dependencies: dependencies-done
 
-public/formation/update: formations.txt images.js
+public/formation/update: formations.txt src/images.ts
 	mkdir -p public/formation
-	$(NODE) images.js
+	$(NODE) src/images.ts
 	touch public/formation/update
 formations: public/formation/update
 
-upload:
+upload: build
 	$(REMOTE_EXEC) mkdir -p $(DEPLOY_TARGET)
 	$(REMOTE_COPY) $(DEPLOY_FILES) $(DEPLOY_SERVER):$(DEPLOY_TARGET)
 
@@ -46,10 +47,17 @@ upload:
 # Development
 
 devserver: dependencies
-	$(NODE) server.js
+	$(NODE) src/server/main.ts
 
 devjs: dependencies
-	$(NODE_BIN)/webpack --watch --debug --output-pathinfo --devtool inline-source-map js/main.js public/main.js
+	$(NODE_BIN)/webpack \
+		--watch \
+		--debug \
+		--output-pathinfo \
+		--devtool inline-source-map \
+		--module-bind ts=awesome-typescript-loader \
+		src/client/main.ts public/main.js \
+		--resolve-extensions '.ts,.js'
 
 devcss: dependencies
 	$(NODE_BIN)/stylus --sourcemap-inline -w -u nib public/css/screen.styl -o public/css/screen.css
@@ -104,15 +112,22 @@ configure: upload
 # Deployment
 
 buildjs: dependencies
-	NODE_ENV=production $(NODE_BIN)/webpack -p js/main.js public/main.js
+	-NODE_ENV=production $(NODE_BIN)/webpack -p \
+		--module-bind ts=awesome-typescript-loader \
+		src/client/main.ts public/main.js \
+		--resolve-extensions '.ts,.js'
 
 buildcss: dependencies
 	$(NODE_BIN)/stylus -U -c -u nib public/css/screen.styl -o public/css/screen.css
 
-build: buildjs buildcss formations
+buildserver:
+	-$(NODE_BIN)/tsc --module commonjs
+	cp formations.txt server
+
+build: buildserver buildjs buildcss formations
 
 deploy: configure build
 	$(REMOTE_EXEC) systemctl daemon-reload
 	$(REMOTE_EXEC) systemctl restart swarmation
 
-.PHONY: buildjs buildcss build deploy
+.PHONY: buildjs buildcss buildserver build deploy

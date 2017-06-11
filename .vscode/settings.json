@@ -7,6 +7,9 @@
     "prettier.printWidth": 120,
     "files.exclude": {
         "public/main.js": true,
-        "public/css/screen.css": true
-    }
+        "public/css/screen.css": true,
+        "server": true
+    },
+    "editor.formatOnSave": true,
+    "tslint.alwaysShowRuleFailuresAsWarnings": true
 }

@@ -21,6 +21,12 @@ Install the dependencies for `canvas`:
 $ brew install pkg-config cairo libpng jpeg giflib
 ```
 
+Install yarn:
+
+```shell
+$ brew install yarn
+```
+
 Run it:
 
 ```shell

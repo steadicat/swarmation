@@ -24,7 +24,7 @@ x
       xxxx
    xxxx
 xxxx
-== W (15) ==
+== w (15) ==
 x     x
  x x x
   x x

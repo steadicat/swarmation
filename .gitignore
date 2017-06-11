@@ -1,8 +1,9 @@
 node_modules
-config.js
+src/config.ts
 public/css/screen.css
 public/main.js
 public/formation
 Secrets
 etc/*.key
 etc/*.crt
+server

@@ -1,8 +1,8 @@
-var WIDTH = 96;
-var HEIGHT = 60;
-var DEAD_WIDTH = 12;
-var DEAD_HEIGHT = 60;
-var NAMES = [
+const WIDTH = 96;
+const HEIGHT = 60;
+const DEAD_WIDTH = 12;
+const DEAD_HEIGHT = 60;
+const NAMES = [
   'Saber',
   'Tooth',
   'Moose',
@@ -18,25 +18,25 @@ var NAMES = [
   'Ziya',
   'Key',
 ];
-var MOVEMENT_RATE = 140;
-var MIN_ACTIVE = 6;
+const MOVEMENT_RATE = 140;
+const MIN_ACTIVE = 6;
 
-var PLAYER;
-var PLAYERS = {};
-var MAP = [];
+let PLAYER;
+let PLAYERS: {[id: string]: Player} = {};
+let MAP = [];
 
-var Dom = require('./dom');
-var Util = require('./util');
-var Html = require('./html');
+import * as Util from '../util';
+import * as Dom from './dom';
+import * as Html from './html';
 
 function displayMessage(text) {
   PLAYER.hideWelcome();
-  var message = Html.div('.message', text);
+  const message = Html.div('.message', text);
   Dom.get('board-container').appendChild(message);
 }
 
 function animate(duration, start, end) {
-  setTimeout(function() {
+  setTimeout(() => {
     start();
     if (end) setTimeout(end, duration);
   }, 0);
@@ -45,94 +45,104 @@ function animate(duration, start, end) {
 function scoreChange(delta) {
   Dom.get('score').textContent = PLAYER.score;
   Dom.get('success').textContent = PLAYER.successRate();
-  var popup = Html.div('.score.abs.center', (delta > 0 ? '+' : '') + delta);
+  const popup = Html.div('.score.abs.center', (delta > 0 ? '+' : '') + delta);
   Dom.addClass(popup, delta > 0 ? 'positive' : 'negative');
   popup.style.left = PLAYER.getScreenLeft() - 200 + 'px';
   popup.style.top = PLAYER.getScreenTop() - 50 + 'px';
   document.body.appendChild(popup);
-  animate(600, Dom.addClass.bind(null, popup, 'scale'), Dom.remove.bind(null, popup), 600);
+  animate(600, Dom.addClass.bind(null, popup, 'scale'), Dom.remove.bind(null, popup));
 }
 
-var Player = function Player(id, left, top, isSelf) {
-  this.id = id;
-  this.el = Html.div('.player');
-  Dom.get('board').appendChild(this.el);
-  if (!left) {
-    left = Math.floor(Math.random() * WIDTH);
-    top = Math.floor(Math.random() * HEIGHT);
-    while (!this.setPosition(left, top)) {
+class Player {
+  id: string;
+  el: HTMLDivElement;
+  isSelf: boolean;
+  score = 0;
+  succeeded = 0;
+  total = 0;
+  completed = 0;
+  lockedIn = false;
+  moveIntervals = {};
+  name: string;
+  left: number;
+  top: number;
+
+  welcomeCountdown?: number;
+  welcome?: HTMLDivElement;
+  tooltip?: HTMLDivElement;
+
+  constructor(id: string, left: number, top: number, isSelf = false) {
+    this.id = id;
+    this.el = Html.div('.player');
+    Dom.get('board').appendChild(this.el);
+    if (!left) {
       left = Math.floor(Math.random() * WIDTH);
       top = Math.floor(Math.random() * HEIGHT);
+      while (!this.setPosition(left, top)) {
+        left = Math.floor(Math.random() * WIDTH);
+        top = Math.floor(Math.random() * HEIGHT);
+      }
+    } else {
+      this.setPosition(left, top);
     }
-  } else {
-    this.setPosition(left, top);
+
+    this.isSelf = isSelf;
+    this.name = NAMES[Math.floor(Math.random() * NAMES.length)];
+
+    if (isSelf) {
+      Dom.addClass(this.el, 'self');
+      this.sendInfo();
+    }
+    Dom.listen(this.el, 'mouseover', this.showTooltip.bind(this));
+    Dom.listen(this.el, 'mouseout', this.hideTooltip.bind(this));
   }
 
-  this.isSelf = isSelf;
-  this.name = NAMES[Math.floor(Math.random() * NAMES.length)];
-  this.score = 0;
-  this.succeeded = 0;
-  this.total = 0;
-  this.completed = 0;
-  this.lockedIn = false;
-
-  this.moveIntervals = {};
-
-  if (isSelf) {
-    Dom.addClass(this.el, 'self');
-    this.sendInfo();
+  static atPixel(x, y) {
+    return Player.atPosition(Player.getLeft(x), Player.getTop(y));
   }
-  Dom.listen(this.el, 'mouseover', this.showTooltip.bind(this));
-  Dom.listen(this.el, 'mouseout', this.hideTooltip.bind(this));
-};
 
-Player.atPixel = function(x, y) {
-  return Player.atPosition(Player.getLeft(x), Player.getTop(y));
-};
+  static atPosition(left, top) {
+    if (!MAP[left]) MAP[left] = [];
+    return MAP[left][top];
+  }
 
-Player.atPosition = function(left, top) {
-  if (!MAP[left]) MAP[left] = [];
-  return MAP[left][top];
-};
+  static getLeft(x) {
+    return Math.floor(x / 10);
+  }
+  static getTop(y) {
+    return Math.floor(y / 10);
+  }
 
-Player.getLeft = function(x) {
-  return Math.floor(x / 10);
-};
-Player.getTop = function(y) {
-  return Math.floor(y / 10);
-};
+  static directions = {
+    left(left, top) {
+      return [left - 1, top];
+    },
+    right(left, top) {
+      return [left + 1, top];
+    },
+    up(left, top) {
+      return [left, top - 1];
+    },
+    down(left, top) {
+      return [left, top + 1];
+    },
+  };
 
-Player.directions = {
-  left: function(left, top) {
-    return [left - 1, top];
-  },
-  right: function(left, top) {
-    return [left + 1, top];
-  },
-  up: function(left, top) {
-    return [left, top - 1];
-  },
-  down: function(left, top) {
-    return [left, top + 1];
-  },
-};
-
-Player.prototype = {
-  getX: function() {
+  getX() {
     return this.left * 10 + 1;
-  },
-  getY: function() {
+  }
+  getY() {
     return this.top * 10 + 1;
-  },
+  }
 
-  getScreenLeft: function() {
+  getScreenLeft() {
     return this.getX() + Dom.left(this.el.offsetParent);
-  },
-  getScreenTop: function() {
+  }
+  getScreenTop() {
     return this.getY() + Dom.top(this.el.offsetParent);
-  },
+  }
 
-  setPosition: function(left, top) {
+  setPosition(left, top) {
     // cancel in case of collisions
     if (Player.atPosition(left, top)) return false;
     // cancel if out of bounds
@@ -143,7 +153,7 @@ Player.prototype = {
 
     if (!MAP[this.left]) MAP[this.left] = [];
     MAP[this.left][this.top] = null;
-    var first = this.left === undefined;
+    const first = this.left === undefined;
     this.left = left;
     this.top = top;
     if (!MAP[left]) MAP[left] = [];
@@ -155,62 +165,62 @@ Player.prototype = {
     if (this.welcome) this.positionWelcome();
 
     return true;
-  },
+  }
 
-  move: function(direction) {
+  move(direction) {
     if (this.lockedIn) return;
-    var newp = Player.directions[direction](this.left, this.top);
-    var changed = this.setPosition(newp[0], newp[1]);
+    const newp = Player.directions[direction](this.left, this.top);
+    const changed = this.setPosition(newp[0], newp[1]);
     if (changed && this.isSelf) {
       this.sendInfo();
       Dom.removeClass(this.el, 'idle');
     }
-  },
+  }
 
-  startMove: function(direction) {
-    var p = this;
+  startMove(direction) {
+    const p = this;
     if (p.moveIntervals[direction]) return;
     p.move(direction);
-    this.moveIntervals[direction] = setInterval(function() {
+    this.moveIntervals[direction] = setInterval(() => {
       p.move(direction);
     }, MOVEMENT_RATE);
-  },
+  }
 
-  stopMove: function(direction) {
+  stopMove(direction) {
     clearInterval(this.moveIntervals[direction]);
     this.moveIntervals[direction] = null;
-  },
+  }
 
-  startFlash: function() {
+  startFlash() {
     Dom.addClass(this.el, 'flash');
     if (this.isSelf) socket.emit('flash', {});
-  },
+  }
 
-  stopFlash: function() {
+  stopFlash() {
     Dom.removeClass(this.el, 'flash');
     if (this.isSelf) socket.emit('flash', {stop: true});
-  },
+  }
 
-  startLockIn: function() {
+  startLockIn() {
     if (this.lockedIn) return;
     Dom.addClass(this.el, 'locked-in');
     this.lockedIn = true;
     if (this.isSelf) socket.emit('lockIn', {});
-  },
+  }
 
-  stopLockIn: function() {
+  stopLockIn() {
     if (!this.lockedIn) return;
     Dom.removeClass(this.el, 'locked-in');
     this.lockedIn = false;
     if (this.isSelf) socket.emit('lockIn', {stop: true});
-  },
+  }
 
-  formationDeadline: function(success, gain, loss) {
+  formationDeadline(success, gain, loss) {
     this.total++;
     if (success) {
       Dom.addClass(this.el, 'active');
-      var el = this.el;
-      setTimeout(function() {
+      const el = this.el;
+      setTimeout(() => {
         Dom.removeClass(el, 'active');
       }, 1000);
       this.score += gain;
@@ -221,14 +231,14 @@ Player.prototype = {
       this.score = Math.max(0, this.score - loss);
       if (this.isSelf) scoreChange(-loss);
     }
-  },
+  }
 
-  successRate: function() {
-    if (this.total == 0) return 100;
+  successRate() {
+    if (this.total === 0) return 100;
     return Math.round(1000.0 * this.succeeded / this.total) / 10;
-  },
+  }
 
-  sendInfo: function(full) {
+  sendInfo(full = false) {
     if (full) {
       socket.emit('info', {
         left: this.left,
@@ -243,18 +253,18 @@ Player.prototype = {
         socket.emit('info', {left: this.left, top: this.top});
       });
     }
-  },
+  }
 
-  getInfo: function(info) {
+  getInfo(info) {
     if (info.left) this.setPosition(info.left, info.top);
     if (info.name) this.name = info.name;
     if (info.score) this.score = info.score;
     if (info.total) this.total = info.total;
     if (info.succeeded) this.succeeded = info.succeeded;
-  },
+  }
 
-  showTooltip: function() {
-    var tooltip = Html.div('.tooltip.pas', [
+  showTooltip() {
+    const tooltip = Html.div('.tooltip.pas', [
       Html.h3('.b.medium.mbs', this.name),
       Html.div('.col.mrs.light', [Html.div('.large.b', this.score), 'points']),
       Html.div('.col.dim', [Html.div('.large.b', this.successRate() + '%'), 'success']),
@@ -263,17 +273,17 @@ Player.prototype = {
     tooltip.style.left = this.getScreenLeft() - tooltip.offsetWidth / 2 + 5 + 'px';
     tooltip.style.top = this.getScreenTop() - tooltip.offsetHeight - 15 + 'px';
     this.tooltip = tooltip;
-  },
+  }
 
-  hideTooltip: function() {
+  hideTooltip() {
     if (this.tooltip) {
       Dom.remove(this.tooltip);
       delete this.tooltip;
     }
-  },
+  }
 
-  showWelcome: function() {
-    var welcome = Html.div('.welcome.pam', {}, {width: '240px'}, [
+  showWelcome() {
+    const welcome = Html.div('.welcome.pam', {}, {width: '240px'}, [
       Html.h3('.b.medium', 'Welcome to life as a pixel'),
       Html.p('.mtm', ['Use your ', Html.span('.arrow-image', 'arrow'), ' keys to move']),
     ]);
@@ -281,47 +291,51 @@ Player.prototype = {
     this.welcome = welcome;
     document.body.appendChild(welcome);
     this.positionWelcome(true);
-  },
+  }
 
-  hideWelcome: function() {
+  hideWelcome() {
     if (!this.welcome) return;
-    this.welcome.style.opacity = 0;
-    var self = this;
-    setTimeout(function() {
+    this.welcome.style.opacity = '0';
+    const self = this;
+    setTimeout(() => {
       if (!self.welcome) return;
       Dom.remove(self.welcome);
       delete self.welcomeCountdown;
       delete self.welcome;
     }, 1000);
-  },
+  }
 
-  positionWelcome: function(first) {
+  positionWelcome(first = false) {
     if (!first) {
       Dom.empty(this.welcome);
       this.welcome.appendChild(Html.p('Get into a formation with other players before the countdown expires.'));
       this.welcomeCountdown--;
-      if (this.welcomeCountdown == 0) {
+      if (this.welcomeCountdown === 0) {
         this.hideWelcome();
       }
       setTimeout(this.hideWelcome.bind(this), 10000);
     } else {
       this.welcomeCountdown = 20;
-      var welcome = this.welcome;
-      welcome.style.opacity = 0;
-      setTimeout(function() {
+      const welcome = this.welcome;
+      welcome.style.opacity = '0';
+      setTimeout(() => {
         Dom.addClass(welcome, 'fade');
-        welcome.style.opacity = 1;
+        welcome.style.opacity = '1';
       }, 100);
     }
     this.welcome.style.left = this.getScreenLeft() - this.welcome.offsetWidth / 2 + 5 + 'px';
     this.welcome.style.top = this.getScreenTop() - this.welcome.offsetHeight - 15 + 'px';
-  },
-};
+  }
+}
 
 // sockets
 
-var io = require('socket.io-client');
-var socket = io.connect('');
+import * as io from 'socket.io-client';
+let socket = io.connect('');
+
+export function start() {
+  // no-op, called to trigger evaluation of the module
+}
 
 function loadPlayer(data) {
   if (!PLAYERS[data.id]) {
@@ -331,8 +345,8 @@ function loadPlayer(data) {
   PLAYERS[data.id].getInfo(data);
 }
 
-socket.on('welcome', function(data) {
-  for (id in data.players) loadPlayer(data.players[id]);
+socket.on('welcome', data => {
+  for (const id in data.players) loadPlayer(data.players[id]);
   if (PLAYER) {
     PLAYER.id = data.id;
   } else {
@@ -341,8 +355,8 @@ socket.on('welcome', function(data) {
   }
 });
 
-socket.on('info', function(data) {
-  if (PLAYER && data.id == PLAYER.id) {
+socket.on('info', data => {
+  if (PLAYER && data.id === PLAYER.id) {
     PLAYER.getInfo(data);
     if (data.score) Dom.get('score').textContent = data.score;
   } else {
@@ -350,7 +364,7 @@ socket.on('info', function(data) {
   }
 });
 
-socket.on('flash', function(data) {
+socket.on('flash', data => {
   if (PLAYERS[data.id]) {
     if (data.stop) {
       PLAYERS[data.id].stopFlash();
@@ -360,7 +374,7 @@ socket.on('flash', function(data) {
   }
 });
 
-socket.on('lockIn', function(data) {
+socket.on('lockIn', data => {
   if (PLAYERS[data.id]) {
     if (data.stop) {
       PLAYERS[data.id].stopLockIn();
@@ -370,15 +384,15 @@ socket.on('lockIn', function(data) {
   }
 });
 
-socket.on('idle', function(data) {
+socket.on('idle', data => {
   if (PLAYERS[data.id]) Dom.addClass(PLAYERS[data.id].el, 'idle');
-  if (PLAYER && data.id == PLAYER.id) Dom.addClass(PLAYER.el, 'idle');
+  if (PLAYER && data.id === PLAYER.id) Dom.addClass(PLAYER.el, 'idle');
 });
 
-socket.on('connected', function(data) {});
+socket.on('connected', data => {});
 
-socket.on('disconnected', function(data) {
-  var p = PLAYERS[data.id];
+socket.on('disconnected', data => {
+  const p = PLAYERS[data.id];
   if (!p) return;
   delete MAP[p.left][p.top];
   Dom.remove(PLAYERS[data.id].el);
@@ -389,26 +403,27 @@ function contains(el, list) {
   return list.indexOf(el) >= 0;
 }
 
-socket.on('formation', function(data) {
+socket.on('formation', data => {
   if (!PLAYER || !PLAYER.id) return;
   PLAYER.formationDeadline(contains(PLAYER.id, data.ids), data.gain, data.loss);
-  Util.each(PLAYERS, function(id, player) {
+  Object.entries(PLAYERS).forEach(([id, player]) => {
     player.formationDeadline(contains(id, data.ids), data.gain, data.loss);
     player.stopLockIn();
   });
   PLAYER.stopLockIn();
 });
+``;
 
 function showFormation(map) {
-  var f = Dom.get('formation-image');
+  const f = Dom.get('formation-image');
   Dom.empty(f);
-  var width = 0;
-  var height = 0;
-  map.forEach(function(row, y) {
+  let width = 0;
+  let height = 0;
+  map.forEach((row, y) => {
     if (row)
-      row.forEach(function(cell, x) {
+      row.forEach((cell, x) => {
         if (!cell) return;
-        var p = Html.div('.ref');
+        const p = Html.div('.ref');
         f.appendChild(p);
         p.style.top = y * (p.offsetHeight + 1) + 'px';
         p.style.left = x * (p.offsetWidth + 1) + 'px';
@@ -420,10 +435,10 @@ function showFormation(map) {
   f.style.top = 50 - height / 2 + 'px';
 }
 
-var time;
-var formationInterval;
+let time;
+let formationInterval;
 
-socket.on('nextFormation', function(data) {
+socket.on('nextFormation', data => {
   Dom.get('formation-name').textContent = data.formation;
   showFormation(data.map);
 
@@ -431,10 +446,10 @@ socket.on('nextFormation', function(data) {
   Dom.get('countdown').textContent = time;
 
   if (formationInterval) clearInterval(formationInterval);
-  formationInterval = setInterval(function() {
+  formationInterval = setInterval(() => {
     time--;
     Dom.get('countdown').textContent = time;
-    if (time == 0) clearInterval(formationInterval);
+    if (time === 0) clearInterval(formationInterval);
   }, 1000);
 
   if (PLAYER.loggedin && data.active < MIN_ACTIVE) {
@@ -442,12 +457,12 @@ socket.on('nextFormation', function(data) {
   }
 });
 
-var requestPopupShown = false;
-var requestPopup;
+let requestPopupShown = false;
+let requestPopup;
 
 function showRequestPopup() {
   if (requestPopupShown) return;
-  var button = Dom.get('send');
+  const button = Dom.get('send');
   Dom.remove(button);
   Dom.removeClass(button, 'off');
   requestPopup = Html.div('.megaphone.pvs', [
@@ -458,9 +473,9 @@ function showRequestPopup() {
   requestPopupShown = true;
 }
 
-var nextWeeklyGame = new Date(Date.UTC(2017, 5, 15, 11));
-var weeklyGameNoticeShown = false;
-var weeklyGameNotice;
+const nextWeeklyGame = new Date(Date.UTC(2017, 5, 15, 11));
+let weeklyGameNoticeShown = false;
+let weeklyGameNotice;
 
 const monthNames = [
   'January',
@@ -491,24 +506,16 @@ function ampm(hours) {
 
 function showWeeklyGameNotice() {
   if (weeklyGameNoticeShown) return;
-  var button = Dom.get('send');
+  const button = Dom.get('send');
   Dom.remove(button);
   Dom.removeClass(button, 'off');
-  var t = new Date();
-  var d = nextWeeklyGame;
-  var isToday = t.getFullYear() === d.getFullYear() && t.getMonth() === d.getMonth() && t.getDate() === d.getDate();
+  const t = new Date();
+  const d = nextWeeklyGame;
+  const isToday = t.getFullYear() === d.getFullYear() && t.getMonth() === d.getMonth() && t.getDate() === d.getDate();
   weeklyGameNotice = Html.div('.megaphone.pvs', [
     isToday
-      ? 'Join us this TODAY – ' + monthNames[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' – at '
-      : 'Join us this ' +
-          dayNames[d.getDay()] +
-          ' – ' +
-          monthNames[d.getMonth()] +
-          ' ' +
-          d.getDate() +
-          ', ' +
-          d.getFullYear() +
-          ' – at ',
+      ? `Join us this TODAY – ${monthNames[d.getMonth()]} ${d.getDate()} ${d.getFullYear()} – at `
+      : `Join us this ${dayNames[d.getDay()]} – ${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} – at `,
     Html.a('', {href: 'http://erthbeet.com/?Universal_World_Time=kv2300'}, twelveHours(d.getHours()) + ampm(d)),
     ' for a big game of Swarmation!',
   ]);
@@ -520,30 +527,30 @@ if (new Date() < nextWeeklyGame) {
   showWeeklyGameNotice();
 }
 
-var RESTARTING = false;
+let RESTARTING = false;
 
-socket.on('restart', function(data) {
+socket.on('restart', data => {
   RESTARTING = true;
   socket.disconnect();
   displayMessage('Swarmation needs to restart for an update. Please reload the page.');
 });
 
-socket.on('kick', function(data) {
+socket.on('kick', data => {
   RESTARTING = true;
   socket.disconnect();
   displayMessage('You have been disconnected for being idle too long. Reload the page to resume playing.');
 });
 
-socket.on('connect', function() {
+socket.on('connect', () => {
   if (PLAYER) PLAYER.sendInfo(true);
-  for (var id in PLAYERS) Dom.remove(PLAYERS[id].el);
+  for (const id in PLAYERS) Dom.remove(PLAYERS[id].el);
   PLAYERS = {};
   MAP = [];
 });
 
-socket.on('disconnect', function() {
+socket.on('disconnect', () => {
   if (RESTARTING) return;
-  var interval;
+  let interval;
   function connect() {
     if (socket.connected) {
       clearInterval(interval);
@@ -555,7 +562,7 @@ socket.on('disconnect', function() {
   interval = setInterval(connect, 1000);
 });
 
-var MOVEMENTS = {
+const MOVEMENTS = {
   38: 'up',
   40: 'down',
   37: 'left',
@@ -567,49 +574,45 @@ function stop(event) {
   event.stopPropagation();
 }
 
-Dom.listen(document, 'keydown', function(event) {
+Dom.listen(document, 'keydown', event => {
   if (!PLAYER) return;
 
   if (MOVEMENTS[event.keyCode]) {
     PLAYER.startMove(MOVEMENTS[event.keyCode]);
     stop(event);
-  } else if (event.keyCode == 32) {
+  } else if (event.keyCode === 32) {
     // space
     PLAYER.startFlash();
     stop(event);
-  } else if (event.keyCode == 83) {
+  } else if (event.keyCode === 83) {
     // "s"
     PLAYER.startLockIn();
     stop(event);
   }
 });
 
-Dom.listen(document, 'keyup', function(event) {
+Dom.listen(document, 'keyup', event => {
   if (!PLAYER) return;
 
   if (MOVEMENTS[event.keyCode]) {
     PLAYER.stopMove(MOVEMENTS[event.keyCode]);
     stop(event);
-  } else if (event.keyCode == 32) {
+  } else if (event.keyCode === 32) {
     // space
     PLAYER.stopFlash();
     stop(event);
   }
 });
 
-var Players = {};
-
-Players.login = function(userId, token, name) {
+export function login(userId, token, name) {
   if (!PLAYER) return;
-  var login = Dom.get('login');
-  var username = Html.div('.top-border.pvm.phm.light', 'Welcome, ' + name);
-  var parent = login.parentNode;
+  const login = Dom.get('login');
+  const username = Html.div('.top-border.pvm.phm.light', 'Welcome, ' + name);
+  const parent = login.parentNode;
   Dom.remove(login);
   parent.appendChild(username);
-  socket.emit('login', {token: token, userId: userId, name: name});
+  socket.emit('login', {token, userId, name});
   PLAYER.name = name;
   PLAYER.loggedin = true;
   PLAYER.sendInfo(true);
-};
-
-module.exports = Players;
+}

@@ -1,22 +1,22 @@
-var Dom = {};
-
-Dom.get = function(id) {
+export function get(id) {
   return document.getElementById(id);
-};
-Dom.create = function(tag) {
-  return document.createElement(tag);
-};
-Dom.listen = function(el, event, cb) {
-  el.addEventListener(event, cb);
-};
+}
 
-Dom.addClass = function(el, cl) {
+export function create(tag) {
+  return document.createElement(tag);
+}
+
+export function listen(el, event, cb) {
+  el.addEventListener(event, cb);
+}
+
+export function addClass(el, cl) {
   var cls = el.getAttribute('class');
   var classes = cls ? cls.split(' ') : [];
   el.setAttribute('class', classes.concat([cl]).join(' '));
-};
+}
 
-Dom.removeClass = function(el, cl) {
+export function removeClass(el, cl) {
   var cls = el.getAttribute('class');
   var classes = cls ? cls.split(' ') : [];
   var newClasses = [];
@@ -24,30 +24,28 @@ Dom.removeClass = function(el, cl) {
     if (classes[i] != cl) newClasses.push(classes[i]);
   }
   el.setAttribute('class', newClasses.join(' '));
-};
+}
 
-Dom.remove = function(el) {
+export function remove(el) {
   el.parentNode.removeChild(el);
-};
+}
 
-Dom.isEl = function(el) {
+export function isEl(el) {
   return el instanceof HTMLElement;
-};
+}
 
-Dom.empty = function(el) {
+export function empty(el) {
   el.innerHTML = '';
-};
+}
 
-Dom.left = function(el) {
+export function left(el) {
   var sum = el.offsetLeft;
   while ((el = el.offsetParent)) sum += el.offsetLeft + el.clientLeft;
   return sum;
-};
+}
 
-Dom.top = function(el) {
+export function top(el) {
   var sum = el.offsetTop;
   while ((el = el.offsetParent)) sum += el.offsetTop + el.clientTop;
   return sum;
-};
-
-module.exports = Dom;
+}
