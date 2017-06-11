@@ -13,8 +13,7 @@ Util.rateLimit = function(target, rate, f) {
 };
 
 Util.each = function(list, f) {
-  for (var key in list)
-    f(key, list[key]);
+  for (var key in list) f(key, list[key]);
 };
 
 Util.isArray = Array.isArray;

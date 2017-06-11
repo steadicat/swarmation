@@ -2,7 +2,6 @@
 
 var express = require('express');
 var errorhandler = require('errorhandler');
-var util = require('util');
 var http = require('http');
 var map = require('./map');
 var util = require('./js/util');
@@ -97,9 +96,9 @@ function onConnect(client) {
   });
 
   client.on('lockIn', function(message) {
-    message.id = client.id
-    client.broadcast.emit('lockIn', message)
-  })
+    message.id = client.id;
+    client.broadcast.emit('lockIn', message);
+  });
 
   client.on('login', function(message) {
     var player = Player.get(client);
@@ -130,8 +129,7 @@ var FORMATION;
 var MIN_SIZE = 3;
 var MAX_SIZE = 20;
 
-for (var i = 0; i <= MAX_SIZE; i++)
-  FORMATIONS[i] = [];
+for (var i = 0; i <= MAX_SIZE; i++) FORMATIONS[i] = [];
 
 util.each(formations, function(id, formation) {
   for (var i = formation.size; i <= MAX_SIZE; i++) {
@@ -161,8 +159,7 @@ function pickFormation() {
 function startTurn() {
   console.log('There are ' + Player.getActive() + ' active players.');
   FORMATION = pickFormation();
-  while (!FORMATION)
-    FORMATION = pickFormation();
+  while (!FORMATION) FORMATION = pickFormation();
   TIME = FORMATION.difficulty;
   console.log('Next formation is ' + FORMATION.name + ', of size ' + FORMATION.size + '.');
   io.sockets.emit('nextFormation', {

@@ -2,7 +2,22 @@ var WIDTH = 96;
 var HEIGHT = 60;
 var DEAD_WIDTH = 12;
 var DEAD_HEIGHT = 60;
-var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry', 'Pipa', 'Walnut', 'Puddle', 'Ziya', 'Key'];
+var NAMES = [
+  'Saber',
+  'Tooth',
+  'Moose',
+  'Lion',
+  'Peanut',
+  'Jelly',
+  'Thyme',
+  'Zombie',
+  'Cranberry',
+  'Pipa',
+  'Walnut',
+  'Puddle',
+  'Ziya',
+  'Key',
+];
 var MOVEMENT_RATE = 140;
 var MIN_ACTIVE = 6;
 
@@ -177,17 +192,17 @@ Player.prototype = {
   },
 
   startLockIn: function() {
-    if (this.lockedIn) return
-    Dom.addClass(this.el, 'locked-in')
-    this.lockedIn = true
-    if (this.isSelf) socket.emit('lockIn', {})
+    if (this.lockedIn) return;
+    Dom.addClass(this.el, 'locked-in');
+    this.lockedIn = true;
+    if (this.isSelf) socket.emit('lockIn', {});
   },
 
   stopLockIn: function() {
-    if (!this.lockedIn) return
-    Dom.removeClass(this.el, 'locked-in')
-    this.lockedIn = false
-    if (this.isSelf) socket.emit('lockIn', { stop: true })
+    if (!this.lockedIn) return;
+    Dom.removeClass(this.el, 'locked-in');
+    this.lockedIn = false;
+    if (this.isSelf) socket.emit('lockIn', {stop: true});
   },
 
   formationDeadline: function(success, gain, loss) {
@@ -348,12 +363,12 @@ socket.on('flash', function(data) {
 socket.on('lockIn', function(data) {
   if (PLAYERS[data.id]) {
     if (data.stop) {
-      PLAYERS[data.id].stopLockIn()
+      PLAYERS[data.id].stopLockIn();
     } else {
-      PLAYERS[data.id].startLockIn()
+      PLAYERS[data.id].startLockIn();
     }
   }
-})
+});
 
 socket.on('idle', function(data) {
   if (PLAYERS[data.id]) Dom.addClass(PLAYERS[data.id].el, 'idle');
@@ -498,7 +513,8 @@ Dom.listen(document, 'keydown', function(event) {
     // space
     PLAYER.startFlash();
     stop(event);
-  } else if (event.keyCode == 83) { // "s"
+  } else if (event.keyCode == 83) {
+    // "s"
     PLAYER.startLockIn();
     stop(event);
   }

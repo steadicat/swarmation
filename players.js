@@ -37,8 +37,7 @@ Player.getActive = function() {
 };
 
 Player.endTurn = function(socket) {
-  for (var id in PLAYERS)
-    PLAYERS[id].endTurn();
+  for (var id in PLAYERS) PLAYERS[id].endTurn();
 };
 
 Player.prototype = {

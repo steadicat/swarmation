@@ -40,15 +40,13 @@ Dom.empty = function(el) {
 
 Dom.left = function(el) {
   var sum = el.offsetLeft;
-  while ((el = el.offsetParent))
-    sum += el.offsetLeft + el.clientLeft;
+  while ((el = el.offsetParent)) sum += el.offsetLeft + el.clientLeft;
   return sum;
 };
 
 Dom.top = function(el) {
   var sum = el.offsetTop;
-  while ((el = el.offsetParent))
-    sum += el.offsetTop + el.clientTop;
+  while ((el = el.offsetParent)) sum += el.offsetTop + el.clientTop;
   return sum;
 };
 
