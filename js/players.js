@@ -394,7 +394,9 @@ socket.on('formation', function(data) {
   PLAYER.formationDeadline(contains(PLAYER.id, data.ids), data.gain, data.loss);
   Util.each(PLAYERS, function(id, player) {
     player.formationDeadline(contains(id, data.ids), data.gain, data.loss);
+    player.stopLockIn();
   });
+  PLAYER.stopLockIn();
 });
 
 function showFormation(map) {
