@@ -71,7 +71,7 @@ export function getFormations(): {[id: string]: Formation} {
       continue;
     }
 
-    formation.size = formation.points.length + 1;
+    formation.size = formation.points.length;
     formations[name] = formation;
     delete formation.diagram;
   }
