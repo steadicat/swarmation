@@ -80,6 +80,7 @@ nginx-done: etc/nginx.conf etc/swarmation.com.crt
 	cp etc/nginx.conf /etc/nginx/sites-available/swarmation.conf
 	ln -sf /etc/nginx/sites-available/swarmation.conf /etc/nginx/sites-enabled/swarmation.conf
 	rm -f /etc/nginx/sites-enabled/default
+	systemctl start nginx
 	nginx -s reload
 	touch nginx-done
 remote-nginx: nginx-done
@@ -112,7 +113,6 @@ build: buildjs buildcss formations
 
 deploy: configure build
 	$(REMOTE_EXEC) systemctl daemon-reload
-	$(REMOTE_EXEC) systemctl start nginx
 	$(REMOTE_EXEC) systemctl restart swarmation
 
 .PHONY: buildjs buildcss build deploy
