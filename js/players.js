@@ -275,7 +275,7 @@ Player.prototype = {
   showWelcome: function() {
     var welcome = Html.div('.welcome.pam', {}, {width: '240px'}, [
       Html.h3('.b.medium', 'Welcome to life as a pixel'),
-      Html.p('.mtm', ['Use your ', Html.span('.arrow-image', 'arrows'), ' keys to move']),
+      Html.p('.mtm', ['Use your ', Html.span('.arrow-image', 'arrow'), ' keys to move']),
     ]);
 
     this.welcome = welcome;
