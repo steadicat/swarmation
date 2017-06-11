@@ -499,9 +499,17 @@ function showWeeklyGameNotice() {
   var isToday = t.getFullYear() === d.getFullYear() && t.getMonth() === d.getMonth() && t.getDate() === d.getDate();
   weeklyGameNotice = Html.div('.megaphone.pvs', [
     isToday
-      ? `Join us this TODAY – ${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} – at `
-      : `Join us this ${dayNames[d.getDay()]} – ${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} – at `,
-    Html.a('', {href: 'http://erthbeet.com/?Universal_World_Time=kv2300'}, `${twelveHours(d.getHours())}${ampm(d)}`),
+      ? 'Join us this TODAY – ' + monthNames[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' – at '
+      : 'Join us this ' +
+          dayNames[d.getDay()] +
+          ' – ' +
+          monthNames[d.getMonth()] +
+          ' ' +
+          d.getDate() +
+          ', ' +
+          d.getFullYear() +
+          ' – at ',
+    Html.a('', {href: 'http://erthbeet.com/?Universal_World_Time=kv2300'}, twelveHours(d.getHours()) + ampm(d)),
     ' for a big game of Swarmation!',
   ]);
   Dom.get('container').appendChild(weeklyGameNotice);
