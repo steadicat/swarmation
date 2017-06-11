@@ -11,17 +11,17 @@ export function listen(el, event, cb) {
 }
 
 export function addClass(el, cl) {
-  var cls = el.getAttribute('class');
-  var classes = cls ? cls.split(' ') : [];
+  const cls = el.getAttribute('class');
+  const classes = cls ? cls.split(' ') : [];
   el.setAttribute('class', classes.concat([cl]).join(' '));
 }
 
 export function removeClass(el, cl) {
-  var cls = el.getAttribute('class');
-  var classes = cls ? cls.split(' ') : [];
-  var newClasses = [];
-  for (var i = 0; i < classes.length; i++) {
-    if (classes[i] != cl) newClasses.push(classes[i]);
+  const cls = el.getAttribute('class');
+  const classes = cls ? cls.split(' ') : [];
+  const newClasses = [];
+  for (const c of classes) {
+    if (c !== cl) newClasses.push(c);
   }
   el.setAttribute('class', newClasses.join(' '));
 }
@@ -39,13 +39,15 @@ export function empty(el) {
 }
 
 export function left(el) {
-  var sum = el.offsetLeft;
+  let sum = el.offsetLeft;
+  // tslint:disable-next-line:no-conditional-assignment
   while ((el = el.offsetParent)) sum += el.offsetLeft + el.clientLeft;
   return sum;
 }
 
 export function top(el) {
-  var sum = el.offsetTop;
+  let sum = el.offsetTop;
+  // tslint:disable-next-line:no-conditional-assignment
   while ((el = el.offsetParent)) sum += el.offsetTop + el.clientTop;
   return sum;
 }

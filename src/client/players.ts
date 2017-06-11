@@ -1,3 +1,7 @@
+import * as Util from '../util';
+import * as Dom from './dom';
+import * as Html from './html';
+
 const WIDTH = 96;
 const HEIGHT = 60;
 const DEAD_WIDTH = 12;
@@ -24,10 +28,6 @@ const MIN_ACTIVE = 6;
 let PLAYER;
 let PLAYERS: {[id: string]: Player} = {};
 let MAP = [];
-
-import * as Util from '../util';
-import * as Dom from './dom';
-import * as Html from './html';
 
 function displayMessage(text) {
   PLAYER.hideWelcome();
@@ -406,13 +406,13 @@ function contains(el, list) {
 socket.on('formation', data => {
   if (!PLAYER || !PLAYER.id) return;
   PLAYER.formationDeadline(contains(PLAYER.id, data.ids), data.gain, data.loss);
-  Object.entries(PLAYERS).forEach(([id, player]) => {
+  for (const id in PLAYERS) {
+    const player = PLAYERS[id];
     player.formationDeadline(contains(id, data.ids), data.gain, data.loss);
     player.stopLockIn();
-  });
+  }
   PLAYER.stopLockIn();
 });
-``;
 
 function showFormation(map) {
   const f = Dom.get('formation-image');
@@ -458,14 +458,13 @@ socket.on('nextFormation', data => {
 });
 
 let requestPopupShown = false;
-let requestPopup;
 
 function showRequestPopup() {
   if (requestPopupShown) return;
   const button = Dom.get('send');
   Dom.remove(button);
   Dom.removeClass(button, 'off');
-  requestPopup = Html.div('.megaphone.pvs', [
+  const requestPopup = Html.div('.megaphone.pvs', [
     'Swarmation is extra fun with more people. Ask some friends to join: ',
     button,
   ]);
@@ -475,7 +474,6 @@ function showRequestPopup() {
 
 const nextWeeklyGame = new Date(Date.UTC(2017, 5, 15, 11));
 let weeklyGameNoticeShown = false;
-let weeklyGameNotice;
 
 const monthNames = [
   'January',
@@ -512,7 +510,7 @@ function showWeeklyGameNotice() {
   const t = new Date();
   const d = nextWeeklyGame;
   const isToday = t.getFullYear() === d.getFullYear() && t.getMonth() === d.getMonth() && t.getDate() === d.getDate();
-  weeklyGameNotice = Html.div('.megaphone.pvs', [
+  const weeklyGameNotice = Html.div('.megaphone.pvs', [
     isToday
       ? `Join us this TODAY – ${monthNames[d.getMonth()]} ${d.getDate()} ${d.getFullYear()} – at `
       : `Join us this ${dayNames[d.getDay()]} – ${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} – at `,

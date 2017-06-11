@@ -13,9 +13,9 @@ const PADDING = 15;
 function getImage(formation, cb) {
   const maxHeight = formation.map.length;
   let maxWidth = 0;
-  formation.map.forEach(row => {
+  for (const row of formation.map) {
     maxWidth = Math.max(maxWidth, row.length);
-  });
+  }
   const canvas = new Canvas(maxWidth * PIXEL_SIZE + 2 * PADDING, maxHeight * PIXEL_SIZE + 2 * PADDING);
   const ctx = canvas.getContext('2d');
   formation.map.forEach((row, y) => {
@@ -27,11 +27,11 @@ function getImage(formation, cb) {
 }
 
 const formations = Formations.getFormations();
-Object.keys(formations).forEach(name => {
+for (const name in formations) {
   getImage(formations[name], (err, buffer) => {
     if (err) throw err;
-    fs.writeFile('public/formation/' + name + '.png', buffer, err2 => {
+    fs.writeFile(`public/formation/${name}.png`, buffer, err2 => {
       if (err2) console.log(err2);
     });
   });
-});
+}
