@@ -2,7 +2,7 @@ NODE=ts-node --compilerOptions '{"module": "commonjs"}'
 NODE_BIN=./node_modules/.bin
 
 PORT=243
-DEPLOY_FILES=etc public server Makefile package.json
+DEPLOY_FILES=etc public server Makefile package.json formations.txt
 DEPLOY_TARGET=/opt/swarmation
 DEPLOY_SERVER=root@104.236.28.138
 REMOTE_EXEC=ssh $(DEPLOY_SERVER) -p $(PORT)
@@ -123,7 +123,6 @@ buildcss: dependencies
 
 buildserver:
 	-$(NODE_BIN)/tsc --module commonjs
-	cp formations.txt server
 
 build: buildserver buildjs buildcss formations
 
