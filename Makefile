@@ -32,9 +32,10 @@ dependencies-done: package.json
 	touch dependencies-done
 remote-dependencies: dependencies-done
 
-public/formation/update: formations.txt src/images.ts
+public/formation/update: formations.txt src/server/images.ts src/server/fbpublish.ts
 	mkdir -p public/formation
-	$(NODE) src/images.ts
+	$(NODE) src/server/images.ts
+	$(NODE) src/server/fbpublish.ts
 	touch public/formation/update
 formations: public/formation/update
 
