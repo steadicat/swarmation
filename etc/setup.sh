@@ -9,8 +9,8 @@ apt-get install -y unattended-upgrades
 dpkg-reconfigure -plow -f noninteractive unattended-upgrades
 
 which nginx || apt-get install -y nginx
-#which node || curl -sL https://deb.nodesource.com/setup_0.12 | bash -
-which node || apt-get install -y nodejs #&& npm install -g npm
+which node || apt-get install -y nodejs-legacy
+which npm || apt-get install -y npm
 which make || apt-get install -y make
 #which redis-server || apt-get install -y redis-server
 which fail2ban || apt-get install -y fail2ban

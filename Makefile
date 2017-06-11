@@ -4,14 +4,14 @@ NODE_BIN=./node_modules/.bin
 PORT=243
 DEPLOY_FILES=etc public server.js config.js map.js players.js formations.txt formations.js fb.js js Makefile Secrets package.json
 DEPLOY_TARGET=/opt/swarmation
-DEPLOY_SERVER=root@104.131.168.50
+DEPLOY_SERVER=root@104.236.28.138
 REMOTE_EXEC=ssh $(DEPLOY_SERVER) -p $(PORT)
 REMOTE_COPY=rsync -e "ssh -p $(PORT)" -a --delete
 
 NAME=swarmation-1
 REGION=nyc3
 SIZE=512mb
-IMAGE=ubuntu-15-10-x64
+IMAGE=ubuntu-16-04-x64
 SSH_KEY=122656
 
 # Common
@@ -84,23 +84,21 @@ nginx-done: etc/nginx.conf etc/swarmation.com.crt
 	touch nginx-done
 remote-nginx: nginx-done
 
-upstart-done: etc/upstart.conf
-	cp etc/upstart.conf /etc/init.d/swarmation
-	rm -f /etc/init/swarmation.conf
-	ln -s /etc/init.d/swarmation /etc/init/swarmation.conf
-	touch upstart-done
-remote-upstart: upstart-done
+systemd-done: etc/swarmation.service
+	cp etc/swarmation.service /lib/systemd/system/swarmation.service
+	touch systemd-done
+remote-systemd: systemd-done
 
 data/cache:
 	mkdir -p data/cache
 remote-cache: data/cache
 
-remote-configure: remote-setup remote-nginx remote-upstart remote-dependencies remote-cache
+remote-configure: remote-setup remote-nginx remote-systemd remote-dependencies remote-cache
 
 configure: upload
 	$(REMOTE_EXEC) "cd $(DEPLOY_TARGET); make remote-configure"
 
-.PHONY: new bootstrap remote-setup remote-nginx remote-upstart remote-configure configure
+.PHONY: new bootstrap remote-setup remote-nginx remote-systemd remote-configure configure
 
 # Deployment
 
@@ -112,8 +110,9 @@ buildcss: dependencies
 
 build: buildjs buildcss formations
 
-deploy: configure
-	$(REMOTE_EXEC) initctl reload-configuration
-	$(REMOTE_EXEC) service swarmation reload
+deploy: configure build
+	$(REMOTE_EXEC) systemctl daemon-reload
+	$(REMOTE_EXEC) systemctl start nginx
+	$(REMOTE_EXEC) systemctl restart swarmation
 
 .PHONY: buildjs buildcss build deploy
