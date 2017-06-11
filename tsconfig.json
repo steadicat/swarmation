@@ -10,7 +10,11 @@
       "es2017",
       "es2017.object",
       "dom"
-    ]
+    ],
+    "noImplicitAny": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true
   },
   "include": [
     "src/**/*.ts"

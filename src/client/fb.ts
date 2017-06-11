@@ -1,4 +1,3 @@
-import * as Dom from './dom';
 import * as Players from './players';
 
 // Load the SDK Asynchronously

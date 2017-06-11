@@ -1,29 +1,32 @@
 import * as Util from '../util';
 import * as Dom from './dom';
 
-function isSelector(str) {
+function isSelector(str: any): str is string {
   if (!str) return true;
   if (str.indexOf(' ') >= 0) return false;
   return str.charAt(0) === '#' || str.charAt(0) === '.';
 }
 
-function nonNull(x) {
+function nonNull(x: any) {
   return x !== null;
 }
 
-function tag(tag, ...args) {
-  let selector = isSelector(args[0]) ? args.shift() : '';
-  const attrs = Util.isObject(args[0]) ? args.shift() : {};
-  const style = Util.isObject(args[0]) ? args.shift() : {};
+type Attributes = {[name: string]: string};
+type Styles = {[name in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[name]};
+
+function tag(tag: string, ...args: Array<string | Attributes | Styles | HTMLElement>) {
+  const selector: string = isSelector(args[0]) ? args.shift() as string : '';
+  const attrs: Attributes = Util.isObject(args[0]) ? args.shift() as Attributes : {};
+  const style: Styles = Util.isObject(args[0]) ? args.shift() as Styles : {};
 
   const children = Util.flatten(args).filter(nonNull).map(child => {
-    return !Dom.isEl(child) ? document.createTextNode(child) : child;
+    return typeof child === 'string' ? document.createTextNode(child) : child;
   });
 
   const element = Dom.create(tag.toUpperCase());
   if (selector) {
-    selector = selector.match(/([#\.][^#\.]+)/g);
-    selector.forEach(bit => {
+    const matches = selector.match(/([#\.][^#\.]+)/g);
+    matches.forEach((bit: string) => {
       switch (bit.charAt(0)) {
         case '#':
           element.id = bit.substring(1);
@@ -39,7 +42,7 @@ function tag(tag, ...args) {
     element.setAttribute(name, attrs[name]);
   }
   for (const prop in style) {
-    element.style[prop] = style[prop];
+    element.style[prop as keyof Styles] = style[prop as keyof Styles];
   }
   children.forEach(element.appendChild.bind(element));
   return element;

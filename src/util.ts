@@ -1,4 +1,4 @@
-export function rateLimit(target, rate, f) {
+export function rateLimit<T extends {timeout?: NodeJS.Timer | null}>(target: T, rate: number, f: (this: T) => void) {
   if (target.timeout) return;
   target.timeout = setTimeout(() => {
     f.call(target);
@@ -6,19 +6,19 @@ export function rateLimit(target, rate, f) {
   }, rate);
 }
 
-export function isFunc(x) {
+export function isFunc(x: any) {
   return typeof x === 'function';
 }
 
-export function isObject(x) {
+export function isObject(x: any) {
   return x + '' === '[object Object]';
 }
 
-export function isString(x) {
+export function isString(x: any) {
   return typeof x === 'string';
 }
 
-export function flatten(input, shallow = false, output = []) {
+export function flatten<T>(input: T[], shallow = false, output: T[] = []) {
   input.forEach(value => {
     if (Array.isArray(value)) {
       shallow ? output.push(value) : flatten(value, shallow, output);

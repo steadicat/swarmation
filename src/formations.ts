@@ -1,8 +1,7 @@
 import * as fs from 'fs';
-import * as util from 'util';
 
-function getPoints(diagram: string[], y, x): Array<[number, number]> {
-  const points = [];
+function getPoints(diagram: string[], y: number, x: number): Array<[number, number]> {
+  const points: Array<[number, number]> = [];
   for (let i = 0; i < diagram.length; i++) {
     for (let j = 0; j < diagram[i].length; j++) {
       if (diagram[i].charAt(j) === 'x') {
@@ -13,14 +12,19 @@ function getPoints(diagram: string[], y, x): Array<[number, number]> {
   return points;
 }
 
-type Formation = {
+export type FormationDefinition = {
   name: string;
   difficulty: number;
   diagram?: string[];
   size?: number;
 };
 
-function parseFormation(lines): Formation {
+export type Formation = FormationDefinition & {
+  map: boolean[][];
+  points: Array<[number, number]>;
+};
+
+function parseFormation(lines: string[]): FormationDefinition {
   const signature = lines[0].replace(/^=+|=+$/g, '').trim();
   return {
     name: signature.split('(')[0].trim(),
@@ -29,9 +33,9 @@ function parseFormation(lines): Formation {
   };
 }
 
-function parse(file) {
-  const formations = {};
-  let buffer = [];
+function parse(file: string) {
+  const formations: {[name: string]: FormationDefinition} = {};
+  let buffer: string[] = [];
   const lines = file.split('\n');
   lines.forEach((line, i) => {
     if (i === lines.length - 1 && line[i] === '') return;
@@ -50,11 +54,11 @@ function parse(file) {
 }
 
 export function getFormations(): {[id: string]: Formation} {
-  const formations = parse(fs.readFileSync('formations.txt', 'utf-8'));
+  const formations = parse(fs.readFileSync('formations.txt', 'utf-8')) as {[id: string]: Formation};
   for (const name in formations) {
     const formation = formations[name];
     formation.map = [];
-    for (const i in formation.diagram) {
+    for (let i = 0; i < formation.diagram.length; i++) {
       formation.map[i] || (formation.map[i] = []);
       for (let j = 0; j < formation.diagram[i].length; j++) {
         const c = formation.diagram[i].charAt(j);

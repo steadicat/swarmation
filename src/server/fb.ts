@@ -1,18 +1,24 @@
 import * as request from 'request';
-import * as util from 'util';
 
-function response(cb) {
-  return (err, resp, body) => {
+type FbError = {};
+type FbResponse = {};
+type FbResponseBody<R> = {
+  data: R;
+};
+
+function response<R>(cb: (err: FbError | null, body?: FbResponseBody<R>) => void) {
+  return (err: FbError, resp: FbResponse, body: FbResponseBody<R>) => {
     if (err) {
       console.log('FB: Error: ' + resp + ' ' + JSON.stringify(body));
-      return cb(err);
+      cb(err);
+      return;
     }
     console.log('FB: Response: ' + JSON.stringify(body));
     cb(null, body);
   };
 }
 
-export function get(path, token, cb) {
+export function get<R>(path: string, token: string, cb: (err: FbError | null, body?: FbResponseBody<R>) => void) {
   console.log('FB: Get ' + path);
   request.get(
     {
@@ -24,7 +30,12 @@ export function get(path, token, cb) {
   );
 }
 
-export function post(path, token, data, cb) {
+export function post<D extends {access_token?: string}, R>(
+  path: string,
+  token: string,
+  data: D,
+  cb: (err: FbError | null, body?: FbResponseBody<R>) => void
+) {
   data.access_token = token;
   console.log('FB: Post ' + path);
   request.post(

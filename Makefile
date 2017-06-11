@@ -1,4 +1,4 @@
-NODE=ts-node --compilerOptions '{"module": "commonjs"}'
+NODE=ts-node --fast --compilerOptions '{"module": "commonjs"}'
 NODE_BIN=./node_modules/.bin
 
 PORT=243

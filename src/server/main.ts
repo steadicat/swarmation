@@ -4,8 +4,16 @@ import * as express from 'express';
 import * as http from 'http';
 import * as SocketIO from 'socket.io';
 import * as config from '../config';
-import {getFormations, sizeRange} from '../formations';
-import * as util from '../util';
+import {Formation, getFormations, sizeRange} from '../formations';
+import {
+  FlashMessage,
+  FormationMessage,
+  InfoMessage,
+  LockInMessage,
+  LoginMessage,
+  NextFormationMessage,
+  WelcomeMessage,
+} from '../types';
 import * as fb from './fb';
 import * as map from './map';
 import {Player, PLAYERS} from './players';
@@ -52,12 +60,12 @@ app.get('/formation/:name', (req, res) => {
 });
 
 // Error Handling
-app.use((err, req, res, next) => {
+app.use((err: Error | null, _: Express.Request, res: Express.Response) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
 
-process.on('uncaughtException', e => {
+process.on('uncaughtException', (e: Error) => {
   console.log(e.stack);
 });
 
@@ -72,62 +80,79 @@ process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 process.on('SIGHUP', shutdown);
 
-// IO
+// Events
 
-function onConnect(client) {
-  client.emit('welcome', {id: client.id, players: Player.getList()});
-  if (FORMATION && TIME > 0)
-    client.emit('nextFormation', {
-      formation: FORMATION.name,
-      time: TIME,
-      map: FORMATION.map,
-      active: Player.getActive(),
-    });
-
-  client.on('info', message => {
-    const player = Player.get(client);
+const PlayerEvents = {
+  info(player: Player, message: InfoMessage) {
     player.setInfo(message);
     // mark players that are active
     if (!message.name) player.setActive();
-    message.id = client.id;
-    client.broadcast.emit('info', message);
-  });
+    message.id = player.id;
+    io.to(ROOM).emit('info', message);
+  },
 
-  client.on('flash', message => {
-    message.id = client.id;
-    client.broadcast.emit('flash', message);
-  });
+  flash(player: Player, message: FlashMessage) {
+    message.id = player.id;
+    io.to(ROOM).emit('flash', message);
+  },
 
-  client.on('lockIn', message => {
-    message.id = client.id;
-    client.broadcast.emit('lockIn', message);
-  });
+  lockIn(player: Player, message: FlashMessage) {
+    message.id = player.id;
+    io.to(ROOM).emit('lockIn', message);
+  },
 
-  client.on('login', message => {
-    const player = Player.get(client);
+  login(player: Player, message: LoginMessage) {
     if (!player) return;
     player.login(message.userId, message.token);
-    fb.get(config.appId + '/scores', message.token, (err, res) => {
+    fb.get<Array<{score: number}>>(config.appId + '/scores', message.token, (err, res) => {
       if (err) throw err;
       player.score = res.data[0].score;
       console.log('FB: Loaded score for user ' + message.userId + ': ' + player.score);
-      io.sockets.emit('info', {id: client.id, score: player.score});
+      io.to(ROOM).emit('info', {id: player.id, score: player.score});
     });
-  });
+  },
 
+  disconnect(player: Player) {
+    player.disconnect(io.sockets);
+  },
+};
+
+// IO
+
+const ROOM = 'main';
+
+io.sockets.on('connection', (client: SocketIO.Socket) => {
+  client.join(ROOM);
+  client.emit('welcome', {id: client.id, players: Player.getList()} as WelcomeMessage);
+
+  if (FORMATION && TIME > 0) {
+    client.emit(
+      'nextFormation',
+      {
+        formation: FORMATION.name,
+        time: TIME,
+        map: FORMATION.map,
+        active: Player.getActive(),
+      } as NextFormationMessage
+    );
+  }
+
+  client.on('info', (message: InfoMessage) => PlayerEvents.info(Player.get(client), message));
+  client.on('flash', (message: FlashMessage) => PlayerEvents.flash(Player.get(client), message));
+  client.on('lockIn', (message: LockInMessage) => PlayerEvents.lockIn(Player.get(client), message));
+  client.on('login', (message: LoginMessage) => PlayerEvents.login(Player.get(client), message));
   client.on('disconnect', () => {
-    Player.get(client).disconnect(io.sockets);
+    client.leave(ROOM);
+    PlayerEvents.disconnect(Player.get(client));
   });
-}
-
-io.sockets.on('connection', onConnect);
+});
 
 // Formation countdown
 
 const formations = getFormations();
 
-const FORMATIONS = [];
-let FORMATION;
+const FORMATIONS: Formation[][] = [];
+let FORMATION: Formation;
 const [MIN_SIZE, MAX_SIZE] = sizeRange(formations);
 
 for (let i = 0; i <= MAX_SIZE; i++) FORMATIONS[i] = [];
@@ -139,9 +164,9 @@ for (const id in formations) {
   }
 }
 
-function pickFormation() {
+function pickFormation(): Formation | null {
   const available = FORMATIONS[Math.max(MIN_SIZE, Math.min(Player.getActive(), MAX_SIZE))];
-  if (available.length === 0) return;
+  if (available.length === 0) return null;
   return available[Math.floor(Math.random() * available.length)];
 }
 
@@ -167,13 +192,16 @@ function endTurn() {
   const loss = Math.round((MAX_POINTS - FORMATION.difficulty) / 4);
   const ids = Object.keys(players);
   console.log(`Formation ${FORMATION.name} completed with ${ids.length} participants.`);
-  io.sockets.emit('formation', {
-    formation: FORMATION.name,
-    difficulty: FORMATION.difficulty,
-    gain,
-    loss,
-    ids,
-  });
+  io.sockets.emit(
+    'formation',
+    {
+      formation: FORMATION.name,
+      difficulty: FORMATION.difficulty,
+      gain,
+      loss,
+      ids,
+    } as FormationMessage
+  );
   for (const id of ids) {
     const player = players[id];
     player.setActive();
@@ -188,13 +216,13 @@ function endTurn() {
         player.userId + '/achievements',
         config.token,
         {achievement: 'http://swarmation.com/formation/' + FORMATION.name},
-        (err, res) => {
+        err => {
           if (err) throw err;
           console.log(`FB: Published completion of ${FORMATION.name} for ${player.userId}.`);
         }
       );
       // save score
-      fb.post(player.userId + '/scores', config.token, {score: player.score}, (err, res) => {
+      fb.post(player.userId + '/scores', config.token, {score: player.score}, err => {
         if (err) throw err;
         console.log(`FB: Saved score of ${player.score} for ${player.userId}.`);
       });

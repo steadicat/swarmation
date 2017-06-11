@@ -2,21 +2,23 @@ import * as Canvas from 'canvas';
 import {Image} from 'canvas';
 import * as fs from 'fs';
 import * as Formations from '../formations';
-
-const images = {};
+import {Formation} from '../formations';
 
 const PIXEL = new Image();
 PIXEL.src = fs.readFileSync('public/images/pixel.png');
 const PIXEL_SIZE = 15;
 const PADDING = 15;
 
-function getImage(formation, cb) {
+function getImage(formation: Formation, cb: (err: Error | null, buffer: Buffer) => void) {
   const maxHeight = formation.map.length;
   let maxWidth = 0;
   for (const row of formation.map) {
     maxWidth = Math.max(maxWidth, row.length);
   }
-  const canvas = new Canvas(maxWidth * PIXEL_SIZE + 2 * PADDING, maxHeight * PIXEL_SIZE + 2 * PADDING);
+  const canvas: HTMLCanvasElement = new Canvas(
+    maxWidth * PIXEL_SIZE + 2 * PADDING,
+    maxHeight * PIXEL_SIZE + 2 * PADDING
+  );
   const ctx = canvas.getContext('2d');
   formation.map.forEach((row, y) => {
     row.forEach((cell, x) => {
@@ -28,7 +30,7 @@ function getImage(formation, cb) {
 
 const formations = Formations.getFormations();
 for (const name in formations) {
-  getImage(formations[name], (err, buffer) => {
+  getImage(formations[name], (err: Error | null, buffer: Buffer) => {
     if (err) throw err;
     fs.writeFile(`public/formation/${name}.png`, buffer, err2 => {
       if (err2) console.log(err2);

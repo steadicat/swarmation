@@ -1,3 +1,14 @@
+import {
+  DisconnectedMessage,
+  FlashMessage,
+  FormationMessage,
+  IdleMessage,
+  InfoMessage,
+  LockInMessage,
+  NextFormationMessage,
+  PlayerInfo,
+  WelcomeMessage,
+} from '../types';
 import * as Util from '../util';
 import * as Dom from './dom';
 import * as Html from './html';
@@ -25,26 +36,26 @@ const NAMES = [
 const MOVEMENT_RATE = 140;
 const MIN_ACTIVE = 6;
 
-let PLAYER;
+let PLAYER: Player | null = null;
 let PLAYERS: {[id: string]: Player} = {};
-let MAP = [];
+let MAP: Player[][] = [];
 
-function displayMessage(text) {
+function displayMessage(text: string) {
   PLAYER.hideWelcome();
   const message = Html.div('.message', text);
   Dom.get('board-container').appendChild(message);
 }
 
-function animate(duration, start, end) {
+function animate(duration: number, start: () => void, end: () => void) {
   setTimeout(() => {
     start();
     if (end) setTimeout(end, duration);
   }, 0);
 }
 
-function scoreChange(delta) {
-  Dom.get('score').textContent = PLAYER.score;
-  Dom.get('success').textContent = PLAYER.successRate();
+function scoreChange(delta: number) {
+  Dom.get('score').textContent = PLAYER.score + '';
+  Dom.get('success').textContent = PLAYER.successRate() + '';
   const popup = Html.div('.score.abs.center', (delta > 0 ? '+' : '') + delta);
   Dom.addClass(popup, delta > 0 ? 'positive' : 'negative');
   popup.style.left = PLAYER.getScreenLeft() - 200 + 'px';
@@ -52,6 +63,8 @@ function scoreChange(delta) {
   document.body.appendChild(popup);
   animate(600, Dom.addClass.bind(null, popup, 'scale'), Dom.remove.bind(null, popup));
 }
+
+type Direction = 'left' | 'right' | 'up' | 'down';
 
 class Player {
   id: string;
@@ -62,7 +75,8 @@ class Player {
   total = 0;
   completed = 0;
   lockedIn = false;
-  moveIntervals = {};
+  loggedIn = false;
+  moveIntervals: {[key in Direction]?: NodeJS.Timer} = {};
   name: string;
   left: number;
   top: number;
@@ -97,52 +111,52 @@ class Player {
     Dom.listen(this.el, 'mouseout', this.hideTooltip.bind(this));
   }
 
-  static atPixel(x, y) {
+  static atPixel(x: number, y: number): Player {
     return Player.atPosition(Player.getLeft(x), Player.getTop(y));
   }
 
-  static atPosition(left, top) {
+  static atPosition(left: number, top: number): Player {
     if (!MAP[left]) MAP[left] = [];
     return MAP[left][top];
   }
 
-  static getLeft(x) {
+  static getLeft(x: number): number {
     return Math.floor(x / 10);
   }
-  static getTop(y) {
+  static getTop(y: number): number {
     return Math.floor(y / 10);
   }
 
   static directions = {
-    left(left, top) {
+    left(left: number, top: number): [number, number] {
       return [left - 1, top];
     },
-    right(left, top) {
+    right(left: number, top: number): [number, number] {
       return [left + 1, top];
     },
-    up(left, top) {
+    up(left: number, top: number): [number, number] {
       return [left, top - 1];
     },
-    down(left, top) {
+    down(left: number, top: number): [number, number] {
       return [left, top + 1];
     },
   };
 
-  getX() {
+  getX(): number {
     return this.left * 10 + 1;
   }
-  getY() {
+  getY(): number {
     return this.top * 10 + 1;
   }
 
-  getScreenLeft() {
-    return this.getX() + Dom.left(this.el.offsetParent);
+  getScreenLeft(): number {
+    return this.getX() + Dom.left(this.el.offsetParent as HTMLElement);
   }
-  getScreenTop() {
-    return this.getY() + Dom.top(this.el.offsetParent);
+  getScreenTop(): number {
+    return this.getY() + Dom.top(this.el.offsetParent as HTMLElement);
   }
 
-  setPosition(left, top) {
+  setPosition(left: number, top: number): boolean {
     // cancel in case of collisions
     if (Player.atPosition(left, top)) return false;
     // cancel if out of bounds
@@ -153,7 +167,6 @@ class Player {
 
     if (!MAP[this.left]) MAP[this.left] = [];
     MAP[this.left][this.top] = null;
-    const first = this.left === undefined;
     this.left = left;
     this.top = top;
     if (!MAP[left]) MAP[left] = [];
@@ -167,7 +180,7 @@ class Player {
     return true;
   }
 
-  move(direction) {
+  move(direction: Direction) {
     if (this.lockedIn) return;
     const newp = Player.directions[direction](this.left, this.top);
     const changed = this.setPosition(newp[0], newp[1]);
@@ -177,7 +190,7 @@ class Player {
     }
   }
 
-  startMove(direction) {
+  startMove(direction: Direction) {
     const p = this;
     if (p.moveIntervals[direction]) return;
     p.move(direction);
@@ -186,7 +199,7 @@ class Player {
     }, MOVEMENT_RATE);
   }
 
-  stopMove(direction) {
+  stopMove(direction: Direction) {
     clearInterval(this.moveIntervals[direction]);
     this.moveIntervals[direction] = null;
   }
@@ -215,7 +228,7 @@ class Player {
     if (this.isSelf) socket.emit('lockIn', {stop: true});
   }
 
-  formationDeadline(success, gain, loss) {
+  formationDeadline(success: boolean, gain: number, loss: number) {
     this.total++;
     if (success) {
       Dom.addClass(this.el, 'active');
@@ -233,7 +246,7 @@ class Player {
     }
   }
 
-  successRate() {
+  successRate(): number {
     if (this.total === 0) return 100;
     return Math.round(1000.0 * this.succeeded / this.total) / 10;
   }
@@ -249,13 +262,13 @@ class Player {
         succeeded: this.succeeded,
       });
     } else {
-      Util.rateLimit(this, MOVEMENT_RATE / 2, function() {
+      Util.rateLimit(this, MOVEMENT_RATE / 2, () => {
         socket.emit('info', {left: this.left, top: this.top});
       });
     }
   }
 
-  getInfo(info) {
+  getInfo(info: PlayerInfo) {
     if (info.left) this.setPosition(info.left, info.top);
     if (info.name) this.name = info.name;
     if (info.score) this.score = info.score;
@@ -337,7 +350,7 @@ export function start() {
   // no-op, called to trigger evaluation of the module
 }
 
-function loadPlayer(data) {
+function loadPlayer(data: PlayerInfo) {
   if (!PLAYERS[data.id]) {
     PLAYERS[data.id] = new Player(data.id, data.left, data.top);
   }
@@ -345,7 +358,7 @@ function loadPlayer(data) {
   PLAYERS[data.id].getInfo(data);
 }
 
-socket.on('welcome', data => {
+socket.on('welcome', (data: WelcomeMessage) => {
   for (const id in data.players) loadPlayer(data.players[id]);
   if (PLAYER) {
     PLAYER.id = data.id;
@@ -355,16 +368,16 @@ socket.on('welcome', data => {
   }
 });
 
-socket.on('info', data => {
+socket.on('info', (data: InfoMessage) => {
   if (PLAYER && data.id === PLAYER.id) {
     PLAYER.getInfo(data);
-    if (data.score) Dom.get('score').textContent = data.score;
+    if (data.score) Dom.get('score').textContent = data.score + '';
   } else {
     loadPlayer(data);
   }
 });
 
-socket.on('flash', data => {
+socket.on('flash', (data: FlashMessage) => {
   if (PLAYERS[data.id]) {
     if (data.stop) {
       PLAYERS[data.id].stopFlash();
@@ -374,7 +387,7 @@ socket.on('flash', data => {
   }
 });
 
-socket.on('lockIn', data => {
+socket.on('lockIn', (data: LockInMessage) => {
   if (PLAYERS[data.id]) {
     if (data.stop) {
       PLAYERS[data.id].stopLockIn();
@@ -384,14 +397,12 @@ socket.on('lockIn', data => {
   }
 });
 
-socket.on('idle', data => {
+socket.on('idle', (data: IdleMessage) => {
   if (PLAYERS[data.id]) Dom.addClass(PLAYERS[data.id].el, 'idle');
   if (PLAYER && data.id === PLAYER.id) Dom.addClass(PLAYER.el, 'idle');
 });
 
-socket.on('connected', data => {});
-
-socket.on('disconnected', data => {
+socket.on('disconnected', (data: DisconnectedMessage) => {
   const p = PLAYERS[data.id];
   if (!p) return;
   delete MAP[p.left][p.top];
@@ -399,11 +410,11 @@ socket.on('disconnected', data => {
   delete PLAYERS[data.id];
 });
 
-function contains(el, list) {
+function contains<T>(el: T, list: T[]): boolean {
   return list.indexOf(el) >= 0;
 }
 
-socket.on('formation', data => {
+socket.on('formation', (data: FormationMessage) => {
   if (!PLAYER || !PLAYER.id) return;
   PLAYER.formationDeadline(contains(PLAYER.id, data.ids), data.gain, data.loss);
   for (const id in PLAYERS) {
@@ -414,7 +425,7 @@ socket.on('formation', data => {
   PLAYER.stopLockIn();
 });
 
-function showFormation(map) {
+function showFormation(map: boolean[][]) {
   const f = Dom.get('formation-image');
   Dom.empty(f);
   let width = 0;
@@ -435,24 +446,24 @@ function showFormation(map) {
   f.style.top = 50 - height / 2 + 'px';
 }
 
-let time;
-let formationInterval;
+let time: number;
+let formationInterval: NodeJS.Timer;
 
-socket.on('nextFormation', data => {
-  Dom.get('formation-name').textContent = data.formation;
-  showFormation(data.map);
+socket.on('nextFormation', (message: NextFormationMessage) => {
+  Dom.get('formation-name').textContent = message.formation;
+  showFormation(message.map);
 
-  time = data.time;
-  Dom.get('countdown').textContent = time;
+  time = message.time;
+  Dom.get('countdown').textContent = time + '';
 
   if (formationInterval) clearInterval(formationInterval);
   formationInterval = setInterval(() => {
     time--;
-    Dom.get('countdown').textContent = time;
+    Dom.get('countdown').textContent = time + '';
     if (time === 0) clearInterval(formationInterval);
   }, 1000);
 
-  if (PLAYER.loggedin && data.active < MIN_ACTIVE) {
+  if (PLAYER.loggedIn && message.active < MIN_ACTIVE) {
     if (!weeklyGameNoticeShown) showRequestPopup();
   }
 });
@@ -491,14 +502,14 @@ const monthNames = [
 ];
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-function twelveHours(hours) {
+function twelveHours(hours: number) {
   if (hours === 0) return 12;
   if (hours === 12) return 12;
   if (hours > 12) return hours - 12;
   return hours;
 }
 
-function ampm(hours) {
+function ampm(hours: number) {
   return hours === 0 || hours < 12 ? 'am' : 'pm';
 }
 
@@ -514,7 +525,11 @@ function showWeeklyGameNotice() {
     isToday
       ? `Join us this TODAY – ${monthNames[d.getMonth()]} ${d.getDate()} ${d.getFullYear()} – at `
       : `Join us this ${dayNames[d.getDay()]} – ${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} – at `,
-    Html.a('', {href: 'http://erthbeet.com/?Universal_World_Time=kv2300'}, twelveHours(d.getHours()) + ampm(d)),
+    Html.a(
+      '',
+      {href: 'http://erthbeet.com/?Universal_World_Time=kv2300'},
+      twelveHours(d.getHours()) + ampm(d.getHours())
+    ),
     ' for a big game of Swarmation!',
   ]);
   Dom.get('container').appendChild(weeklyGameNotice);
@@ -527,13 +542,13 @@ if (new Date() < nextWeeklyGame) {
 
 let RESTARTING = false;
 
-socket.on('restart', data => {
+socket.on('restart', () => {
   RESTARTING = true;
   socket.disconnect();
   displayMessage('Swarmation needs to restart for an update. Please reload the page.');
 });
 
-socket.on('kick', data => {
+socket.on('kick', () => {
   RESTARTING = true;
   socket.disconnect();
   displayMessage('You have been disconnected for being idle too long. Reload the page to resume playing.');
@@ -548,7 +563,7 @@ socket.on('connect', () => {
 
 socket.on('disconnect', () => {
   if (RESTARTING) return;
-  let interval;
+  let interval: NodeJS.Timer;
   function connect() {
     if (socket.connected) {
       clearInterval(interval);
@@ -561,22 +576,23 @@ socket.on('disconnect', () => {
 });
 
 const MOVEMENTS = {
-  38: 'up',
-  40: 'down',
-  37: 'left',
-  39: 'right',
+  '38': 'up' as 'up',
+  '40': 'down' as 'down',
+  '37': 'left' as 'left',
+  '39': 'right' as 'right',
 };
 
-function stop(event) {
+function stop(event: KeyboardEvent) {
   event.preventDefault();
   event.stopPropagation();
 }
 
-Dom.listen(document, 'keydown', event => {
+Dom.listen(document, 'keydown', (event: KeyboardEvent) => {
   if (!PLAYER) return;
 
-  if (MOVEMENTS[event.keyCode]) {
-    PLAYER.startMove(MOVEMENTS[event.keyCode]);
+  const keyCode = (event.keyCode + '') as keyof typeof MOVEMENTS;
+  if (MOVEMENTS[keyCode]) {
+    PLAYER.startMove(MOVEMENTS[keyCode]);
     stop(event);
   } else if (event.keyCode === 32) {
     // space
@@ -589,11 +605,12 @@ Dom.listen(document, 'keydown', event => {
   }
 });
 
-Dom.listen(document, 'keyup', event => {
+Dom.listen(document, 'keyup', (event: KeyboardEvent) => {
   if (!PLAYER) return;
 
-  if (MOVEMENTS[event.keyCode]) {
-    PLAYER.stopMove(MOVEMENTS[event.keyCode]);
+  const keyCode = (event.keyCode + '') as keyof typeof MOVEMENTS;
+  if (MOVEMENTS[keyCode]) {
+    PLAYER.stopMove(MOVEMENTS[keyCode]);
     stop(event);
   } else if (event.keyCode === 32) {
     // space
@@ -602,7 +619,7 @@ Dom.listen(document, 'keyup', event => {
   }
 });
 
-export function login(userId, token, name) {
+export function login(userId: string, token: string, name: string) {
   if (!PLAYER) return;
   const login = Dom.get('login');
   const username = Html.div('.top-border.pvm.phm.light', 'Welcome, ' + name);
@@ -611,6 +628,6 @@ export function login(userId, token, name) {
   parent.appendChild(username);
   socket.emit('login', {token, userId, name});
   PLAYER.name = name;
-  PLAYER.loggedin = true;
+  PLAYER.loggedIn = true;
   PLAYER.sendInfo(true);
 }
