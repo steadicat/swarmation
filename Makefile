@@ -2,13 +2,13 @@ NODE=ts-node --compilerOptions '{"module": "commonjs"}'
 NODE_BIN=./node_modules/.bin
 
 PORT=243
-DEPLOY_FILES=etc public server Makefile package.json formations.txt
+DEPLOY_FILES=etc public server Makefile Secrets package.json formations.txt
 DEPLOY_TARGET=/opt/swarmation
-DEPLOY_SERVER=root@104.236.28.138
+DEPLOY_SERVER=root@104.236.11.79
 REMOTE_EXEC=ssh $(DEPLOY_SERVER) -p $(PORT)
 REMOTE_COPY=rsync -e "ssh -p $(PORT)" -a --delete
 
-NAME=swarmation-1
+NAME=swarmation-new
 REGION=nyc3
 SIZE=512mb
 IMAGE=ubuntu-16-04-x64
@@ -77,8 +77,20 @@ new:
 	  https://api.digitalocean.com/v2/droplets
 
 bootstrap:
-	ssh $(DEPLOY_SERVER) sed -i -e '"s/Port 22/Port 243/g"' /etc/ssh/sshd_config
-	ssh $(DEPLOY_SERVER) service ssh restart
+	scp etc/setup.sh $(DEPLOY_SERVER):setup.sh
+	ssh $(DEPLOY_SERVER) sh setup.sh
+	-ssh $(DEPLOY_SERVER) reboot
+.PHONY: bootstrap
+
+rebootstrap:
+	scp -P 243 etc/setup.sh $(DEPLOY_SERVER):setup.sh
+	ssh $(DEPLOY_SERVER) -p 243 sh setup.sh
+	-ssh $(DEPLOY_SERVER) -p 243 reboot
+.PHONY: rebootstrap
+
+ssh:
+	$(REMOTE_EXEC)
+.PHONY: ssh
 
 setup-done: etc/setup.sh
 	sh ./etc/setup.sh
