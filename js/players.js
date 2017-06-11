@@ -2,7 +2,7 @@ var WIDTH = 96;
 var HEIGHT = 60;
 var DEAD_WIDTH = 12;
 var DEAD_HEIGHT = 60;
-var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry'];
+var NAMES = ['Saber', 'Tooth', 'Moose', 'Lion', 'Peanut', 'Jelly', 'Thyme', 'Zombie', 'Cranberry', 'Pipa', 'Walnut', 'Puddle', 'Ziya', 'Key'];
 var MOVEMENT_RATE = 140;
 var MIN_ACTIVE = 6;
 
@@ -52,12 +52,14 @@ var Player = function Player(id, left, top, isSelf) {
   } else {
     this.setPosition(left, top);
   }
+
   this.isSelf = isSelf;
   this.name = NAMES[Math.floor(Math.random() * NAMES.length)];
   this.score = 0;
   this.succeeded = 0;
   this.total = 0;
   this.completed = 0;
+  this.lockedIn = false;
 
   this.moveIntervals = {};
 
@@ -141,6 +143,7 @@ Player.prototype = {
   },
 
   move: function(direction) {
+    if (this.lockedIn) return;
     var newp = Player.directions[direction](this.left, this.top);
     var changed = this.setPosition(newp[0], newp[1]);
     if (changed && this.isSelf) {
@@ -171,6 +174,20 @@ Player.prototype = {
   stopFlash: function() {
     Dom.removeClass(this.el, 'flash');
     if (this.isSelf) socket.emit('flash', {stop: true});
+  },
+
+  startLockIn: function() {
+    if (this.lockedIn) return
+    Dom.addClass(this.el, 'locked-in')
+    this.lockedIn = true
+    if (this.isSelf) socket.emit('lockIn', {})
+  },
+
+  stopLockIn: function() {
+    if (!this.lockedIn) return
+    Dom.removeClass(this.el, 'locked-in')
+    this.lockedIn = false
+    if (this.isSelf) socket.emit('lockIn', { stop: true })
   },
 
   formationDeadline: function(success, gain, loss) {
@@ -328,6 +345,16 @@ socket.on('flash', function(data) {
   }
 });
 
+socket.on('lockIn', function(data) {
+  if (PLAYERS[data.id]) {
+    if (data.stop) {
+      PLAYERS[data.id].stopLockIn()
+    } else {
+      PLAYERS[data.id].startLockIn()
+    }
+  }
+})
+
 socket.on('idle', function(data) {
   if (PLAYERS[data.id]) Dom.addClass(PLAYERS[data.id].el, 'idle');
   if (PLAYER && data.id == PLAYER.id) Dom.addClass(PLAYER.el, 'idle');
@@ -407,7 +434,7 @@ function showRequestPopup() {
   Dom.remove(button);
   Dom.removeClass(button, 'off');
   requestPopup = Html.div('.megaphone.pvs', [
-    'Swarmation is more fun with more people. Ask some friends to join: ',
+    'Swarmation is extra fun with more people. Ask some friends to join: ',
     button,
   ]);
   Dom.get('container').appendChild(requestPopup);
@@ -470,6 +497,9 @@ Dom.listen(document, 'keydown', function(event) {
   } else if (event.keyCode == 32) {
     // space
     PLAYER.startFlash();
+    stop(event);
+  } else if (event.keyCode == 83) { // "s"
+    PLAYER.startLockIn();
     stop(event);
   }
 });

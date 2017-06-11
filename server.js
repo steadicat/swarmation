@@ -96,6 +96,11 @@ function onConnect(client) {
     client.broadcast.emit('flash', message);
   });
 
+  client.on('lockIn', function(message) {
+    message.id = client.id
+    client.broadcast.emit('lockIn', message)
+  })
+
   client.on('login', function(message) {
     var player = Player.get(client);
     if (!player) return;
