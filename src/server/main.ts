@@ -146,11 +146,11 @@ function pickFormation() {
 }
 
 function startTurn() {
-  console.log('There are ' + Player.getActive() + ' active players.');
+  console.log(`Starting turn with ${Player.getCount()} players (${Player.getActive()} active).`);
   FORMATION = pickFormation();
   while (!FORMATION) FORMATION = pickFormation();
   TIME = FORMATION.difficulty;
-  console.log('Next formation is ' + FORMATION.name + ', of size ' + FORMATION.size + '.');
+  console.log(`Next formation is ${FORMATION.name} of size ${FORMATION.size}.`);
   io.sockets.emit('nextFormation', {
     formation: FORMATION.name,
     time: TIME,
@@ -166,6 +166,7 @@ function endTurn() {
   const gain = FORMATION.difficulty;
   const loss = Math.round((MAX_POINTS - FORMATION.difficulty) / 4);
   const ids = Object.keys(players);
+  console.log(`Formation ${FORMATION.name} completed with ${ids.length} participants.`);
   io.sockets.emit('formation', {
     formation: FORMATION.name,
     difficulty: FORMATION.difficulty,
@@ -173,7 +174,7 @@ function endTurn() {
     loss,
     ids,
   });
-  for (const id in players) {
+  for (const id of ids) {
     const player = players[id];
     player.setActive();
     if (ids.indexOf(id) >= 0) {
@@ -189,13 +190,13 @@ function endTurn() {
         {achievement: 'http://swarmation.com/formation/' + FORMATION.name},
         (err, res) => {
           if (err) throw err;
-          console.log('FB: Published completion of ' + FORMATION.name + ' for ' + player.userId);
+          console.log(`FB: Published completion of ${FORMATION.name} for ${player.userId}.`);
         }
       );
       // save score
       fb.post(player.userId + '/scores', config.token, {score: player.score}, (err, res) => {
         if (err) throw err;
-        console.log('FB: Saved score of ' + player.score + ' for ' + player.userId);
+        console.log(`FB: Saved score of ${player.score} for ${player.userId}.`);
       });
     }
   }

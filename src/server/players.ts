@@ -49,6 +49,10 @@ export class Player {
     return list;
   }
 
+  static getCount() {
+    return Object.keys(PLAYERS).length;
+  }
+
   static getActive() {
     let n = 0;
     for (const id in PLAYERS) {
