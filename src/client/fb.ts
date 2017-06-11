@@ -22,14 +22,13 @@ export function start() {
   window.fbAsyncInit = () => {
     FB.init({
       appId: '536327243050948',
-      channelUrl: '//' + window.location.hostname + '/channel',
       status: true,
       cookie: true,
       xfbml: true,
     });
 
     // listen for and handle auth.statusChange events
-    FB.Event.subscribe('auth.statusChange', response => {
+    FB.Event.subscribe('auth.statusChange', (response: {authResponse: {accessToken: string}}) => {
       if (response.authResponse) {
         FB.api('/me', me => {
           if (me.name) {
