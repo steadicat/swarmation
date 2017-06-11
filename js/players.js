@@ -438,7 +438,7 @@ socket.on('nextFormation', function(data) {
   }, 1000);
 
   if (PLAYER.loggedin && data.active < MIN_ACTIVE) {
-    showRequestPopup();
+    if (!weeklyGameNoticeShown) showRequestPopup();
   }
 });
 
@@ -456,6 +456,60 @@ function showRequestPopup() {
   ]);
   Dom.get('container').appendChild(requestPopup);
   requestPopupShown = true;
+}
+
+var nextWeeklyGame = new Date(Date.UTC(2017, 5, 15, 11));
+var weeklyGameNoticeShown = false;
+var weeklyGameNotice;
+
+const monthNames = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+function twelveHours(hours) {
+  if (hours === 0) return 12;
+  if (hours === 12) return 12;
+  if (hours > 12) return hours - 12;
+  return hours;
+}
+
+function ampm(hours) {
+  return hours === 0 || hours < 12 ? 'am' : 'pm';
+}
+
+function showWeeklyGameNotice() {
+  if (weeklyGameNoticeShown) return;
+  var button = Dom.get('send');
+  Dom.remove(button);
+  Dom.removeClass(button, 'off');
+  var t = new Date();
+  var d = nextWeeklyGame;
+  var isToday = t.getFullYear() === d.getFullYear() && t.getMonth() === d.getMonth() && t.getDate() === d.getDate();
+  weeklyGameNotice = Html.div('.megaphone.pvs', [
+    isToday
+      ? `Join us this TODAY – ${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} – at `
+      : `Join us this ${dayNames[d.getDay()]} – ${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} – at `,
+    Html.a('', {href: 'http://erthbeet.com/?Universal_World_Time=kv2300'}, `${twelveHours(d.getHours())}${ampm(d)}`),
+    ' for a big game of Swarmation!',
+  ]);
+  Dom.get('container').appendChild(weeklyGameNotice);
+  weeklyGameNoticeShown = true;
+}
+
+if (new Date() < nextWeeklyGame) {
+  showWeeklyGameNotice();
 }
 
 var RESTARTING = false;
