@@ -97,7 +97,7 @@ setup-done: etc/setup.sh
 	touch setup-done
 remote-setup: setup-done
 
-nginx-done: etc/nginx.conf etc/swarmation.com.crt
+nginx-done: etc/nginx.conf
 	cp etc/nginx.conf /etc/nginx/sites-available/swarmation.conf
 	ln -sf /etc/nginx/sites-available/swarmation.conf /etc/nginx/sites-enabled/swarmation.conf
 	rm -f /etc/nginx/sites-enabled/default
@@ -115,7 +115,7 @@ data/cache:
 	mkdir -p data/cache
 remote-cache: data/cache
 
-remote-configure: remote-setup remote-nginx remote-systemd remote-dependencies remote-cache
+remote-configure: remote-cache remote-setup remote-nginx remote-systemd remote-dependencies
 
 configure: upload
 	$(REMOTE_EXEC) "cd $(DEPLOY_TARGET); make remote-configure"
@@ -142,4 +142,16 @@ deploy: configure build
 	$(REMOTE_EXEC) systemctl daemon-reload
 	$(REMOTE_EXEC) systemctl restart swarmation
 
-.PHONY: buildjs buildcss buildserver build deploy
+ssl:
+	$(REMOTE_EXEC) certbot certonly
+
+ssl-backup:
+	$(REMOTE_COPY) $(DEPLOY_SERVER):/etc/letsencrypt etc
+
+ssl-upload:
+	$(REMOTE_COPY) etc/letsencrypt/ $(DEPLOY_SERVER):/etc/letsencrypt/
+
+renew:
+	$(REMOTE_EXEC) certbot renew
+
+.PHONY: buildjs buildcss buildserver build deploy ssl ssl-backup ssl-upload renew

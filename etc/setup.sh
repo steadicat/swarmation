@@ -6,6 +6,8 @@ replace() {
   mv -f ~/tmp $1
 }
 
+add-apt-repository ppa:certbot/certbot
+
 apt-get update -y
 apt-get upgrade -y
 apt-get autoremove -y
@@ -26,6 +28,7 @@ which node || apt-get install -y nodejs-legacy
 which npm || apt-get install -y npm
 which fail2ban || apt-get install -y fail2ban
 #which pkg-config || apt-get install -y pkg-config
+which certbot || apt-get install certbot && apt-get install python-certbot-nginx
 
 ufw default deny incoming
 ufw default allow outgoing
@@ -40,4 +43,5 @@ ufw allow 443/tcp
 
 replace /etc/ufw/ufw.conf 's/ENABLED=no/ENABLED=yes/g'
 service ufw restart
+
 

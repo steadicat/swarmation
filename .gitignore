@@ -4,6 +4,5 @@
 /public/main.js
 /public/formation
 /Secrets
-/etc/*.key
-/etc/*.crt
 /server
+/etc/letsencrypt
