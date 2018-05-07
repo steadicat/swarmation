@@ -1,11 +1,3 @@
-export function rateLimit<T extends {timeout?: NodeJS.Timer | null}>(target: T, rate: number, f: (this: T) => void) {
-  if (target.timeout) return;
-  target.timeout = setTimeout(() => {
-    f.call(target);
-    target.timeout = null;
-  }, rate);
-}
-
 export function isFunc(x: any) {
   return typeof x === 'function';
 }

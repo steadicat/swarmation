@@ -9,7 +9,6 @@ import {
   PlayerInfo,
   WelcomeMessage,
 } from '../types';
-import * as Util from '../util';
 import * as Dom from './dom';
 import * as Html from './html';
 
@@ -74,6 +73,7 @@ class Player {
   succeeded = 0;
   total = 0;
   completed = 0;
+  latestTimestamp = 0;
   lockedIn = false;
   loggedIn = false;
   moveIntervals: {[key in Direction]?: NodeJS.Timer} = {};
@@ -184,7 +184,7 @@ class Player {
     if (this.lockedIn) return;
     const newp = Player.directions[direction](this.left, this.top);
     const changed = this.setPosition(newp[0], newp[1]);
-    if (changed && this.isSelf) {
+    if (changed) {
       this.sendInfo();
       Dom.removeClass(this.el, 'idle');
     }
@@ -262,14 +262,13 @@ class Player {
         succeeded: this.succeeded,
       });
     } else {
-      Util.rateLimit(this, MOVEMENT_RATE / 2, () => {
-        socket.emit('info', {left: this.left, top: this.top});
-      });
+      this.latestTimestamp = Date.now();
+      socket.emit('info', {left: this.left, top: this.top, time: this.latestTimestamp});
     }
   }
 
   getInfo(info: PlayerInfo) {
-    if (info.left) this.setPosition(info.left, info.top);
+    if (info.left && info.time === this.latestTimestamp) this.setPosition(info.left, info.top);
     if (info.name) this.name = info.name;
     if (info.score) this.score = info.score;
     if (info.total) this.total = info.total;

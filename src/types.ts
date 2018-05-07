@@ -14,15 +14,17 @@ export type FullPlayerInfo = {
   score: number;
   total: number;
   succeeded: number;
+  time?: number;
 };
 export type PartialPlayerInfo = {
   id: string;
   left: number;
   top: number;
-  name?: void;
-  score?: void;
-  total?: void;
-  succeeded?: void;
+  name: never;
+  score: never;
+  total: never;
+  succeeded: never;
+  time?: number;
 };
 export type PlayerInfo = FullPlayerInfo | PartialPlayerInfo;
 
