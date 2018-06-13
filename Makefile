@@ -4,14 +4,14 @@ NODE_BIN=./node_modules/.bin
 PORT=243
 DEPLOY_FILES=etc public server Makefile Secrets package.json formations.txt
 DEPLOY_TARGET=/opt/swarmation
-DEPLOY_SERVER=root@165.227.104.89
+DEPLOY_SERVER=root@138.197.110.95
 REMOTE_EXEC=ssh $(DEPLOY_SERVER) -p $(PORT)
 REMOTE_COPY=rsync -e "ssh -p $(PORT)" -a --delete
 
 NAME=swarmation-new
 REGION=nyc3
-SIZE=1gb
-IMAGE=ubuntu-16-04-x64
+SIZE=s-1vcpu-1gb
+IMAGE=ubuntu-18-04-x64
 SSH_KEY=18156994
 
 # Common

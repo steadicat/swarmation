@@ -4,22 +4,15 @@
     "target": "es5",
     "module": "es2015",
     "moduleResolution": "node",
-    "lib": [
-      "es2015",
-      "es2016",
-      "es2017",
-      "es2017.object",
-      "dom"
-    ],
+    "lib": ["es2015", "es2016", "es2017", "es2017.object", "dom"],
     "noImplicitAny": true,
     "noUnusedParameters": true,
     "noUnusedLocals": true,
     "noImplicitReturns": true
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "files": [
-    "src/server/main.ts"
-  ]
+  "awesomeTypescriptLoaderOptions": {
+    "transpileOnly": true
+  },
+  "include": ["src/**/*.ts"],
+  "files": ["src/server/main.ts"]
 }

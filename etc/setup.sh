@@ -20,7 +20,8 @@ which unattended-upgrades || apt-get install -y unattended-upgrades
 unattended-upgrades
 dpkg-reconfigure -plow -f noninteractive unattended-upgrades
 
-replace /etc/ssh/sshd_config 's/Port 22/Port 243/g'
+replace /etc/ssh/sshd_config 's/#?Port 22/Port 243/g'
+cat /etc/ssh/sshd_config
 service ssh restart
 
 which nginx || apt-get install -y nginx
@@ -28,7 +29,7 @@ which node || apt-get install -y nodejs-legacy
 which npm || apt-get install -y npm
 which fail2ban || apt-get install -y fail2ban
 #which pkg-config || apt-get install -y pkg-config
-which certbot || apt-get install certbot && apt-get install python-certbot-nginx
+which certbot || apt-get install -y certbot && apt-get install -y python-certbot-nginx
 
 ufw default deny incoming
 ufw default allow outgoing

@@ -268,7 +268,7 @@ class Player {
   }
 
   getInfo(info: PlayerInfo) {
-    if (info.left && info.time === this.latestTimestamp) this.setPosition(info.left, info.top);
+    if (info.left && (!this.isSelf || (info.time === this.latestTimestamp))) this.setPosition(info.left, info.top);
     if (info.name) this.name = info.name;
     if (info.score) this.score = info.score;
     if (info.total) this.total = info.total;
