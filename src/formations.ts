@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as path from 'path';
 
 function getPoints(diagram: string[], y: number, x: number): Array<[number, number]> {
   const points: Array<[number, number]> = [];
@@ -28,7 +29,13 @@ function parseFormation(lines: string[]): FormationDefinition {
   const signature = lines[0].replace(/^=+|=+$/g, '').trim();
   return {
     name: signature.split('(')[0].trim(),
-    difficulty: parseInt(signature.split('(')[1].replace(/^\(|\)$/g, '').trim(), 10),
+    difficulty: parseInt(
+      signature
+        .split('(')[1]
+        .replace(/^\(|\)$/g, '')
+        .trim(),
+      10
+    ),
     diagram: lines.slice(1),
   };
 }
@@ -54,7 +61,9 @@ function parse(file: string) {
 }
 
 export function getFormations(): {[id: string]: Formation} {
-  const formations = parse(fs.readFileSync('formations.txt', 'utf-8')) as {[id: string]: Formation};
+  const formations = parse(fs.readFileSync(path.join(__dirname, '../formations.txt'), 'utf-8')) as {
+    [id: string]: Formation;
+  };
   for (const name in formations) {
     const formation = formations[name];
     formation.map = [];

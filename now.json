@@ -1,0 +1,8 @@
+{
+  "public": true,
+  "alias": ["swarmation.com", "www.swarmation.com"],
+  "files": ["server", "public", "formations.txt"],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

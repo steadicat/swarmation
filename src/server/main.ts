@@ -25,14 +25,8 @@ const io = SocketIO(server);
 
 // Configuration
 
-const DEBUG = process.env.NODE_ENV !== 'production';
-
-if (DEBUG) {
-  app.use(errorhandler());
-  app.use('/', express.static('public'));
-} else {
-  app.use(errorhandler());
-}
+app.use(errorhandler());
+app.use('/', express.static('public'));
 
 // Routes
 
@@ -60,7 +54,7 @@ app.get('/formation/:name', (req, res) => {
 });
 
 // Error Handling
-app.use((err: Error | null, _: Express.Request, res: Express.Response) => {
+app.use((err: Error | null, _: Express.Request, res: Express.Response, _next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
@@ -126,15 +120,12 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
   client.emit('welcome', {id: client.id, players: Player.getList()} as WelcomeMessage);
 
   if (FORMATION && TIME > 0) {
-    client.emit(
-      'nextFormation',
-      {
-        formation: FORMATION.name,
-        time: TIME,
-        map: FORMATION.map,
-        active: Player.getActive(),
-      } as NextFormationMessage
-    );
+    client.emit('nextFormation', {
+      formation: FORMATION.name,
+      time: TIME,
+      map: FORMATION.map,
+      active: Player.getActive(),
+    } as NextFormationMessage);
   }
 
   client.on('info', (message: InfoMessage) => PlayerEvents.info(Player.get(client), message));
@@ -192,16 +183,13 @@ function endTurn() {
   const loss = Math.round((MAX_POINTS - FORMATION.difficulty) / 4);
   const ids = Object.keys(players);
   console.log(`Formation ${FORMATION.name} completed with ${ids.length} participants.`);
-  io.sockets.emit(
-    'formation',
-    {
-      formation: FORMATION.name,
-      difficulty: FORMATION.difficulty,
-      gain,
-      loss,
-      ids,
-    } as FormationMessage
-  );
+  io.sockets.emit('formation', {
+    formation: FORMATION.name,
+    difficulty: FORMATION.difficulty,
+    gain,
+    loss,
+    ids,
+  } as FormationMessage);
   for (const id of ids) {
     const player = players[id];
     player.setActive();
