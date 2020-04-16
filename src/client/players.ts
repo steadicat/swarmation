@@ -10,7 +10,6 @@ import {
   WelcomeMessage,
 } from '../types';
 import * as Dom from './dom';
-import * as Html from './html';
 
 const WIDTH = 96;
 const HEIGHT = 60;
@@ -44,8 +43,10 @@ let socket = io.connect('');
 
 function displayMessage(text: string) {
   PLAYER.hideWelcome();
-  const message = Html.div('.message', text);
-  Dom.get('board-container').appendChild(message);
+  const message = document.createElement('div');
+  message.className = 'message';
+  message.innerText = text;
+  document.getElementById('board-container')?.appendChild(message);
 }
 
 function animate(duration: number, start: () => void, end: () => void) {
@@ -56,10 +57,11 @@ function animate(duration: number, start: () => void, end: () => void) {
 }
 
 function scoreChange(delta: number) {
-  Dom.get('score').textContent = PLAYER.score + '';
-  Dom.get('success').textContent = PLAYER.successRate() + '';
-  const popup = Html.div('.score.abs.center', (delta > 0 ? '+' : '') + delta);
-  Dom.addClass(popup, delta > 0 ? 'positive' : 'negative');
+  document.getElementById('score').textContent = PLAYER.score + '';
+  document.getElementById('success').textContent = PLAYER.successRate() + '';
+  const popup = document.createElement('div');
+  popup.className = `score abs center ${delta > 0 ? 'positive' : 'negative'}`;
+  popup.innerText = (delta > 0 ? '+' : '') + delta;
   popup.style.left = PLAYER.getScreenLeft() - 200 + 'px';
   popup.style.top = PLAYER.getScreenTop() - 50 + 'px';
   document.body.appendChild(popup);
@@ -90,8 +92,9 @@ class Player {
 
   constructor(id: string, left: number, top: number, isSelf = false) {
     this.id = id;
-    this.el = Html.div('.player');
-    Dom.get('board').appendChild(this.el);
+    this.el = document.createElement('div');
+    this.el.className = 'player';
+    document.getElementById('board')?.appendChild(this.el);
     if (!left) {
       left = Math.floor(Math.random() * WIDTH);
       top = Math.floor(Math.random() * HEIGHT);
@@ -287,11 +290,17 @@ class Player {
   }
 
   showTooltip() {
-    const tooltip = Html.div('.tooltip.pas', [
-      Html.h3('.b.medium.mbs', this.name),
-      Html.div('.col.mrs.light', [Html.div('.large.b', this.score), 'points']),
-      Html.div('.col.dim', [Html.div('.large.b', this.successRate() + '%'), 'success']),
-    ]);
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip pas';
+    tooltip.innerHTML = `
+      <h3 class="b medium mbs>${this.name}</h3>
+      <div class="col mrs light">
+        <div class="large b">${this.score}</div> points
+      </div>
+      <div class="col dim">
+        <div class="large b">${this.successRate()}%</div> success
+      </div>
+    `;
     document.body.appendChild(tooltip);
     tooltip.style.left = this.getScreenLeft() - tooltip.offsetWidth / 2 + 5 + 'px';
     tooltip.style.top = this.getScreenTop() - tooltip.offsetHeight - 15 + 'px';
@@ -306,11 +315,13 @@ class Player {
   }
 
   showWelcome() {
-    const welcome = Html.div('.welcome.pam', {}, {width: '240px'}, [
-      Html.h3('.b.medium', 'Welcome to life as a pixel'),
-      Html.p('.mtm', ['Use your ', Html.span('.arrow-image', 'arrow'), ' keys to move']),
-    ]);
-
+    const welcome = document.createElement('div');
+    welcome.className = 'welcome pam';
+    welcome.style.width = '240px';
+    welcome.innerHTML = `
+      <h3 class="b medium">Welcome to life as a pixel</h3>
+      <p class="mtm">Use your <span class="arrow-image arrow"></span> keys to move</p>
+    `;
     this.welcome = welcome;
     document.body.appendChild(welcome);
     this.positionWelcome(true);
@@ -329,10 +340,9 @@ class Player {
 
   positionWelcome(first = false) {
     if (!first) {
-      this.welcome.innerHTML = '';
-      this.welcome.appendChild(
-        Html.p('Get into a formation with other players before the countdown expires.')
-      );
+      this.welcome.innerHTML = `
+        <p>Get into a formation with other players before the countdown expires</p>
+      `;
       this.welcomeCountdown--;
       if (this.welcomeCountdown === 0) {
         this.hideWelcome();
@@ -379,7 +389,7 @@ socket.on('welcome', (data: WelcomeMessage) => {
 socket.on('info', (data: InfoMessage) => {
   if (PLAYER && data.id === PLAYER.id) {
     PLAYER.getInfo(data);
-    if (data.score) Dom.get('score').textContent = data.score + '';
+    if (data.score) document.getElementById('score').textContent = data.score + '';
   } else {
     loadPlayer(data);
   }
@@ -434,7 +444,7 @@ socket.on('formation', (data: FormationMessage) => {
 });
 
 function showFormation(map: boolean[][]) {
-  const f = Dom.get('formation-image');
+  const f = document.getElementById('formation-image');
   f.innerHTML = '';
   let width = 0;
   let height = 0;
@@ -442,7 +452,8 @@ function showFormation(map: boolean[][]) {
     if (row)
       row.forEach((cell, x) => {
         if (!cell) return;
-        const p = Html.div('.ref');
+        const p = document.createElement('div');
+        p.className = 'ref';
         f.appendChild(p);
         p.style.top = y * (p.offsetHeight + 1) + 'px';
         p.style.left = x * (p.offsetWidth + 1) + 'px';
@@ -462,28 +473,30 @@ let requestPopupShown = false;
 
 function showRequestPopup() {
   if (requestPopupShown) return;
-  const button = Dom.get('send');
+  const button = document.getElementById('send');
   Dom.remove(button);
   Dom.removeClass(button, 'off');
-  const requestPopup = Html.div('.megaphone.pvs', [
-    'Swarmation is extra fun with more people. Ask some friends to join: ',
-    button,
-  ]);
-  Dom.get('container').appendChild(requestPopup);
+  const requestPopup = document.createElement('div');
+  requestPopup.className = 'megaphone pvs';
+  requestPopup.appendChild(
+    document.createTextNode('Swarmation is extra fun with more people. Ask some friends to join: ')
+  );
+  requestPopup.appendChild(button);
+  document.getElementById('container')?.appendChild(requestPopup);
   requestPopupShown = true;
 }
 
 socket.on('nextFormation', (message: NextFormationMessage) => {
-  Dom.get('formation-name').textContent = message.formation;
+  document.getElementById('formation-name')?.textContent = message.formation;
   showFormation(message.map);
 
   time = message.time;
-  Dom.get('countdown').textContent = time + '';
+  document.getElementById('countdown')?.textContent = time + '';
 
   if (formationInterval) clearInterval(formationInterval);
   formationInterval = setInterval(() => {
     time--;
-    Dom.get('countdown').textContent = time + '';
+    document.getElementById('countdown').textContent = time + '';
     if (time === 0) clearInterval(formationInterval);
   }, 1000);
 
@@ -523,7 +536,7 @@ function ampm(hours: number) {
 
 function showWeeklyGameNotice() {
   if (weeklyGameNoticeShown) return;
-  const button = Dom.get('send');
+  const button = document.getElementById('send');
   Dom.remove(button);
   Dom.removeClass(button, 'off');
   const t = new Date();
@@ -532,20 +545,22 @@ function showWeeklyGameNotice() {
     t.getFullYear() === d.getFullYear() &&
     t.getMonth() === d.getMonth() &&
     t.getDate() === d.getDate();
-  const weeklyGameNotice = Html.div('.megaphone.pvs', [
-    isToday
-      ? `Join us this TODAY – ${monthNames[d.getMonth()]} ${d.getDate()} ${d.getFullYear()} – at `
-      : `Join us this ${dayNames[d.getDay()]} – ${
-          monthNames[d.getMonth()]
-        } ${d.getDate()}, ${d.getFullYear()} – at `,
-    Html.a(
-      '',
-      {href: 'http://erthbeet.com/?Universal_World_Time=kv2300'},
+  const weeklyGameNotice = document.createElement('div');
+  weeklyGameNotice.className = 'megaphone pvs';
+  weeklyGameNotice.innerHTML = `
+    ${
+      isToday
+        ? `Join us this TODAY – ${monthNames[d.getMonth()]} ${d.getDate()} ${d.getFullYear()} – at `
+        : `Join us this ${dayNames[d.getDay()]} – ${
+            monthNames[d.getMonth()]
+          } ${d.getDate()}, ${d.getFullYear()} – at `
+    }
+    <a href="http://erthbeet.com/?Universal_World_Time=kv2300">${
       twelveHours(d.getHours()) + ampm(d.getHours())
-    ),
-    ' for a big game of Swarmation!',
-  ]);
-  Dom.get('container').appendChild(weeklyGameNotice);
+    }</a>
+    for a big game of Swarmation!
+  `;
+  document.getElementById('container')?.appendChild(weeklyGameNotice);
   weeklyGameNoticeShown = true;
 }
 
@@ -637,8 +652,10 @@ document.addEventListener('keyup', (event: KeyboardEvent) => {
 
 export function login(userId: string, token: string, name: string) {
   if (!PLAYER) return;
-  const login = Dom.get('login');
-  const username = Html.div('.top-border.pvm.phm.light', 'Welcome, ' + name);
+  const login = document.getElementById('login');
+  const username = document.createElement('div');
+  username.className = 'top-border pvm phm light';
+  username.textContent = `Welcome, ${name}`;
   const parent = login.parentNode;
   Dom.remove(login);
   parent.appendChild(username);

@@ -8,18 +8,18 @@ export const PLAYERS: {[id: string]: Player} = {};
 
 export class Player {
   public id: string;
-  public client: SocketIO.Socket | null;
-  private active: boolean;
-  public userId: string;
+  public client: SocketIO.Socket;
+  private active: boolean | undefined;
+  public userId: string | undefined;
   private idleTurns = 0;
-  private succeeded: number;
-  private name: string;
-  public score: number;
-  public left: number;
-  public top: number;
-  private total: number;
+  private succeeded: number | undefined;
+  private name: string | undefined;
+  public score: number | undefined;
+  public left: number | undefined;
+  public top: number | undefined;
+  private total: number | undefined;
 
-  constructor(id: string, client?: SocketIO.Socket) {
+  constructor(id: string, client: SocketIO.Socket) {
     this.id = id;
     this.client = client;
   }
@@ -27,10 +27,6 @@ export class Player {
   static get(client: SocketIO.Socket) {
     if (!PLAYERS[client.id]) PLAYERS[client.id] = new Player(client.id, client);
     return PLAYERS[client.id];
-  }
-
-  static byId(id: string) {
-    return PLAYERS[id];
   }
 
   static getList(): PlayerInfo[] {

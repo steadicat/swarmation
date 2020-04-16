@@ -9,7 +9,7 @@ if (!document.getElementById(id)) {
   js.id = id;
   js.async = true;
   js.src = '//connect.facebook.net/en_US/all.js';
-  ref.parentNode.insertBefore(js, ref);
+  ref.parentNode?.insertBefore(js, ref);
 }
 
 declare const window: {
