@@ -1,4 +1,4 @@
-NODE=ts-node --fast --compilerOptions '{"module": "commonjs"}'
+NODE=ts-node -T -O '{"module": "commonjs"}'
 NODE_BIN=./node_modules/.bin
 
 # Common
@@ -11,7 +11,7 @@ clean:
 .PHONY: clean
 
 node_modules: package.json
-	npm install
+	yarn
 	touch node_modules
 
 public/formation/*.png: formations.txt src/server/images.ts src/server/fbpublish.ts
@@ -27,12 +27,14 @@ devserver: node_modules
 
 devjs: node_modules
 	$(NODE_BIN)/webpack \
+		--mode development \
 		--watch \
 		--debug \
 		--output-pathinfo \
 		--devtool inline-source-map \
 		--module-bind ts=awesome-typescript-loader \
-		src/client/main.ts public/main.js \
+		--entry ./src/client/main.ts \
+		--output public/main.js \
 		--resolve-extensions '.ts,.js'
 .PHONY: devjs
 
@@ -47,9 +49,11 @@ dev: node_modules public/formation/*.png
 # Deployment
 
 buildjs: node_modules
-	-NODE_ENV=production $(NODE_BIN)/webpack -p \
+	-NODE_ENV=production $(NODE_BIN)/webpack \
+		--mode production \
 		--module-bind ts=awesome-typescript-loader \
-		src/client/main.ts public/main.js \
+		--entry ./src/client/main.ts \
+		--output public/main.js \
 		--resolve-extensions '.ts,.js'
 .PHONY: buildjs
 
