@@ -1,0 +1,4 @@
+node_modules
+src/config.ts
+public/main.js
+server
