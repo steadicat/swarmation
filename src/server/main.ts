@@ -50,7 +50,9 @@ app.get('/formation/:name', (req, res) => {
     res.send(404);
     return;
   }
-  res.send(formationPage.replace(/\{name\}/g, req.params.name).replace(/\{points\}/g, formation.size + ''));
+  res.send(
+    formationPage.replace(/\{name\}/g, req.params.name).replace(/\{points\}/g, formation.size + '')
+  );
 });
 
 // Error Handling
@@ -204,13 +206,13 @@ function endTurn() {
         player.userId + '/achievements',
         config.token,
         {achievement: 'http://swarmation.com/formation/' + FORMATION.name},
-        err => {
+        (err) => {
           if (err) throw err;
           console.log(`FB: Published completion of ${FORMATION.name} for ${player.userId}.`);
         }
       );
       // save score
-      fb.post(player.userId + '/scores', config.token, {score: player.score}, err => {
+      fb.post(player.userId + '/scores', config.token, {score: player.score}, (err) => {
         if (err) throw err;
         console.log(`FB: Saved score of ${player.score} for ${player.userId}.`);
       });

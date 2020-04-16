@@ -248,7 +248,7 @@ class Player {
 
   successRate(): number {
     if (this.total === 0) return 100;
-    return Math.round(1000.0 * this.succeeded / this.total) / 10;
+    return Math.round((1000.0 * this.succeeded) / this.total) / 10;
   }
 
   sendInfo(full = false) {
@@ -268,7 +268,8 @@ class Player {
   }
 
   getInfo(info: PlayerInfo) {
-    if (info.left && (!this.isSelf || (info.time === this.latestTimestamp))) this.setPosition(info.left, info.top);
+    if (info.left && (!this.isSelf || info.time === this.latestTimestamp))
+      this.setPosition(info.left, info.top);
     if (info.name) this.name = info.name;
     if (info.score) this.score = info.score;
     if (info.total) this.total = info.total;
@@ -320,7 +321,9 @@ class Player {
   positionWelcome(first = false) {
     if (!first) {
       Dom.empty(this.welcome);
-      this.welcome.appendChild(Html.p('Get into a formation with other players before the countdown expires.'));
+      this.welcome.appendChild(
+        Html.p('Get into a formation with other players before the countdown expires.')
+      );
       this.welcomeCountdown--;
       if (this.welcomeCountdown === 0) {
         this.hideWelcome();
@@ -519,11 +522,16 @@ function showWeeklyGameNotice() {
   Dom.removeClass(button, 'off');
   const t = new Date();
   const d = nextWeeklyGame;
-  const isToday = t.getFullYear() === d.getFullYear() && t.getMonth() === d.getMonth() && t.getDate() === d.getDate();
+  const isToday =
+    t.getFullYear() === d.getFullYear() &&
+    t.getMonth() === d.getMonth() &&
+    t.getDate() === d.getDate();
   const weeklyGameNotice = Html.div('.megaphone.pvs', [
     isToday
       ? `Join us this TODAY – ${monthNames[d.getMonth()]} ${d.getDate()} ${d.getFullYear()} – at `
-      : `Join us this ${dayNames[d.getDay()]} – ${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} – at `,
+      : `Join us this ${dayNames[d.getDay()]} – ${
+          monthNames[d.getMonth()]
+        } ${d.getDate()}, ${d.getFullYear()} – at `,
     Html.a(
       '',
       {href: 'http://erthbeet.com/?Universal_World_Time=kv2300'},
@@ -550,7 +558,9 @@ socket.on('restart', () => {
 socket.on('kick', () => {
   RESTARTING = true;
   socket.disconnect();
-  displayMessage('You have been disconnected for being idle too long. Reload the page to resume playing.');
+  displayMessage(
+    'You have been disconnected for being idle too long. Reload the page to resume playing.'
+  );
 });
 
 socket.on('connect', () => {

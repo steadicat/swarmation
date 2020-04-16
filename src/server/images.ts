@@ -15,7 +15,10 @@ function getImage(formation: Formation, cb: (err: Error | null, buffer: Buffer) 
   for (const row of formation.map) {
     maxWidth = Math.max(maxWidth, row.length);
   }
-  const canvas = new Canvas(maxWidth * PIXEL_SIZE + 2 * PADDING, maxHeight * PIXEL_SIZE + 2 * PADDING);
+  const canvas = new Canvas(
+    maxWidth * PIXEL_SIZE + 2 * PADDING,
+    maxHeight * PIXEL_SIZE + 2 * PADDING
+  );
   const ctx = canvas.getContext('2d');
   formation.map.forEach((row, y) => {
     row.forEach((cell, x) => {

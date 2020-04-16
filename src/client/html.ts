@@ -15,13 +15,15 @@ type Attributes = {[name: string]: string};
 type Styles = {[name in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[name]};
 
 function tag(tag: string, ...args: Array<string | Attributes | Styles | HTMLElement>) {
-  const selector: string = isSelector(args[0]) ? args.shift() as string : '';
-  const attrs: Attributes = Util.isObject(args[0]) ? args.shift() as Attributes : {};
-  const style: Styles = Util.isObject(args[0]) ? args.shift() as Styles : {};
+  const selector: string = isSelector(args[0]) ? (args.shift() as string) : '';
+  const attrs: Attributes = Util.isObject(args[0]) ? (args.shift() as Attributes) : {};
+  const style: Styles = Util.isObject(args[0]) ? (args.shift() as Styles) : {};
 
-  const children = Util.flatten(args).filter(nonNull).map(child => {
-    return typeof child === 'string' ? document.createTextNode(child) : child;
-  });
+  const children = Util.flatten(args)
+    .filter(nonNull)
+    .map((child) => {
+      return typeof child === 'string' ? document.createTextNode(child) : child;
+    });
 
   const element = Dom.create(tag.toUpperCase());
   if (selector) {

@@ -12,7 +12,7 @@ for (const id in formations) {
     config.appId + '/achievements',
     config.token,
     {achievement: 'http://swarmation.com/formation/' + formation.name},
-    err => {
+    (err) => {
       if (err) throw err;
       console.log('FB: Registered formation ' + formation.name);
     }

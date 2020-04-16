@@ -29,7 +29,7 @@ export function start() {
     // listen for and handle auth.statusChange events
     FB.Event.subscribe('auth.statusChange', (response: {authResponse: {accessToken: string}}) => {
       if (response.authResponse) {
-        FB.api('/me', me => {
+        FB.api('/me', (me) => {
           if (me.name) {
             Players.login(me.id, response.authResponse.accessToken, me.first_name);
           }

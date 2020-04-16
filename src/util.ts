@@ -11,7 +11,7 @@ export function isString(x: any) {
 }
 
 export function flatten<T>(input: T[], shallow = false, output: T[] = []) {
-  input.forEach(value => {
+  input.forEach((value) => {
     if (Array.isArray(value)) {
       shallow ? output.push(value) : flatten(value, shallow, output);
     } else {

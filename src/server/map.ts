@@ -31,7 +31,7 @@ export function exists(x: number, y: number) {
 
 export function checkFormationAtOrigin(formation: Formation, x: number, y: number) {
   const players: Player[] = [];
-  const success = formation.points.every(point => {
+  const success = formation.points.every((point) => {
     const player = get(x + point[0], y + point[1]);
     players.push(player);
     return !!player;
@@ -46,7 +46,7 @@ export function checkFormation(formation: Formation, players: {[id: string]: Pla
   for (const id in players) {
     const player = players[id];
     const f = checkFormationAtOrigin(formation, player.left, player.top);
-    f.forEach(p => {
+    f.forEach((p) => {
       // work around dirty map bug
       if (!p) return;
       winners[p.id] = p;

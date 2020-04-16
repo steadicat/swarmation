@@ -18,7 +18,11 @@ function response<R>(cb: (err: FbError | null, body?: FbResponseBody<R>) => void
   };
 }
 
-export function get<R>(path: string, token: string, cb: (err: FbError | null, body?: FbResponseBody<R>) => void) {
+export function get<R>(
+  path: string,
+  token: string,
+  cb: (err: FbError | null, body?: FbResponseBody<R>) => void
+) {
   console.log('FB: Get ' + path);
   request.get(
     {
