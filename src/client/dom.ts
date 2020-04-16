@@ -2,14 +2,6 @@ export function get(id: string): HTMLElement | null {
   return document.getElementById(id);
 }
 
-export function create(tag: string) {
-  return document.createElement(tag);
-}
-
-export function listen(el: HTMLElement | Document, event: string, cb: EventListener) {
-  el.addEventListener(event, cb);
-}
-
 export function addClass(el: HTMLElement, cl: string) {
   const cls = el.getAttribute('class');
   const classes = cls ? cls.split(' ') : [];
@@ -28,14 +20,6 @@ export function removeClass(el: HTMLElement, cl: string) {
 
 export function remove(el: HTMLElement) {
   el.parentNode.removeChild(el);
-}
-
-export function isEl(el: unknown): el is HTMLElement {
-  return el instanceof HTMLElement;
-}
-
-export function empty(el: HTMLElement) {
-  el.innerHTML = '';
 }
 
 export function left(el: HTMLElement): number {

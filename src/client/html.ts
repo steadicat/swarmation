@@ -26,7 +26,7 @@ function tag(tag: string, ...args: Array<string | Attributes | Styles | HTMLElem
       return typeof child === 'string' ? document.createTextNode(child) : child;
     });
 
-  const element = Dom.create(tag.toUpperCase());
+  const element = document.createElement(tag.toUpperCase());
   if (selector) {
     const matches = selector.match(/([#.][^#.]+)/g);
     matches.forEach((bit: string) => {
@@ -54,22 +54,6 @@ function tag(tag: string, ...args: Array<string | Attributes | Styles | HTMLElem
 
 export const div = tag.bind(null, 'div');
 export const span = tag.bind(null, 'span');
-export const button = tag.bind(null, 'button');
-export const input = tag.bind(null, 'input');
-export const option = tag.bind(null, 'option');
-export const select = tag.bind(null, 'select');
-export const h1 = tag.bind(null, 'h1');
-export const h2 = tag.bind(null, 'h2');
 export const h3 = tag.bind(null, 'h3');
 export const a = tag.bind(null, 'a');
-export const br = tag.bind(null, 'br');
-export const li = tag.bind(null, 'li');
-export const ul = tag.bind(null, 'ul');
 export const p = tag.bind(null, 'p');
-export const em = tag.bind(null, 'em');
-export const title = tag.bind(null, 'title');
-export const head = tag.bind(null, 'head');
-export const body = tag.bind(null, 'body');
-export const link = tag.bind(null, 'link');
-export const html = tag.bind(null, 'html');
-export const script = tag.bind(null, 'script');

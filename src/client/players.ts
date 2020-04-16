@@ -110,8 +110,8 @@ class Player {
       Dom.addClass(this.el, 'self');
       this.sendInfo();
     }
-    Dom.listen(this.el, 'mouseover', this.showTooltip.bind(this));
-    Dom.listen(this.el, 'mouseout', this.hideTooltip.bind(this));
+    this.el.addEventListener('mouseover', this.showTooltip.bind(this));
+    this.el.addEventListener('mouseout', this.hideTooltip.bind(this));
   }
 
   static atPixel(x: number, y: number): Player {
@@ -153,10 +153,18 @@ class Player {
   }
 
   getScreenLeft(): number {
-    return this.getX() + Dom.left(this.el.offsetParent as HTMLElement);
+    return (
+      this.getX() +
+      (this.el.offsetParent as HTMLElement).getBoundingClientRect().left +
+      window.pageXOffset
+    );
   }
   getScreenTop(): number {
-    return this.getY() + Dom.top(this.el.offsetParent as HTMLElement);
+    return (
+      this.getY() +
+      (this.el.offsetParent as HTMLElement).getBoundingClientRect().top +
+      window.pageYOffset
+    );
   }
 
   setPosition(left: number, top: number): boolean {
@@ -321,7 +329,7 @@ class Player {
 
   positionWelcome(first = false) {
     if (!first) {
-      Dom.empty(this.welcome);
+      this.welcome.innerHTML = '';
       this.welcome.appendChild(
         Html.p('Get into a formation with other players before the countdown expires.')
       );
@@ -427,7 +435,7 @@ socket.on('formation', (data: FormationMessage) => {
 
 function showFormation(map: boolean[][]) {
   const f = Dom.get('formation-image');
-  Dom.empty(f);
+  f.innerHTML = '';
   let width = 0;
   let height = 0;
   map.forEach((row, y) => {
@@ -595,7 +603,7 @@ function stop(event: KeyboardEvent) {
   event.stopPropagation();
 }
 
-Dom.listen(document, 'keydown', (event: KeyboardEvent) => {
+document.addEventListener('keydown', (event: KeyboardEvent) => {
   if (!PLAYER) return;
 
   const keyCode = (event.keyCode + '') as keyof typeof MOVEMENTS;
@@ -613,7 +621,7 @@ Dom.listen(document, 'keydown', (event: KeyboardEvent) => {
   }
 });
 
-Dom.listen(document, 'keyup', (event: KeyboardEvent) => {
+document.addEventListener('keyup', (event: KeyboardEvent) => {
   if (!PLAYER) return;
 
   const keyCode = (event.keyCode + '') as keyof typeof MOVEMENTS;
