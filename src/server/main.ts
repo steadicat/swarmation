@@ -56,7 +56,7 @@ app.get('/formation/:name', (req, res) => {
 });
 
 // Error Handling
-app.use((err: Error | null, _: Express.Request, res: Express.Response, _next) => {
+app.use((err: Error | null, _: express.Request, res: express.Response, _next: unknown) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
@@ -205,7 +205,7 @@ function endTurn() {
       fb.post(
         player.userId + '/achievements',
         config.token,
-        {achievement: 'http://swarmation.com/formation/' + FORMATION.name},
+        {achievement: `http://swarmation.com/formation/${FORMATION.name}`},
         (err) => {
           if (err) throw err;
           console.log(`FB: Published completion of ${FORMATION.name} for ${player.userId}.`);

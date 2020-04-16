@@ -34,7 +34,7 @@ export function get<R>(
   );
 }
 
-export function post<D extends {access_token?: string}, R>(
+export function post<D extends {access_token?: string; achievement?: string; score?: number}, R>(
   path: string,
   token: string,
   data: D,

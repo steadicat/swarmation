@@ -1,7 +1,7 @@
 import * as Util from '../util';
 import * as Dom from './dom';
 
-function isSelector(str: string | undefined): str is string {
+function isSelector(str: string | unknown): str is string {
   if (!str) return true;
   if (typeof str !== 'string') return false;
   if (str.indexOf(' ') >= 0) return false;
@@ -45,7 +45,8 @@ function tag(tag: string, ...args: Array<string | Attributes | Styles | HTMLElem
     element.setAttribute(name, attrs[name]);
   }
   for (const prop in style) {
-    element.style[prop as keyof Styles] = style[prop as keyof Styles];
+    element.style[prop as keyof Omit<Styles, 'length' | 'parentRule'>] =
+      style[prop as keyof Styles];
   }
   children.forEach(element.appendChild.bind(element));
   return element;

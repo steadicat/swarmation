@@ -15,6 +15,13 @@ if (!document.getElementById(id)) {
 declare const window: {
   fbAsyncInit: () => void;
 };
+declare const FB: {
+  init(args: Record<string, string | boolean>): void;
+  Event: {
+    subscribe(event: string, listener: (res: {authResponse: {accessToken: string}}) => void): void;
+  };
+  api(path: '/me', handler: (res: {id: string; first_name: string; name: string}) => void): void;
+};
 
 export function start() {
   // Init the SDK upon load

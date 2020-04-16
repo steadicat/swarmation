@@ -17,7 +17,6 @@ export class Player {
   public score: number;
   public left: number;
   public top: number;
-  private token: string;
   private total: number;
 
   constructor(id: string, client?: SocketIO.Socket) {
@@ -62,9 +61,10 @@ export class Player {
     const top = this.top;
     const left = this.left;
     for (const key in info) {
-      if (key === 'id') continue;
-      const k = key as keyof PlayerInfo;
-      if (info[k] !== undefined && info[k] !== null) this[k] = info[k] as string | number;
+      const k = key as keyof typeof info;
+      if (k === 'id') continue;
+      if (k === 'time') continue;
+      if (info[k] !== undefined && info[k] !== null) this[k] = info[k];
     }
     map.move(left, top, this.left, this.top, this);
   }
@@ -99,9 +99,8 @@ export class Player {
     this.active = false;
   }
 
-  login(userId: string, token: string) {
+  login(userId: string, _token: string) {
     this.userId = userId;
-    this.token = token;
   }
 
   disconnect(sockets: SocketIO.Namespace) {
