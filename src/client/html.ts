@@ -1,13 +1,14 @@
 import * as Util from '../util';
 import * as Dom from './dom';
 
-function isSelector(str: any): str is string {
+function isSelector(str: string | undefined): str is string {
   if (!str) return true;
+  if (typeof str !== 'string') return false;
   if (str.indexOf(' ') >= 0) return false;
   return str.charAt(0) === '#' || str.charAt(0) === '.';
 }
 
-function nonNull(x: any) {
+function nonNull(x: unknown) {
   return x !== null;
 }
 
@@ -27,7 +28,7 @@ function tag(tag: string, ...args: Array<string | Attributes | Styles | HTMLElem
 
   const element = Dom.create(tag.toUpperCase());
   if (selector) {
-    const matches = selector.match(/([#\.][^#\.]+)/g);
+    const matches = selector.match(/([#.][^#.]+)/g);
     matches.forEach((bit: string) => {
       switch (bit.charAt(0)) {
         case '#':

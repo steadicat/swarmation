@@ -1,12 +1,12 @@
-export function isFunc(x: any) {
+export function isFunc(x: unknown) {
   return typeof x === 'function';
 }
 
-export function isObject(x: any) {
+export function isObject(x: unknown) {
   return x + '' === '[object Object]';
 }
 
-export function isString(x: any) {
+export function isString(x: unknown) {
   return typeof x === 'string';
 }
 

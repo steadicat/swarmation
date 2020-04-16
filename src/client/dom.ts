@@ -30,7 +30,7 @@ export function remove(el: HTMLElement) {
   el.parentNode.removeChild(el);
 }
 
-export function isEl(el: any): el is HTMLElement {
+export function isEl(el: unknown): el is HTMLElement {
   return el instanceof HTMLElement;
 }
 

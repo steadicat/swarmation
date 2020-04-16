@@ -39,6 +39,9 @@ let PLAYER: Player | null = null;
 let PLAYERS: {[id: string]: Player} = {};
 let MAP: Player[][] = [];
 
+import * as io from 'socket.io-client';
+let socket = io.connect('');
+
 function displayMessage(text: string) {
   PLAYER.hideWelcome();
   const message = Html.div('.message', text);
@@ -191,11 +194,10 @@ class Player {
   }
 
   startMove(direction: Direction) {
-    const p = this;
-    if (p.moveIntervals[direction]) return;
-    p.move(direction);
+    if (this.moveIntervals[direction]) return;
+    this.move(direction);
     this.moveIntervals[direction] = setInterval(() => {
-      p.move(direction);
+      this.move(direction);
     }, MOVEMENT_RATE);
   }
 
@@ -309,12 +311,11 @@ class Player {
   hideWelcome() {
     if (!this.welcome) return;
     this.welcome.style.opacity = '0';
-    const self = this;
     setTimeout(() => {
-      if (!self.welcome) return;
-      Dom.remove(self.welcome);
-      delete self.welcomeCountdown;
-      delete self.welcome;
+      if (!this.welcome) return;
+      Dom.remove(this.welcome);
+      delete this.welcomeCountdown;
+      delete this.welcome;
     }, 1000);
   }
 
@@ -344,9 +345,6 @@ class Player {
 }
 
 // sockets
-
-import * as io from 'socket.io-client';
-let socket = io.connect('');
 
 export function start() {
   // no-op, called to trigger evaluation of the module
@@ -450,6 +448,22 @@ function showFormation(map: boolean[][]) {
 
 let time: number;
 let formationInterval: NodeJS.Timer;
+let weeklyGameNoticeShown = false;
+
+let requestPopupShown = false;
+
+function showRequestPopup() {
+  if (requestPopupShown) return;
+  const button = Dom.get('send');
+  Dom.remove(button);
+  Dom.removeClass(button, 'off');
+  const requestPopup = Html.div('.megaphone.pvs', [
+    'Swarmation is extra fun with more people. Ask some friends to join: ',
+    button,
+  ]);
+  Dom.get('container').appendChild(requestPopup);
+  requestPopupShown = true;
+}
 
 socket.on('nextFormation', (message: NextFormationMessage) => {
   Dom.get('formation-name').textContent = message.formation;
@@ -470,23 +484,7 @@ socket.on('nextFormation', (message: NextFormationMessage) => {
   }
 });
 
-let requestPopupShown = false;
-
-function showRequestPopup() {
-  if (requestPopupShown) return;
-  const button = Dom.get('send');
-  Dom.remove(button);
-  Dom.removeClass(button, 'off');
-  const requestPopup = Html.div('.megaphone.pvs', [
-    'Swarmation is extra fun with more people. Ask some friends to join: ',
-    button,
-  ]);
-  Dom.get('container').appendChild(requestPopup);
-  requestPopupShown = true;
-}
-
 const nextWeeklyGame = new Date(Date.UTC(2017, 5, 15, 11));
-let weeklyGameNoticeShown = false;
 
 const monthNames = [
   'January',
@@ -572,6 +570,7 @@ socket.on('connect', () => {
 
 socket.on('disconnect', () => {
   if (RESTARTING) return;
+  // eslint-disable-next-line prefer-const
   let interval: NodeJS.Timer;
   function connect() {
     if (socket.connected) {
