@@ -1,8 +1,8 @@
-import 'core-js/fn/array/filter';
-import 'core-js/fn/array/index-of';
-import 'core-js/fn/array/is-array';
-import 'core-js/fn/function/bind';
-import 'core-js/fn/string/trim';
+import 'core-js/es/array/filter';
+import 'core-js/es/array/index-of';
+import 'core-js/es/array/is-array';
+import 'core-js/es/function/bind';
+import 'core-js/es/string/trim';
 
 import {start as fbStart} from './fb';
 import {start as playersStart} from './players';
