@@ -26,6 +26,7 @@
     "awesome-typescript-loader": "^5.2.1",
     "canvas": "^2.6.1",
     "nib": "^1.1.2",
+    "prettier": "^2.0.4",
     "request": "^2.88.2",
     "socket.io-client": "2.3.0",
     "stylus": "^0.54.7",

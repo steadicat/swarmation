@@ -1,15 +1,5 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-  "prettier.jsxBracketSameLine": true,
-  "prettier.singleQuote": true,
-  "prettier.bracketSpacing": false,
-  "prettier.trailingComma": "es5",
-  "prettier.printWidth": 120,
-  "search.exclude": {
-    "public/main.js": true,
-    "public/css/screen.css": true,
-    "server": true
-  },
   "editor.formatOnSave": true,
   "tslint.alwaysShowRuleFailuresAsWarnings": true
 }
