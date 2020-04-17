@@ -3,7 +3,6 @@ import * as errorhandler from 'errorhandler';
 import * as express from 'express';
 import * as http from 'http';
 import * as SocketIO from 'socket.io';
-import * as config from '../config';
 import {Formation, getFormations, sizeRange} from '../formations';
 import {
   FlashMessage,
@@ -17,6 +16,8 @@ import {
 import * as fb from './fb';
 import * as map from './map';
 import {Player, PLAYERS} from './players';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
@@ -100,7 +101,7 @@ const PlayerEvents = {
   login(player: Player, message: LoginMessage) {
     if (!player) return;
     player.login(message.userId, message.token);
-    fb.get<Array<{score: number}>>(config.appId + '/scores', message.token, (err, res) => {
+    fb.get<Array<{score: number}>>(process.env.FB_APP_ID + '/scores', message.token, (err, res) => {
       if (err) throw err;
       player.score = res.data[0].score;
       console.log('FB: Loaded score for user ' + message.userId + ': ' + player.score);
@@ -204,7 +205,7 @@ function endTurn() {
       // post formation
       fb.post(
         player.userId + '/achievements',
-        config.token,
+        process.env.FB_TOKEN,
         {achievement: `http://swarmation.com/formation/${FORMATION.name}`},
         (err) => {
           if (err) throw err;
@@ -212,7 +213,7 @@ function endTurn() {
         }
       );
       // save score
-      fb.post(player.userId + '/scores', config.token, {score: player.score}, (err) => {
+      fb.post(player.userId + '/scores', process.env.FB_TOKEN, {score: player.score}, (err) => {
         if (err) throw err;
         console.log(`FB: Saved score of ${player.score} for ${player.userId}.`);
       });
