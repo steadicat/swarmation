@@ -1,5 +1,4 @@
 NODE=ts-node -T -O '{"module": "commonjs"}'
-NODE_BIN=./node_modules/.bin
 
 # Common
 
@@ -26,7 +25,7 @@ devserver: node_modules
 .PHONY: devserver
 
 devjs: node_modules
-	$(NODE_BIN)/webpack \
+	yarn run webpack \
 		--mode development \
 		--watch \
 		--debug \
@@ -39,7 +38,7 @@ devjs: node_modules
 .PHONY: devjs
 
 devcss: node_modules
-	$(NODE_BIN)/stylus --sourcemap-inline -w -u nib public/css/screen.styl -o public/css/screen.css
+	yarn run stylus --sourcemap-inline -w -u nib public/css/screen.styl -o public/css/screen.css
 .PHONY: devcss
 
 dev: node_modules public/formation/*.png
@@ -49,7 +48,7 @@ dev: node_modules public/formation/*.png
 # Deployment
 
 buildjs: node_modules
-	-NODE_ENV=production $(NODE_BIN)/webpack \
+	-NODE_ENV=production yarn run webpack \
 		--mode production \
 		--module-bind ts=ts-loader \
 		--entry ./src/client/main.ts \
@@ -58,11 +57,11 @@ buildjs: node_modules
 .PHONY: buildjs
 
 buildcss: node_modules
-	$(NODE_BIN)/stylus -U -c -u nib public/css/screen.styl -o public/css/screen.css
+	yarn run stylus -U -c -u nib public/css/screen.styl -o public/css/screen.css
 .PHONY: buildcss
 
 buildserver: node_modules
-	-$(NODE_BIN)/tsc --module commonjs
+	-yarn run tsc --module commonjs
 .PHONY: buildserver
 
 build: buildserver buildjs buildcss public/formation/*.png
