@@ -93,12 +93,12 @@ class Player {
   welcome?: HTMLDivElement;
   tooltip?: HTMLDivElement;
 
-  constructor(id: string, left: number | null, top: number, isSelf = false) {
+  constructor(id: string, left: number | null, top: number | null, isSelf = false) {
     this.id = id;
     this.el = document.createElement('div');
     this.el.className = 'player';
     document.getElementById('board')?.appendChild(this.el);
-    if (!left) {
+    if (!left || !top) {
       left = Math.floor(Math.random() * WIDTH);
       top = Math.floor(Math.random() * HEIGHT);
       while (!this.setPosition(left, top)) {
@@ -383,7 +383,7 @@ socket.on('welcome', (data: WelcomeMessage) => {
     PLAYER.id = data.id;
   } else {
     PLAYER = new Player(data.id, null, null, true);
-    PLAYER.showWelcome();
+    PLAYER?.showWelcome();
   }
 });
 
@@ -550,26 +550,21 @@ const MOVEMENTS = {
   '39': 'right' as 'right',
 };
 
-function stop(event: KeyboardEvent) {
-  event.preventDefault();
-  event.stopPropagation();
-}
-
 document.addEventListener('keydown', (event: KeyboardEvent) => {
   if (!PLAYER) return;
 
   const keyCode = (event.keyCode + '') as keyof typeof MOVEMENTS;
   if (MOVEMENTS[keyCode]) {
     PLAYER.startMove(MOVEMENTS[keyCode]);
-    stop(event);
+    event.preventDefault();
   } else if (event.keyCode === 32) {
     // space
     PLAYER.startFlash();
-    stop(event);
+    event.preventDefault();
   } else if (event.keyCode === 83) {
     // "s"
     PLAYER.startLockIn();
-    stop(event);
+    event.preventDefault();
   }
 });
 
@@ -579,25 +574,10 @@ document.addEventListener('keyup', (event: KeyboardEvent) => {
   const keyCode = (event.keyCode + '') as keyof typeof MOVEMENTS;
   if (MOVEMENTS[keyCode]) {
     PLAYER.stopMove(MOVEMENTS[keyCode]);
-    stop(event);
+    event.preventDefault();
   } else if (event.keyCode === 32) {
     // space
     PLAYER.stopFlash();
-    stop(event);
+    event.preventDefault();
   }
 });
-
-export function login(userId: string, token: string, name: string) {
-  if (!PLAYER) return;
-  const login = document.getElementById('login');
-  const username = document.createElement('div');
-  username.className = 'top-border pvm phm light';
-  username.textContent = `Welcome, ${name}`;
-  const parent = login.parentNode;
-  parent?.removeChild(login);
-  parent?.appendChild(username);
-  socket.emit('login', {token, userId, name});
-  PLAYER.name = name;
-  PLAYER.loggedIn = true;
-  PLAYER.sendInfo(true);
-}

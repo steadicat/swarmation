@@ -1,7 +1,7 @@
 {
   "author": "Stefano J. Attardi <stefano@attardi.org> (http://attardi.org/)",
   "name": "swarmation",
-  "homepage": "http://swarmation.com/",
+  "homepage": "https://swarmation.com/",
   "description": "",
   "version": "0.0.0",
   "license": "MIT",
@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "dotenv": "^8.2.0",
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
     "request": "^2.88.2",

@@ -2,8 +2,6 @@ export type InfoMessage = PlayerInfo;
 export type FlashMessage = {id: string; stop?: true};
 export type LockInMessage = {id: string; stop?: true};
 export type IdleMessage = {id: string};
-export type LoginMessage = {userId: string; token: string};
-export type DisconnectMessage = {};
 export type DisconnectedMessage = {id: string};
 
 export type FullPlayerInfo = {

@@ -9,19 +9,14 @@ import {
   FormationMessage,
   InfoMessage,
   LockInMessage,
-  LoginMessage,
   NextFormationMessage,
   WelcomeMessage,
 } from '../types';
-import * as fb from './fb';
 import * as map from './map';
 import {Player, PLAYERS} from './players';
-import * as dotenv from 'dotenv';
-dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-export default server;
 const io = SocketIO(server);
 
 // Configuration
@@ -30,31 +25,6 @@ app.use(errorhandler());
 app.use('/', express.static('public'));
 
 // Routes
-
-const formationPage = `
-<html>
-  <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# swarmation: http://ogp.me/ns/fb/swarmation#">
-    <meta property="fb:app_id" content="536327243050948" />
-    <meta property="og:type" content="game.achievement" />
-    <meta property="og:title" content="{name}" />
-    <meta property="og:description" content="Joined a formation of {points} players on Swarmation." />
-    <meta property="og:url" content="http://swarmation.com/formation/{name}" />
-    <meta property="og:image" content="http://swarmation.com/formation/{name}.png" />
-    <meta property="game:points" content="{points}" />
-  </head>
-</html>`;
-
-app.get('/formation/:name', (req, res) => {
-  const formation = formations[req.params.name];
-  if (!formation) {
-    console.log(`Formation ${req.params.name} not found`, formations);
-    res.send(404);
-    return;
-  }
-  res.send(
-    formationPage.replace(/\{name\}/g, req.params.name).replace(/\{points\}/g, formation.size + '')
-  );
-});
 
 // Error Handling
 app.use((err: Error | null, _: express.Request, res: express.Response, _next: unknown) => {
@@ -98,17 +68,6 @@ const PlayerEvents = {
     io.to(ROOM).emit('lockIn', message);
   },
 
-  login(player: Player, message: LoginMessage) {
-    if (!player) return;
-    player.login(message.userId, message.token);
-    fb.get<Array<{score: number}>>(process.env.FB_APP_ID + '/scores', message.token, (err, res) => {
-      if (err) throw err;
-      player.score = res.data[0].score;
-      console.log('FB: Loaded score for user ' + message.userId + ': ' + player.score);
-      io.to(ROOM).emit('info', {id: player.id, score: player.score});
-    });
-  },
-
   disconnect(player: Player) {
     player.disconnect(io.sockets);
   },
@@ -134,7 +93,6 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
   client.on('info', (message: InfoMessage) => PlayerEvents.info(Player.get(client), message));
   client.on('flash', (message: FlashMessage) => PlayerEvents.flash(Player.get(client), message));
   client.on('lockIn', (message: LockInMessage) => PlayerEvents.lockIn(Player.get(client), message));
-  client.on('login', (message: LoginMessage) => PlayerEvents.login(Player.get(client), message));
   client.on('disconnect', () => {
     client.leave(ROOM);
     PlayerEvents.disconnect(Player.get(client));
@@ -200,23 +158,6 @@ function endTurn() {
       player.score += gain;
     } else {
       player.score = Math.max(0, player.score - loss);
-    }
-    if (player.userId) {
-      // post formation
-      fb.post(
-        player.userId + '/achievements',
-        process.env.FB_TOKEN,
-        {achievement: `http://swarmation.com/formation/${FORMATION.name}`},
-        (err) => {
-          if (err) throw err;
-          console.log(`FB: Published completion of ${FORMATION.name} for ${player.userId}.`);
-        }
-      );
-      // save score
-      fb.post(player.userId + '/scores', process.env.FB_TOKEN, {score: player.score}, (err) => {
-        if (err) throw err;
-        console.log(`FB: Saved score of ${player.score} for ${player.userId}.`);
-      });
     }
   }
   Player.endTurn();

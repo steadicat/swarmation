@@ -4,8 +4,6 @@ import 'core-js/es/array/is-array';
 import 'core-js/es/function/bind';
 import 'core-js/es/string/trim';
 
-import {start as fbStart} from './fb';
 import {start as playersStart} from './players';
 
 playersStart();
-fbStart();

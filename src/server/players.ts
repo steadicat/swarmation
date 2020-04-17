@@ -10,7 +10,6 @@ export class Player {
   public id: string;
   public client: SocketIO.Socket;
   private active: boolean | undefined;
-  public userId: string | undefined;
   private idleTurns = 0;
   private succeeded: number | undefined;
   private name: string | undefined;
@@ -93,10 +92,6 @@ export class Player {
       if (this.idleTurns > MAX_IDLE) this.kick();
     }
     this.active = false;
-  }
-
-  login(userId: string, _token: string) {
-    this.userId = userId;
   }
 
   disconnect(sockets: SocketIO.Namespace) {

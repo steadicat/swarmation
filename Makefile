@@ -14,11 +14,9 @@ node_modules: package.json
 	yarn --cwd dev --modules-folder ../node_modules install
 	touch node_modules
 
-public/formation/*.png: formations.txt src/server/images.ts src/server/fbpublish.ts
+public/formation/*.png: formations.txt src/server/images.ts
 	mkdir -p public/formation
 	$(NODE) src/server/images.ts
-	# Skipping because Graph API is gone
-	# $(NODE) src/server/fbpublish.ts
 
 # Development
 

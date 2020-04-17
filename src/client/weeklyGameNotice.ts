@@ -31,9 +31,6 @@ function ampm(hours: number) {
 
 function showWeeklyGameNotice() {
   if (weeklyGameNoticeShown) return;
-  const button = document.getElementById('send');
-  button?.parentNode?.removeChild(button);
-  button?.classList.remove('off');
   const t = new Date();
   const d = nextWeeklyGame;
   const isToday =

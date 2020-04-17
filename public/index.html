@@ -1,83 +1,81 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <title>Swarmation :: The Multiplayer Pixel Formation Game</title>
 
-<head>
-  <title>Swarmation :: The Multiplayer Pixel Formation Game</title>
+    <link href="/css/screen.css" media="screen,projection" rel="stylesheet" type="text/css" />
+    <link
+      href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="shortcut icon" href="/images/favicon.png" />
+    <meta property="og:url" content="https://swarmation.com/" />
+    <meta property="og:site_name" content="Swarmation" />
+    <meta property="og:type" content="website" />
+    <meta property="fb:app_id" content="536327243050948" />
+    <meta property="og:title" content="Swarmation" />
+    <meta property="og:description" content="The multiplayer pixel formation game." />
+    <meta property="og:image" content="https://swarmation.com/images/128x128.png" />
+  </head>
 
-  <link href="/css/screen.css" media="screen,projection" rel="stylesheet" type="text/css" />
-  <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet" type="text/css" />
-  <link rel="shortcut icon" href="/images/favicon.png" />
-  <meta property="og:url" content="https://swarmation.com/" />
-  <meta property="og:site_name" content="Swarmation" />
-  <meta property="og:type" content="website" />
-  <meta property="fb:app_id" content="536327243050948" />
-  <meta property="og:title" content="Swarmation" />
-  <meta property="og:description" content="The multiplayer pixel formation game." />
-  <meta property="og:image" content="https://swarmation.com/images/128x128.png" />
-</head>
-
-<body>
-  <div id="container" class="container">
-    <h1 class="header">Swarmation</h1>
-    <div id="board-container" class="board-container pam">
-      <div id="board" class="board"></div>
-      <div class="info">
-        <h1 id="countdown" class="b countdown">wait</h1>
-        <div class="center">
-          <div id="formation-image" class="formation-image rel">&nbsp;</div>
-        </div>
-        <div id="formation-name" class="large b ptm pbl">&nbsp;</div>
-        <h2 class="top-border pbl large light">
-          <div id="score" class="huge b">0</div>
-          points
-        </h2>
-        <h3 class="dim top-border ptl pbl large">
-          <div class="larger b">
-            <span id="success">100</span>%
+  <body>
+    <div id="container" class="container">
+      <h1 class="header">Swarmation</h1>
+      <div id="board-container" class="board-container pam">
+        <div id="board" class="board"></div>
+        <div class="info">
+          <h1 id="countdown" class="b countdown">wait</h1>
+          <div class="center">
+            <div id="formation-image" class="formation-image rel">&nbsp;</div>
           </div>
-          success
-        </h3>
-        <div id="login" class="top-border pvm phm">
-          <span class="light">Save your score and share your achievements:</span>
-          <div class="fb-login-button mtm" data-show-faces="false" data-width="200" data-max-rows="1" data-scope="publish_actions"></div>
+          <div id="formation-name" class="large b ptm pbl">&nbsp;</div>
+          <h2 class="top-border pbl large light">
+            <div id="score" class="huge b">0</div>
+            points
+          </h2>
+          <h3 class="dim top-border bottom-border ptl pbl large">
+            <div class="larger b"><span id="success">100</span>%</div>
+            success
+          </h3>
         </div>
       </div>
+      <div class="footer pvl">
+        <p class="instructions pbl">
+          <img class="keyboard-key" src="/images/arrow-keys.svg" />
+          <span class="text">to move</span>
+          <img class="keyboard-key small" src="/images/s-key.svg" />
+          <span class="text">to lock into position</span>
+          <img class="keyboard-key small" src="/images/spacebar-key.svg" />
+          <span class="text">to flash with color</span>
+        </p>
+        <p>
+          A game by <a href="http://twitter.com/steadicat">Stefano J. Attardi</a>,
+          <a href="http://twitter.com/findjoey">Zach Bialecki</a> &amp;
+          <a href="http://twitter.com/ollerac">David Miranda</a>.
+        </p>
+        <p class="mts">
+          Follow us on Twitter: <a href="http://twitter.com/swarmation">@swarmation</a>
+        </p>
+      </div>
     </div>
-    <div class="footer pvl">
-      <p class="instructions pbl">
-        <img class="keyboard-key" src="/images/arrow-keys.svg">
-        <span class="text">to move</span>
-        <img class="keyboard-key small" src="/images/s-key.svg">
-        <span class="text">to lock into position</span>
-        <img class="keyboard-key small" src="/images/spacebar-key.svg">
-        <span class="text">to flash with color</span>
-      </p>
-      <p>
-        A game by <a href="http://twitter.com/steadicat">Stefano J. Attardi</a>, <a href="http://twitter.com/findjoey">Zach Bialecki</a>        &amp; <a href="http://twitter.com/ollerac">David Miranda</a>.
-      </p>
-      <p class="mts">
-        Follow us on Twitter: <a href="http://twitter.com/swarmation">@swarmation</a>
-      </p>
-      <p class="mvm">
-        <div class="fb-like" data-href="http://swarmation.com/" data-send="true" data-layout="button_count" data-width="450" data-show-faces="true"></div>
-      </p>
-    </div>
-  </div>
-  <div id="send" class="send off">
-    <div class="fb-send off" data-href="http://swarmation.com/"></div>
-  </div>
-  <div id="fb-root"></div>
-  <script src="/main.js" defer async></script>
-  <script>
-    (function (i, s, o, g, r, a, m) {
-      i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
-        (i[r].q = i[r].q || []).push(arguments)
-      }, i[r].l = 1 * new Date(); a = s.createElement(o),
-        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
-    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-    ga('create', 'UA-1809956-9', 'auto');
-    ga('send', 'pageview');
-  </script>
-</body>
-
+    <script src="/main.js" defer async></script>
+    <script>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        (i[r] =
+          i[r] ||
+          function () {
+            (i[r].q = i[r].q || []).push(arguments);
+          }),
+          (i[r].l = 1 * new Date());
+        (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0]);
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m);
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+      ga('create', 'UA-1809956-9', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </body>
 </html>
