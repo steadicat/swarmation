@@ -32,7 +32,7 @@ devjs: node_modules
 		--debug \
 		--output-pathinfo \
 		--devtool inline-source-map \
-		--module-bind ts=awesome-typescript-loader \
+		--module-bind ts=ts-loader \
 		--entry ./src/client/main.ts \
 		--output public/main.js \
 		--resolve-extensions '.ts,.js'
@@ -51,7 +51,7 @@ dev: node_modules public/formation/*.png
 buildjs: node_modules
 	-NODE_ENV=production $(NODE_BIN)/webpack \
 		--mode production \
-		--module-bind ts=awesome-typescript-loader \
+		--module-bind ts=ts-loader \
 		--entry ./src/client/main.ts \
 		--output public/main.js \
 		--resolve-extensions '.ts,.js'
@@ -70,5 +70,5 @@ build: buildserver buildjs buildcss public/formation/*.png
 
 deploy: build
 	now
-	now alias
+	#now alias
 .PHONY: deploy
