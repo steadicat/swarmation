@@ -4,6 +4,7 @@
   "homepage": "http://swarmation.com/",
   "description": "",
   "version": "0.0.0",
+  "license": "MIT",
   "scripts": {
     "start": "node server/server/main.js"
   },
