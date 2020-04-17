@@ -16,7 +16,7 @@ function getPoints(diagram: string[], y: number, x: number): Array<[number, numb
 export type FormationDefinition = {
   name: string;
   difficulty: number;
-  diagram?: string[];
+  diagram: string[];
   size?: number;
 };
 

@@ -9,7 +9,6 @@ import {
   PlayerInfo,
   WelcomeMessage,
 } from '../types';
-import * as Dom from './dom';
 
 const WIDTH = 96;
 const HEIGHT = 60;
@@ -36,7 +35,7 @@ const MIN_ACTIVE = 6;
 
 let PLAYER: Player | null = null;
 let PLAYERS: {[id: string]: Player} = {};
-let MAP: Player[][] = [];
+let MAP: (Player | null)[][] = [];
 
 import * as io from 'socket.io-client';
 let socket = io.connect('');
@@ -65,7 +64,11 @@ function scoreChange(delta: number) {
   popup.style.left = PLAYER.getScreenLeft() - 200 + 'px';
   popup.style.top = PLAYER.getScreenTop() - 50 + 'px';
   document.body.appendChild(popup);
-  animate(600, Dom.addClass.bind(null, popup, 'scale'), Dom.remove.bind(null, popup));
+  animate(
+    600,
+    () => popup.classList.add('scale'),
+    () => popup.parentNode?.removeChild(popup)
+  );
 }
 
 type Direction = 'left' | 'right' | 'up' | 'down';
@@ -110,7 +113,7 @@ class Player {
     this.name = NAMES[Math.floor(Math.random() * NAMES.length)];
 
     if (isSelf) {
-      Dom.addClass(this.el, 'self');
+      this.el.classList.add('self');
       this.sendInfo();
     }
     this.el.addEventListener('mouseover', this.showTooltip.bind(this));
@@ -200,7 +203,7 @@ class Player {
     const changed = this.setPosition(newp[0], newp[1]);
     if (changed) {
       this.sendInfo();
-      Dom.removeClass(this.el, 'idle');
+      this.el.classList.remove('idle');
     }
   }
 
@@ -218,25 +221,25 @@ class Player {
   }
 
   startFlash() {
-    Dom.addClass(this.el, 'flash');
+    this.el.classList.add('flash');
     if (this.isSelf) socket.emit('flash', {});
   }
 
   stopFlash() {
-    Dom.removeClass(this.el, 'flash');
+    this.el.classList.remove('flash');
     if (this.isSelf) socket.emit('flash', {stop: true});
   }
 
   startLockIn() {
     if (this.lockedIn) return;
-    Dom.addClass(this.el, 'locked-in');
+    this.el.classList.add('locked-in');
     this.lockedIn = true;
     if (this.isSelf) socket.emit('lockIn', {});
   }
 
   stopLockIn() {
     if (!this.lockedIn) return;
-    Dom.removeClass(this.el, 'locked-in');
+    this.el.classList.remove('locked-in');
     this.lockedIn = false;
     if (this.isSelf) socket.emit('lockIn', {stop: true});
   }
@@ -244,15 +247,15 @@ class Player {
   formationDeadline(success: boolean, gain: number, loss: number) {
     this.total++;
     if (success) {
-      Dom.addClass(this.el, 'active');
+      this.el.classList.add('active');
       const el = this.el;
       setTimeout(() => {
-        Dom.removeClass(el, 'active');
+        el.classList.remove('active');
       }, 1000);
       this.score += gain;
       this.succeeded++;
       if (this.isSelf) scoreChange(+gain);
-      Dom.removeClass(this.el, 'idle');
+      this.el.classList.remove('idle');
     } else {
       this.score = Math.max(0, this.score - loss);
       if (this.isSelf) scoreChange(-loss);
@@ -309,7 +312,7 @@ class Player {
 
   hideTooltip() {
     if (this.tooltip) {
-      Dom.remove(this.tooltip);
+      this.tooltip.parentNode?.removeChild(this.tooltip);
       delete this.tooltip;
     }
   }
@@ -332,7 +335,7 @@ class Player {
     this.welcome.style.opacity = '0';
     setTimeout(() => {
       if (!this.welcome) return;
-      Dom.remove(this.welcome);
+      this.welcome.parentNode?.removeChild(this.welcome);
       delete this.welcomeCountdown;
       delete this.welcome;
     }, 1000);
@@ -353,7 +356,7 @@ class Player {
       const welcome = this.welcome;
       welcome.style.opacity = '0';
       setTimeout(() => {
-        Dom.addClass(welcome, 'fade');
+        welcome.classList.add('fade');
         welcome.style.opacity = '1';
       }, 100);
     }
@@ -372,7 +375,7 @@ function loadPlayer(data: PlayerInfo) {
   if (!PLAYERS[data.id]) {
     PLAYERS[data.id] = new Player(data.id, data.left, data.top);
   }
-  if (!data.name) Dom.removeClass(PLAYERS[data.id].el, 'idle');
+  if (!data.name) PLAYERS[data.id].el.classList.remove('idle');
   PLAYERS[data.id].getInfo(data);
 }
 
@@ -416,15 +419,15 @@ socket.on('lockIn', (data: LockInMessage) => {
 });
 
 socket.on('idle', (data: IdleMessage) => {
-  if (PLAYERS[data.id]) Dom.addClass(PLAYERS[data.id].el, 'idle');
-  if (PLAYER && data.id === PLAYER.id) Dom.addClass(PLAYER.el, 'idle');
+  if (PLAYERS[data.id]) PLAYERS[data.id].el.classList.add('idle');
+  if (PLAYER && data.id === PLAYER.id) PLAYER.el.classList.add('idle');
 });
 
 socket.on('disconnected', (data: DisconnectedMessage) => {
   const p = PLAYERS[data.id];
   if (!p) return;
   delete MAP[p.left][p.top];
-  Dom.remove(PLAYERS[data.id].el);
+  PLAYERS[data.id].el.parentNode?.removeChild(PLAYERS[data.id].el);
   delete PLAYERS[data.id];
 });
 
@@ -474,8 +477,8 @@ let requestPopupShown = false;
 function showRequestPopup() {
   if (requestPopupShown) return;
   const button = document.getElementById('send');
-  Dom.remove(button);
-  Dom.removeClass(button, 'off');
+  button?.parentNode?.removeChild(button);
+  button?.classList.remove('off');
   const requestPopup = document.createElement('div');
   requestPopup.className = 'megaphone pvs';
   requestPopup.appendChild(
@@ -537,8 +540,8 @@ function ampm(hours: number) {
 function showWeeklyGameNotice() {
   if (weeklyGameNoticeShown) return;
   const button = document.getElementById('send');
-  Dom.remove(button);
-  Dom.removeClass(button, 'off');
+  button?.parentNode?.removeChild(button);
+  button?.classList.remove('off');
   const t = new Date();
   const d = nextWeeklyGame;
   const isToday =
@@ -586,7 +589,7 @@ socket.on('kick', () => {
 
 socket.on('connect', () => {
   if (PLAYER) PLAYER.sendInfo(true);
-  for (const id in PLAYERS) Dom.remove(PLAYERS[id].el);
+  for (const id in PLAYERS) PLAYERS[id].el.parentNode?.removeChild(PLAYERS[id].el);
   PLAYERS = {};
   MAP = [];
 });
@@ -657,7 +660,7 @@ export function login(userId: string, token: string, name: string) {
   username.className = 'top-border pvm phm light';
   username.textContent = `Welcome, ${name}`;
   const parent = login.parentNode;
-  Dom.remove(login);
+  parent?.removeChild(login);
   parent.appendChild(username);
   socket.emit('login', {token, userId, name});
   PLAYER.name = name;
