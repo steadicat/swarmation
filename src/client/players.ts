@@ -93,7 +93,7 @@ class Player {
   welcome?: HTMLDivElement;
   tooltip?: HTMLDivElement;
 
-  constructor(id: string, left: number, top: number, isSelf = false) {
+  constructor(id: string, left: number | null, top: number, isSelf = false) {
     this.id = id;
     this.el = document.createElement('div');
     this.el.className = 'player';
@@ -192,7 +192,17 @@ class Player {
     this.el.style.left = this.getX() + 'px';
     this.el.style.top = this.getY() + 'px';
 
-    if (this.welcome) this.positionWelcome();
+    if (this.welcome) {
+      this.welcome.innerHTML = `
+      <p>Get into a formation with other players before the countdown expires</p>
+    `;
+      this.welcomeCountdown--;
+      if (this.welcomeCountdown === 0) {
+        this.hideWelcome();
+      }
+      setTimeout(this.hideWelcome.bind(this), 10000);
+      this.positionWelcome(this.welcome);
+    }
 
     return true;
   }
@@ -327,7 +337,13 @@ class Player {
     `;
     this.welcome = welcome;
     document.body.appendChild(welcome);
-    this.positionWelcome(true);
+    this.welcomeCountdown = 20;
+    welcome.style.opacity = '0';
+    setTimeout(() => {
+      welcome.classList.add('fade');
+      welcome.style.opacity = '1';
+    }, 100);
+    this.positionWelcome(welcome);
   }
 
   hideWelcome() {
@@ -341,27 +357,9 @@ class Player {
     }, 1000);
   }
 
-  positionWelcome(first = false) {
-    if (!first) {
-      this.welcome.innerHTML = `
-        <p>Get into a formation with other players before the countdown expires</p>
-      `;
-      this.welcomeCountdown--;
-      if (this.welcomeCountdown === 0) {
-        this.hideWelcome();
-      }
-      setTimeout(this.hideWelcome.bind(this), 10000);
-    } else {
-      this.welcomeCountdown = 20;
-      const welcome = this.welcome;
-      welcome.style.opacity = '0';
-      setTimeout(() => {
-        welcome.classList.add('fade');
-        welcome.style.opacity = '1';
-      }, 100);
-    }
-    this.welcome.style.left = this.getScreenLeft() - this.welcome.offsetWidth / 2 + 5 + 'px';
-    this.welcome.style.top = this.getScreenTop() - this.welcome.offsetHeight - 15 + 'px';
+  positionWelcome(welcome: HTMLElement) {
+    welcome.style.left = this.getScreenLeft() - welcome.offsetWidth / 2 + 5 + 'px';
+    welcome.style.top = this.getScreenTop() - welcome.offsetHeight - 15 + 'px';
   }
 }
 
@@ -470,7 +468,6 @@ function showFormation(map: boolean[][]) {
 
 let time: number;
 let formationInterval: NodeJS.Timer;
-let weeklyGameNoticeShown = false;
 
 let requestPopupShown = false;
 
@@ -507,69 +504,6 @@ socket.on('nextFormation', (message: NextFormationMessage) => {
     if (!weeklyGameNoticeShown) showRequestPopup();
   }
 });
-
-const nextWeeklyGame = new Date(Date.UTC(2017, 5, 15, 11));
-
-const monthNames = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-function twelveHours(hours: number) {
-  if (hours === 0) return 12;
-  if (hours === 12) return 12;
-  if (hours > 12) return hours - 12;
-  return hours;
-}
-
-function ampm(hours: number) {
-  return hours === 0 || hours < 12 ? 'am' : 'pm';
-}
-
-function showWeeklyGameNotice() {
-  if (weeklyGameNoticeShown) return;
-  const button = document.getElementById('send');
-  button?.parentNode?.removeChild(button);
-  button?.classList.remove('off');
-  const t = new Date();
-  const d = nextWeeklyGame;
-  const isToday =
-    t.getFullYear() === d.getFullYear() &&
-    t.getMonth() === d.getMonth() &&
-    t.getDate() === d.getDate();
-  const weeklyGameNotice = document.createElement('div');
-  weeklyGameNotice.className = 'megaphone pvs';
-  weeklyGameNotice.innerHTML = `
-    ${
-      isToday
-        ? `Join us this TODAY – ${monthNames[d.getMonth()]} ${d.getDate()} ${d.getFullYear()} – at `
-        : `Join us this ${dayNames[d.getDay()]} – ${
-            monthNames[d.getMonth()]
-          } ${d.getDate()}, ${d.getFullYear()} – at `
-    }
-    <a href="http://erthbeet.com/?Universal_World_Time=kv2300">${
-      twelveHours(d.getHours()) + ampm(d.getHours())
-    }</a>
-    for a big game of Swarmation!
-  `;
-  document.getElementById('container')?.appendChild(weeklyGameNotice);
-  weeklyGameNoticeShown = true;
-}
-
-if (new Date() < nextWeeklyGame) {
-  showWeeklyGameNotice();
-}
 
 let RESTARTING = false;
 
@@ -661,7 +595,7 @@ export function login(userId: string, token: string, name: string) {
   username.textContent = `Welcome, ${name}`;
   const parent = login.parentNode;
   parent?.removeChild(login);
-  parent.appendChild(username);
+  parent?.appendChild(username);
   socket.emit('login', {token, userId, name});
   PLAYER.name = name;
   PLAYER.loggedIn = true;
