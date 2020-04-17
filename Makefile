@@ -10,13 +10,15 @@ clean:
 .PHONY: clean
 
 node_modules: package.json
-	yarn
+	# Use dev/package.json for development because Now insists on installing package.json devDependencies
+	yarn --cwd dev --modules-folder ../node_modules install
 	touch node_modules
 
 public/formation/*.png: formations.txt src/server/images.ts src/server/fbpublish.ts
 	mkdir -p public/formation
 	$(NODE) src/server/images.ts
-	$(NODE) src/server/fbpublish.ts
+	# Skipping because Graph API is gone
+	# $(NODE) src/server/fbpublish.ts
 
 # Development
 
