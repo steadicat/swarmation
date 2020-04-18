@@ -10,11 +10,10 @@ clean:
 .PHONY: clean
 
 node_modules: package.json
-	# Use dev/package.json for development because Now insists on installing package.json devDependencies
-	yarn --cwd dev --modules-folder ../node_modules install
+	yarn install
 	touch node_modules
 
-public/formation/*.png: formations.txt src/server/images.ts
+public/formation/*.png: node_modules formations.txt src/server/images.ts
 	mkdir -p public/formation
 	$(NODE) src/server/images.ts
 
@@ -41,7 +40,7 @@ devcss: node_modules
 	yarn run stylus --sourcemap-inline -w -u nib public/css/screen.styl -o public/css/screen.css
 .PHONY: devcss
 
-dev: node_modules public/formation/*.png
+dev: public/formation/*.png
 	make devjs & make devcss & make devserver
 .PHONY: dev
 
@@ -68,6 +67,11 @@ build: buildserver buildjs buildcss public/formation/*.png
 .PHONY: build
 
 deploy: build
-	now
+	# Strip out devDependencies otherwise Now insists on installing them
+	mv package.json package.dev.json
+	node -e "const package = require('./package.dev.json'); delete package.devDependencies; console.log(JSON.stringify(package))" > package.json
+	-now
+	rm package.json
+	mv package.dev.json package.json
 	#now alias
 .PHONY: deploy
