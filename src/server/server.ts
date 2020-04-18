@@ -1,4 +1,3 @@
-import * as errorhandler from 'errorhandler';
 import * as express from 'express';
 import * as http from 'http';
 import * as SocketIO from 'socket.io';
@@ -7,6 +6,13 @@ import * as map from '../map';
 import {validate, sign} from './signing';
 import {serverListen, serverEmit, serverBroadcast} from '../protocol';
 import {Player} from '../player';
+import Bugsnag from '@bugsnag/js';
+import BugsnagPluginExpress from '@bugsnag/plugin-express';
+
+Bugsnag.start({
+  apiKey: '598a6c87f69350bfffd18829c6e8a87c',
+  plugins: [BugsnagPluginExpress],
+});
 
 const WIDTH = 84;
 const HEIGHT = 60;
@@ -27,22 +33,27 @@ const NAMES = [
   'Key',
 ];
 
+var middleware = Bugsnag.getPlugin('express');
+
 const app = express();
+app.use(middleware.requestHandler);
+
 const server = http.createServer(app);
 const io = SocketIO(server);
 
 // Configuration
 
-app.use(errorhandler());
 app.use('/', express.static('public'));
 
 // Routes
 
 // Error Handling
 app.use((err: Error | null, _: express.Request, res: express.Response, _next: unknown) => {
-  err && console.error(err.stack);
+  err && Bugsnag.notify(err);
   res.status(500).send('Something broke!');
 });
+
+app.use(middleware.errorHandler);
 
 process.on('uncaughtException', (e: Error) => {
   console.log(e.stack);
@@ -152,6 +163,7 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
       }
 
       case 'lockIn': {
+        player.lockedIn = true;
         serverBroadcast(client, {...message, id: player.id});
         break;
       }
@@ -216,6 +228,7 @@ function endTurn() {
   console.log(`Formation ${FORMATION.name} completed with ${ids.length} participants.`);
   for (const player of Object.values(PLAYERS)) {
     player.total++;
+    player.lockedIn = false;
     if (ids.indexOf(player.id) >= 0) {
       player.succeeded++;
       player.active = true;
