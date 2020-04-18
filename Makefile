@@ -20,7 +20,7 @@ public/formation/*.png: node_modules formations.txt src/server/images.ts
 # Development
 
 devserver: node_modules
-	$(NODE) src/server/main.ts
+	$(NODE) src/server/server.ts
 .PHONY: devserver
 
 devjs: node_modules
@@ -31,7 +31,7 @@ devjs: node_modules
 		--output-pathinfo \
 		--devtool inline-source-map \
 		--module-bind ts=ts-loader \
-		--entry ./src/client/main.ts \
+		--entry ./src/client/client.ts \
 		--output public/main.js \
 		--resolve-extensions '.ts,.js'
 .PHONY: devjs
@@ -50,7 +50,7 @@ buildjs: node_modules
 	-NODE_ENV=production yarn run webpack \
 		--mode production \
 		--module-bind ts=ts-loader \
-		--entry ./src/client/main.ts \
+		--entry ./src/client/client.ts \
 		--output public/main.js \
 		--resolve-extensions '.ts,.js'
 .PHONY: buildjs

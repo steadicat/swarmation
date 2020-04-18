@@ -1,13 +1,31 @@
-// Module dependencies.
 import * as errorhandler from 'errorhandler';
 import * as express from 'express';
 import * as http from 'http';
 import * as SocketIO from 'socket.io';
 import {Formation, getFormations, sizeRange} from '../formations';
-import * as map from './map';
-import {Player, PLAYERS} from './players';
-import {validate} from './signing';
+import * as map from '../map';
+import {validate, sign} from './signing';
 import {serverListen, serverEmit, serverBroadcast} from '../protocol';
+import {Player} from '../player';
+
+const WIDTH = 84;
+const HEIGHT = 60;
+const NAMES = [
+  'Saber',
+  'Tooth',
+  'Moose',
+  'Lion',
+  'Peanut',
+  'Jelly',
+  'Thyme',
+  'Zombie',
+  'Cranberry',
+  'Pipa',
+  'Walnut',
+  'Puddle',
+  'Ziya',
+  'Key',
+];
 
 const app = express();
 const server = http.createServer(app);
@@ -41,12 +59,44 @@ process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 process.on('SIGHUP', shutdown);
 
+export const PLAYERS: {[id: string]: Player} = {};
+
+function getActivePlayers(): number {
+  let n = 0;
+  for (const id in PLAYERS) {
+    if (!PLAYERS[id]!.idleTurns) n++;
+  }
+  return n;
+}
+
 // IO
 
 io.sockets.on('connection', (client: SocketIO.Socket) => {
-  const scores = Object.values(PLAYERS).map((player) => player.getScore());
-  const positions = Object.values(PLAYERS).map((player) => player.getPosition());
-  serverEmit(client, {type: 'welcome', id: client.id, scores, positions});
+  let left;
+  let top;
+  do {
+    left = Math.floor(Math.random() * WIDTH);
+    top = Math.floor(Math.random() * HEIGHT);
+  } while (map.exists(left, top));
+
+  const name = NAMES[Math.floor(Math.random() * NAMES.length)];
+
+  const player = {
+    id: client.id,
+    left,
+    top,
+    name,
+    active: true,
+    lockedIn: false,
+    idleTurns: 0,
+    succeeded: 0,
+    total: 0,
+    score: 0,
+  };
+  PLAYERS[client.id] = player;
+  CLIENTS[client.id] = client;
+
+  serverEmit(client, {type: 'welcome', id: client.id, players: Object.values(PLAYERS)});
 
   if (FORMATION && TIME > 0) {
     serverEmit(client, {
@@ -54,42 +104,54 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
       formation: FORMATION.name,
       time: TIME,
       map: FORMATION.map,
-      active: Player.getActive(),
+      active: getActivePlayers(),
     });
   }
 
+  client.on('disconnect', () => {
+    serverEmit(io.sockets, {type: 'disconnected', id: player.id});
+    delete CLIENTS[player.id];
+    delete PLAYERS[player.id];
+  });
+
   serverListen(client, (message) => {
     switch (message.type) {
-      case 'progress': {
-        const player = Player.get(client);
-        const validProgress = validate(message.progress) as {
+      case 'restore': {
+        const saveData = validate(message.data) as {
+          name: string;
           score: number;
           succeeded: number;
           total: number;
         } | null;
-        if (validProgress) {
-          const {score, succeeded, total} = validProgress;
-          serverEmit(io.sockets, {type: 'score', id: player.id, score, succeeded, total});
+
+        if (saveData) {
+          const {score, succeeded, total, name} = saveData;
+          player.score += score;
+          player.succeeded += succeeded;
+          player.total += total;
+          player.name = name;
+          serverEmit(io.sockets, {type: 'player', player});
         }
         break;
       }
 
       case 'position': {
-        const player = Player.get(client);
-        player.setPosition(message);
-        player.setActive();
+        const top = player.top;
+        const left = player.left;
+        player.left = message.left;
+        player.top = message.top;
+        map.move(left, top, player.left, player.top, player);
+        player.active = true;
         serverBroadcast(client, {...message, id: player.id});
         break;
       }
 
       case 'flash': {
-        const player = Player.get(client);
         serverBroadcast(client, {...message, id: player.id});
         break;
       }
 
       case 'lockIn': {
-        const player = Player.get(client);
         serverBroadcast(client, {...message, id: player.id});
         break;
       }
@@ -98,11 +160,6 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
         // @ts-ignore
         throw new Error(`Message type ${message.type} not implemented`);
     }
-  });
-
-  client.on('disconnect', () => {
-    const player = Player.get(client);
-    player.disconnect(io.sockets);
   });
 });
 
@@ -124,13 +181,14 @@ for (const id in formations) {
 }
 
 function pickFormation(): Formation {
-  const available = FORMATIONS[Math.max(MIN_SIZE, Math.min(Player.getActive(), MAX_SIZE))];
+  const available = FORMATIONS[Math.max(MIN_SIZE, Math.min(getActivePlayers(), MAX_SIZE))];
   if (available.length === 0) throw new Error('No formations available');
   return available[Math.floor(Math.random() * available.length)];
 }
 
 function startTurn() {
-  console.log(`Starting turn with ${Player.getCount()} players (${Player.getActive()} active).`);
+  const playerCount = Object.keys(PLAYERS).length;
+  console.log(`Starting turn with ${playerCount} players (${getActivePlayers()} active).`);
   FORMATION = pickFormation();
   while (!FORMATION) FORMATION = pickFormation();
   TIME = FORMATION.difficulty;
@@ -140,11 +198,15 @@ function startTurn() {
     formation: FORMATION.name,
     time: TIME,
     map: FORMATION.map,
-    active: Player.getActive(),
+    active: getActivePlayers(),
   });
 }
 
 const MAX_POINTS = 26;
+const MAX_IDLE = 120;
+const IDLE_AFTER_TURNS = 2;
+
+const CLIENTS: {[id: string]: SocketIO.Socket | undefined} = {};
 
 function endTurn() {
   const players = map.checkFormation(FORMATION, PLAYERS);
@@ -152,22 +214,49 @@ function endTurn() {
   const loss = Math.round((MAX_POINTS - FORMATION.difficulty) / 4);
   const ids = Object.keys(players);
   console.log(`Formation ${FORMATION.name} completed with ${ids.length} participants.`);
-  serverEmit(io.sockets, {
-    type: 'formation',
-    formation: FORMATION.name,
-    difficulty: FORMATION.difficulty,
-    gain,
-    loss,
-    ids,
-  });
   for (const player of Object.values(PLAYERS)) {
+    player.total++;
     if (ids.indexOf(player.id) >= 0) {
-      player.setActive();
+      player.succeeded++;
+      player.active = true;
       player.score += gain;
     } else {
       player.score = Math.max(0, player.score - loss);
     }
-    player.endTurn();
+    const client = CLIENTS[player.id];
+    if (!client) throw new Error('Client for player not found');
+    serverEmit(client, {
+      type: 'formation',
+      formation: FORMATION.name,
+      difficulty: FORMATION.difficulty,
+      gain,
+      loss,
+      ids,
+      save: sign({
+        score: player.score,
+        succeeded: player.succeeded,
+        total: player.total,
+        name: player.name,
+      }),
+    });
+    if (player.active) {
+      player.idleTurns = 0;
+    } else {
+      const client = CLIENTS[player.id];
+      if (!client) throw new Error('Client for player not found');
+      if (player.idleTurns === IDLE_AFTER_TURNS) {
+        serverEmit(client, {type: 'idle', id: player.id});
+        serverEmit(client.broadcast, {type: 'idle', id: player.id});
+      }
+      player.idleTurns++;
+      if (player.idleTurns > MAX_IDLE) {
+        serverEmit(client, {type: 'kick', reason: 'idle'});
+        serverBroadcast(client, {type: 'disconnected', id: player.id});
+        client.disconnect(true);
+        delete PLAYERS[player.id];
+      }
+    }
+    player.active = false;
   }
 }
 

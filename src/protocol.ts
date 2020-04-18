@@ -1,15 +1,23 @@
-import type {Socket} from 'socket.io-client';
-import type {Socket as ServerSocket, Namespace} from 'socket.io';
+import {Player} from './player';
+
+export type SaveData = {
+  score: number;
+  succeeded: number;
+  total: number;
+  name: string;
+};
+
+export type PlayerMessage = {type: 'player'; player: Player};
+export type RestoreMessage = {type: 'restore'; data: string};
 
 export type FlashMessage = {type: 'flash'; stop?: true};
-export type LockInMessage = {type: 'lockIn'; stop?: true};
-export type ProgressMessage = {type: 'progress'; progress: string};
+export type LockInMessage = {type: 'lockIn'};
 
 export type PositionMessage = {
   type: 'position';
   left: number;
   top: number;
-  time?: number;
+  time: number;
 };
 
 export type NextFormationMessage = {
@@ -27,21 +35,13 @@ export type FormationMessage = {
   gain: number;
   loss: number;
   ids: string[];
+  save: string;
 };
 
 export type WelcomeMessage = {
   type: 'welcome';
   id: string;
-  positions: (PositionMessage & {id: string})[];
-  scores: (ScoreMessage & {id: string})[];
-};
-
-export type ScoreMessage = {
-  type: 'score';
-  id: string;
-  score: number;
-  total: number;
-  succeeded: number;
+  players: Player[];
 };
 
 export type RestartMessage = {
@@ -52,38 +52,42 @@ export type IdleMessage = {type: 'idle'; id: string};
 export type DisconnectedMessage = {type: 'disconnected'; id: string};
 export type KickMessage = {type: 'kick'; reason: 'idle'};
 
-type ClientMessage = FlashMessage | LockInMessage | PositionMessage | ProgressMessage;
+type ClientMessage = FlashMessage | LockInMessage | PositionMessage | RestoreMessage;
 
-type RelayedClientMessage = ClientMessage extends unknown ? ClientMessage & {id: string} : never;
+type RelayedClientMessage = ClientMessage extends unknown
+  ? Exclude<ClientMessage, RestoreMessage> & {id: string}
+  : never;
 
 type ServerMessage =
   | RelayedClientMessage
   | WelcomeMessage
   | FormationMessage
   | NextFormationMessage
-  | ScoreMessage
-  | ProgressMessage
+  | PlayerMessage
   | RestartMessage
   | KickMessage
   | IdleMessage
   | DisconnectedMessage;
 
-export function clientEmit(socket: typeof Socket, message: ClientMessage) {
+export function clientEmit(socket: SocketIOClient.Socket, message: ClientMessage) {
   socket.send(message);
 }
 
-export function clientListen(socket: typeof Socket, listener: (message: ServerMessage) => void) {
+export function clientListen(
+  socket: SocketIOClient.Socket,
+  listener: (message: ServerMessage) => void
+) {
   socket.on('message', listener);
 }
 
-export function serverListen(socket: ServerSocket, listener: (message: ClientMessage) => void) {
+export function serverListen(socket: SocketIO.Socket, listener: (message: ClientMessage) => void) {
   socket.on('message', listener);
 }
 
-export function serverEmit(socket: ServerSocket | Namespace, message: ServerMessage) {
+export function serverEmit(socket: SocketIO.Socket | SocketIO.Namespace, message: ServerMessage) {
   socket.send(message);
 }
 
-export function serverBroadcast(socket: ServerSocket, message: ServerMessage) {
+export function serverBroadcast(socket: SocketIO.Socket, message: ServerMessage) {
   socket.broadcast.send(message);
 }

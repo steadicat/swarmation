@@ -1,7 +1,7 @@
-import {Formation} from '../formations';
-import {Player} from './players';
+import {Formation} from './formations';
+import {Player} from './player';
 
-const MAP: {[x: number]: {[y: number]: Player}} = {};
+const MAP: {[x: number]: {[y: number]: Player | undefined}} = {};
 
 export function set(x: number, y: number, v: Player) {
   if (!MAP[x]) MAP[x] = {};
@@ -9,7 +9,7 @@ export function set(x: number, y: number, v: Player) {
 }
 
 export function get(x: number, y: number): Player | null {
-  if (MAP[x]) return MAP[x][y];
+  if (MAP[x]) return MAP[x][y] ?? null;
   return null;
 }
 
@@ -17,7 +17,7 @@ export function unset(x: number, y: number) {
   if (MAP[x]) delete MAP[x][y];
 }
 
-export function move(x1: number | null, y1: number | null, x2: number, y2: number, v: Player) {
+export function move(x1: number, y1: number, x2: number, y2: number, v: Player) {
   if (x1 !== x2 || y1 !== y2) {
     x1 && y1 && unset(x1, y1);
     set(x2, y2, v);
@@ -27,6 +27,12 @@ export function move(x1: number | null, y1: number | null, x2: number, y2: numbe
 export function exists(x: number, y: number) {
   if (!MAP[x]) return false;
   return MAP[x][y] !== undefined;
+}
+
+export function clear() {
+  for (const key of Object.keys(MAP)) {
+    delete MAP[(key as unknown) as number];
+  }
 }
 
 export function checkFormationAtOrigin(formation: Formation, x: number, y: number) {

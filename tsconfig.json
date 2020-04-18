@@ -12,5 +12,5 @@
     "transpileOnly": true
   },
   "include": ["src/**/*.ts"],
-  "files": ["src/server/main.ts"]
+  "files": ["src/server/server.ts"]
 }
