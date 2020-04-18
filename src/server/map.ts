@@ -17,9 +17,9 @@ export function unset(x: number, y: number) {
   if (MAP[x]) delete MAP[x][y];
 }
 
-export function move(x1: number, y1: number, x2: number, y2: number, v: Player) {
+export function move(x1: number | null, y1: number | null, x2: number, y2: number, v: Player) {
   if (x1 !== x2 || y1 !== y2) {
-    unset(x1, y1);
+    x1 && y1 && unset(x1, y1);
     set(x2, y2, v);
   }
 }
@@ -33,11 +33,12 @@ export function checkFormationAtOrigin(formation: Formation, x: number, y: numbe
   const players: Player[] = [];
   const success = formation.points.every((point) => {
     const player = get(x + point[0], y + point[1]);
-    players.push(player);
+    player && players.push(player);
     return !!player;
   });
   if (!success) return [];
-  players.push(get(x, y));
+  const player = get(x, y);
+  player && players.push(player);
   return players;
 }
 
@@ -45,7 +46,8 @@ export function checkFormation(formation: Formation, players: {[id: string]: Pla
   const winners: {[id: string]: Player} = {};
   for (const id in players) {
     const player = players[id];
-    const f = checkFormationAtOrigin(formation, player.left, player.top);
+    const f =
+      player.left && player.top ? checkFormationAtOrigin(formation, player.left, player.top) : [];
     f.forEach((p) => {
       // work around dirty map bug
       if (!p) return;

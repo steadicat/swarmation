@@ -1,15 +1,3 @@
-import {
-  DisconnectedMessage,
-  FlashMessage,
-  FormationMessage,
-  IdleMessage,
-  InfoMessage,
-  LockInMessage,
-  NextFormationMessage,
-  PlayerInfo,
-  WelcomeMessage,
-} from '../types';
-
 const WIDTH = 96;
 const HEIGHT = 60;
 const DEAD_WIDTH = 12;
@@ -38,10 +26,13 @@ let PLAYERS: {[id: string]: Player} = {};
 let MAP: (Player | null)[][] = [];
 
 import * as io from 'socket.io-client';
+import {clientEmit, clientListen, PositionMessage, ScoreMessage} from '../protocol';
 let socket = io.connect('');
 
+let RESTARTING = false;
+
 function displayMessage(text: string) {
-  PLAYER.hideWelcome();
+  PLAYER && PLAYER.hideWelcome();
   const message = document.createElement('div');
   message.className = 'message';
   message.innerText = text;
@@ -56,8 +47,13 @@ function animate(duration: number, start: () => void, end: () => void) {
 }
 
 function scoreChange(delta: number) {
-  document.getElementById('score').textContent = PLAYER.score + '';
-  document.getElementById('success').textContent = PLAYER.successRate() + '';
+  if (!PLAYER) throw new Error('Player object not found');
+  const score = document.getElementById('score');
+  if (!score) throw new Error('#score element not found');
+  const success = document.getElementById('success');
+  if (!success) throw new Error('#success element not found');
+  score.textContent = `${PLAYER.score}`;
+  success.textContent = `${PLAYER.successRate()}`;
   const popup = document.createElement('div');
   popup.className = `score abs center ${delta > 0 ? 'positive' : 'negative'}`;
   popup.innerText = (delta > 0 ? '+' : '') + delta;
@@ -84,12 +80,12 @@ class Player {
   latestTimestamp = 0;
   lockedIn = false;
   loggedIn = false;
-  moveIntervals: {[key in Direction]?: NodeJS.Timer} = {};
+  moveIntervals: {[key in Direction]?: number} = {};
   name: string;
-  left: number;
-  top: number;
+  left: number | null = null;
+  top: number | null = null;
 
-  welcomeCountdown?: number;
+  welcomeCountdown = 20;
   welcome?: HTMLDivElement;
   tooltip?: HTMLDivElement;
 
@@ -114,17 +110,26 @@ class Player {
 
     if (isSelf) {
       this.el.classList.add('self');
-      this.sendInfo();
+      this.sendPosition();
+      let progress;
+      try {
+        progress = localStorage.getItem('progress');
+      } catch {
+        console.log('Error reading from localStorage');
+      }
+      if (progress) {
+        clientEmit(socket, {type: 'progress', progress});
+      }
     }
     this.el.addEventListener('mouseover', this.showTooltip.bind(this));
     this.el.addEventListener('mouseout', this.hideTooltip.bind(this));
   }
 
-  static atPixel(x: number, y: number): Player {
+  static atPixel(x: number, y: number): Player | null {
     return Player.atPosition(Player.getLeft(x), Player.getTop(y));
   }
 
-  static atPosition(left: number, top: number): Player {
+  static atPosition(left: number, top: number): Player | null {
     if (!MAP[left]) MAP[left] = [];
     return MAP[left][top];
   }
@@ -152,9 +157,11 @@ class Player {
   };
 
   getX(): number {
+    if (this.left === null) throw new Error('Player not positioned');
     return this.left * 10 + 1;
   }
   getY(): number {
+    if (this.top === null) throw new Error('Player not positioned');
     return this.top * 10 + 1;
   }
 
@@ -182,8 +189,10 @@ class Player {
     // cancel if in dead area
     if (left < DEAD_WIDTH && top < DEAD_HEIGHT) return false;
 
-    if (!MAP[this.left]) MAP[this.left] = [];
-    MAP[this.left][this.top] = null;
+    if (this.left && this.top) {
+      if (!MAP[this.left]) MAP[this.left] = [];
+      MAP[this.left][this.top] = null;
+    }
     this.left = left;
     this.top = top;
     if (!MAP[left]) MAP[left] = [];
@@ -209,10 +218,12 @@ class Player {
 
   move(direction: Direction) {
     if (this.lockedIn) return;
+    if (this.left === null) throw new Error('Player not positioned');
+    if (this.top === null) throw new Error('Player not positioned');
     const newp = Player.directions[direction](this.left, this.top);
     const changed = this.setPosition(newp[0], newp[1]);
     if (changed) {
-      this.sendInfo();
+      this.sendPosition();
       this.el.classList.remove('idle');
     }
   }
@@ -220,38 +231,40 @@ class Player {
   startMove(direction: Direction) {
     if (this.moveIntervals[direction]) return;
     this.move(direction);
-    this.moveIntervals[direction] = setInterval(() => {
+    this.moveIntervals[direction] = window.setInterval(() => {
       this.move(direction);
     }, MOVEMENT_RATE);
   }
 
   stopMove(direction: Direction) {
-    clearInterval(this.moveIntervals[direction]);
-    this.moveIntervals[direction] = null;
+    if (this.moveIntervals[direction]) {
+      clearInterval(this.moveIntervals[direction]);
+      this.moveIntervals[direction] = undefined;
+    }
   }
 
   startFlash() {
     this.el.classList.add('flash');
-    if (this.isSelf) socket.emit('flash', {});
+    if (this.isSelf) clientEmit(socket, {type: 'flash'});
   }
 
   stopFlash() {
     this.el.classList.remove('flash');
-    if (this.isSelf) socket.emit('flash', {stop: true});
+    if (this.isSelf) clientEmit(socket, {type: 'flash', stop: true});
   }
 
   startLockIn() {
     if (this.lockedIn) return;
     this.el.classList.add('locked-in');
     this.lockedIn = true;
-    if (this.isSelf) socket.emit('lockIn', {});
+    if (this.isSelf) clientEmit(socket, {type: 'lockIn'});
   }
 
   stopLockIn() {
     if (!this.lockedIn) return;
     this.el.classList.remove('locked-in');
     this.lockedIn = false;
-    if (this.isSelf) socket.emit('lockIn', {stop: true});
+    if (this.isSelf) clientEmit(socket, {type: 'lockIn', stop: true});
   }
 
   formationDeadline(success: boolean, gain: number, loss: number) {
@@ -277,29 +290,28 @@ class Player {
     return Math.round((1000.0 * this.succeeded) / this.total) / 10;
   }
 
-  sendInfo(full = false) {
-    if (full) {
-      socket.emit('info', {
-        left: this.left,
-        top: this.top,
-        name: this.name,
-        score: this.score,
-        total: this.total,
-        succeeded: this.succeeded,
-      });
-    } else {
-      this.latestTimestamp = Date.now();
-      socket.emit('info', {left: this.left, top: this.top, time: this.latestTimestamp});
+  sendPosition() {
+    if (this.left === null) throw new Error('Player not positioned');
+    if (this.top === null) throw new Error('Player not positioned');
+    this.latestTimestamp = Date.now();
+    clientEmit(socket, {
+      type: 'position',
+      left: this.left,
+      top: this.top,
+      time: this.latestTimestamp,
+    });
+  }
+
+  getPosition(message: Omit<PositionMessage, 'type'>) {
+    if (message.left && (!this.isSelf || message.time === this.latestTimestamp)) {
+      this.setPosition(message.left, message.top);
     }
   }
 
-  getInfo(info: PlayerInfo) {
-    if (info.left && (!this.isSelf || info.time === this.latestTimestamp))
-      this.setPosition(info.left, info.top);
-    if (info.name) this.name = info.name;
-    if (info.score) this.score = info.score;
-    if (info.total) this.total = info.total;
-    if (info.succeeded) this.succeeded = info.succeeded;
+  getScore({score, total, succeeded}: ScoreMessage) {
+    if (score) this.score = score;
+    if (total) this.total = total;
+    if (succeeded) this.succeeded = succeeded;
   }
 
   showTooltip() {
@@ -352,7 +364,7 @@ class Player {
     setTimeout(() => {
       if (!this.welcome) return;
       this.welcome.parentNode?.removeChild(this.welcome);
-      delete this.welcomeCountdown;
+      this.welcomeCountdown = 20;
       delete this.welcome;
     }, 1000);
   }
@@ -369,84 +381,29 @@ export function start() {
   // no-op, called to trigger evaluation of the module
 }
 
-function loadPlayer(data: PlayerInfo) {
-  if (!PLAYERS[data.id]) {
-    PLAYERS[data.id] = new Player(data.id, data.left, data.top);
+function loadPlayerScore(message: ScoreMessage & {id: string}) {
+  const {id} = message;
+  if (!PLAYERS[id]) {
+    PLAYERS[id] = new Player(id, null, null);
   }
-  if (!data.name) PLAYERS[data.id].el.classList.remove('idle');
-  PLAYERS[data.id].getInfo(data);
+  PLAYERS[id].getScore(message);
 }
 
-socket.on('welcome', (data: WelcomeMessage) => {
-  for (const id in data.players) loadPlayer(data.players[id]);
-  if (PLAYER) {
-    PLAYER.id = data.id;
-  } else {
-    PLAYER = new Player(data.id, null, null, true);
-    PLAYER?.showWelcome();
+function loadPlayerPosition({id, left, top, time}: PositionMessage & {id: string}) {
+  if (!PLAYERS[id]) {
+    PLAYERS[id] = new Player(id, left, top);
   }
-});
-
-socket.on('info', (data: InfoMessage) => {
-  if (PLAYER && data.id === PLAYER.id) {
-    PLAYER.getInfo(data);
-    if (data.score) document.getElementById('score').textContent = data.score + '';
-  } else {
-    loadPlayer(data);
-  }
-});
-
-socket.on('flash', (data: FlashMessage) => {
-  if (PLAYERS[data.id]) {
-    if (data.stop) {
-      PLAYERS[data.id].stopFlash();
-    } else {
-      PLAYERS[data.id].startFlash();
-    }
-  }
-});
-
-socket.on('lockIn', (data: LockInMessage) => {
-  if (PLAYERS[data.id]) {
-    if (data.stop) {
-      PLAYERS[data.id].stopLockIn();
-    } else {
-      PLAYERS[data.id].startLockIn();
-    }
-  }
-});
-
-socket.on('idle', (data: IdleMessage) => {
-  if (PLAYERS[data.id]) PLAYERS[data.id].el.classList.add('idle');
-  if (PLAYER && data.id === PLAYER.id) PLAYER.el.classList.add('idle');
-});
-
-socket.on('disconnected', (data: DisconnectedMessage) => {
-  const p = PLAYERS[data.id];
-  if (!p) return;
-  delete MAP[p.left][p.top];
-  PLAYERS[data.id].el.parentNode?.removeChild(PLAYERS[data.id].el);
-  delete PLAYERS[data.id];
-});
+  PLAYERS[id].getPosition({left, top, time});
+}
 
 function contains<T>(el: T, list: T[]): boolean {
   return list.indexOf(el) >= 0;
 }
 
-socket.on('formation', (data: FormationMessage) => {
-  if (!PLAYER || !PLAYER.id) return;
-  PLAYER.formationDeadline(contains(PLAYER.id, data.ids), data.gain, data.loss);
-  for (const id in PLAYERS) {
-    const player = PLAYERS[id];
-    player.formationDeadline(contains(id, data.ids), data.gain, data.loss);
-    player.stopLockIn();
-  }
-  PLAYER.stopLockIn();
-});
-
 function showFormation(map: boolean[][]) {
-  const f = document.getElementById('formation-image');
-  f.innerHTML = '';
+  const formationImage = document.getElementById('formation-image');
+  if (!formationImage) throw new Error('#formation-image element not found');
+  formationImage.innerHTML = '';
   let width = 0;
   let height = 0;
   map.forEach((row, y) => {
@@ -455,15 +412,15 @@ function showFormation(map: boolean[][]) {
         if (!cell) return;
         const p = document.createElement('div');
         p.className = 'ref';
-        f.appendChild(p);
+        formationImage.appendChild(p);
         p.style.top = y * (p.offsetHeight + 1) + 'px';
         p.style.left = x * (p.offsetWidth + 1) + 'px';
         width = Math.max(width, x * (p.offsetWidth + 1) + p.offsetWidth);
         height = Math.max(height, y * (p.offsetHeight + 1) + p.offsetHeight);
       });
   });
-  f.style.width = width + 'px';
-  f.style.top = 50 - height / 2 + 'px';
+  formationImage.style.width = width + 'px';
+  formationImage.style.top = 50 - height / 2 + 'px';
 }
 
 let time: number;
@@ -471,58 +428,149 @@ let formationInterval: NodeJS.Timer;
 
 let requestPopupShown = false;
 
-function showRequestPopup() {
-  if (requestPopupShown) return;
-  const button = document.getElementById('send');
-  button?.parentNode?.removeChild(button);
-  button?.classList.remove('off');
-  const requestPopup = document.createElement('div');
-  requestPopup.className = 'megaphone pvs';
-  requestPopup.appendChild(
-    document.createTextNode('Swarmation is extra fun with more people. Ask some friends to join: ')
-  );
-  requestPopup.appendChild(button);
-  document.getElementById('container')?.appendChild(requestPopup);
-  requestPopupShown = true;
-}
+clientListen(socket, (message) => {
+  switch (message.type) {
+    case 'welcome': {
+      for (const id in message.scores) loadPlayerScore(message.scores[id]);
+      for (const id in message.positions) loadPlayerPosition(message.positions[id]);
+      if (PLAYER) {
+        PLAYER.id = message.id;
+      } else {
+        PLAYER = new Player(message.id, null, null, true);
+        PLAYER?.showWelcome();
+      }
+      break;
+    }
 
-socket.on('nextFormation', (message: NextFormationMessage) => {
-  document.getElementById('formation-name')?.textContent = message.formation;
-  showFormation(message.map);
+    case 'position': {
+      if (PLAYER && message.id === PLAYER.id) {
+        PLAYER.getPosition(message);
+      } else {
+        loadPlayerPosition(message);
+      }
 
-  time = message.time;
-  document.getElementById('countdown')?.textContent = time + '';
+      break;
+    }
 
-  if (formationInterval) clearInterval(formationInterval);
-  formationInterval = setInterval(() => {
-    time--;
-    document.getElementById('countdown').textContent = time + '';
-    if (time === 0) clearInterval(formationInterval);
-  }, 1000);
+    case 'score': {
+      if (PLAYER && message.id === PLAYER.id) {
+        PLAYER.getScore(message);
+        const score = document.getElementById('score');
+        if (score && message.score) score.textContent = message.score + '';
+      } else {
+        loadPlayerScore(message);
+      }
 
-  if (PLAYER.loggedIn && message.active < MIN_ACTIVE) {
-    if (!weeklyGameNoticeShown) showRequestPopup();
+      break;
+    }
+
+    case 'progress': {
+      try {
+        localStorage.setItem('progress', message.progress);
+      } catch {
+        console.log('Error writing to localStorage');
+      }
+      break;
+    }
+
+    case 'flash': {
+      const {id, stop} = message;
+      if (PLAYERS[id]) {
+        if (stop) {
+          PLAYERS[id].stopFlash();
+        } else {
+          PLAYERS[id].startFlash();
+        }
+      }
+      break;
+    }
+
+    case 'lockIn': {
+      if (PLAYERS[message.id]) {
+        if (message.stop) {
+          PLAYERS[message.id].stopLockIn();
+        } else {
+          PLAYERS[message.id].startLockIn();
+        }
+      }
+      break;
+    }
+
+    case 'idle': {
+      if (PLAYERS[message.id]) PLAYERS[message.id].el.classList.add('idle');
+      if (PLAYER && message.id === PLAYER.id) PLAYER.el.classList.add('idle');
+      break;
+    }
+
+    case 'disconnected': {
+      const p = PLAYERS[message.id];
+      if (!p || !p.left || !p.top) return;
+      delete MAP[p.left][p.top];
+      PLAYERS[message.id].el.parentNode?.removeChild(PLAYERS[message.id].el);
+      delete PLAYERS[message.id];
+      break;
+    }
+
+    case 'formation': {
+      if (!PLAYER || !PLAYER.id) return;
+      PLAYER.formationDeadline(contains(PLAYER.id, message.ids), message.gain, message.loss);
+      for (const id in PLAYERS) {
+        const player = PLAYERS[id];
+        player.formationDeadline(contains(id, message.ids), message.gain, message.loss);
+        player.stopLockIn();
+      }
+      PLAYER.stopLockIn();
+      break;
+    }
+
+    case 'nextFormation': {
+      const formationName = document.getElementById('formation-name');
+      if (!formationName) throw new Error('#formation-name element not found');
+      const countdown = document.getElementById('countdown');
+      if (!countdown) throw new Error('#countdown element not found');
+      formationName.textContent = message.formation;
+      showFormation(message.map);
+
+      time = message.time;
+      countdown.textContent = time + '';
+
+      if (formationInterval) clearInterval(formationInterval);
+      formationInterval = setInterval(() => {
+        time--;
+        countdown.textContent = time + '';
+        if (time === 0) clearInterval(formationInterval);
+      }, 1000);
+
+      if (PLAYER && PLAYER.loggedIn && message.active < MIN_ACTIVE) {
+        // TODO
+        // if (!weeklyGameNoticeShown) showRequestPopup();
+      }
+      break;
+    }
+
+    case 'restart': {
+      RESTARTING = true;
+      socket.disconnect();
+      displayMessage('Swarmation needs to restart for an update. Please reload the page.');
+      break;
+    }
+
+    case 'kick': {
+      RESTARTING = true;
+      socket.disconnect();
+      displayMessage(
+        'You have been disconnected for being idle too long. Reload the page to resume playing.'
+      );
+      break;
+    }
+
+    // default:
+    //   throw new Error(`Message type ${message.type} not implemented`);
   }
 });
 
-let RESTARTING = false;
-
-socket.on('restart', () => {
-  RESTARTING = true;
-  socket.disconnect();
-  displayMessage('Swarmation needs to restart for an update. Please reload the page.');
-});
-
-socket.on('kick', () => {
-  RESTARTING = true;
-  socket.disconnect();
-  displayMessage(
-    'You have been disconnected for being idle too long. Reload the page to resume playing.'
-  );
-});
-
 socket.on('connect', () => {
-  if (PLAYER) PLAYER.sendInfo(true);
+  if (PLAYER) PLAYER.sendPosition();
   for (const id in PLAYERS) PLAYERS[id].el.parentNode?.removeChild(PLAYERS[id].el);
   PLAYERS = {};
   MAP = [];
@@ -542,6 +590,19 @@ socket.on('disconnect', () => {
   connect();
   interval = setInterval(connect, 1000);
 });
+
+// TODO
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function showRequestPopup() {
+  if (requestPopupShown) return;
+  const requestPopup = document.createElement('div');
+  requestPopup.className = 'megaphone pvs';
+  requestPopup.appendChild(
+    document.createTextNode('Swarmation is extra fun with more people. Ask some friends to join: ')
+  );
+  document.getElementById('container')?.appendChild(requestPopup);
+  requestPopupShown = true;
+}
 
 const MOVEMENTS = {
   '38': 'up' as 'up',

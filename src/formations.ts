@@ -17,12 +17,12 @@ export type FormationDefinition = {
   name: string;
   difficulty: number;
   diagram: string[];
-  size?: number;
 };
 
 export type Formation = FormationDefinition & {
   map: boolean[][];
   points: Array<[number, number]>;
+  size: number;
 };
 
 function parseFormation(lines: string[]): FormationDefinition {

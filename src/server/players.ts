@@ -1,5 +1,6 @@
-import {DisconnectedMessage, IdleMessage, PlayerInfo} from '../types';
 import * as map from './map';
+import {sign} from './signing';
+import {serverEmit, serverBroadcast, PositionMessage, ScoreMessage} from '../protocol';
 
 const MAX_IDLE = 120;
 const IDLE_AFTER_TURNS = 2;
@@ -9,14 +10,14 @@ export const PLAYERS: {[id: string]: Player} = {};
 export class Player {
   public id: string;
   public client: SocketIO.Socket;
-  private active: boolean | undefined;
+  private active: boolean | null = null;
+  public name: string | null = null;
   private idleTurns = 0;
-  private succeeded: number | undefined;
-  private name: string | undefined;
-  public score: number | undefined;
-  public left: number | undefined;
-  public top: number | undefined;
-  private total: number | undefined;
+  private succeeded = 0;
+  private total = 0;
+  public score = 0;
+  public left: number | null = null;
+  public top: number | null = null;
 
   constructor(id: string, client: SocketIO.Socket) {
     this.id = id;
@@ -26,14 +27,6 @@ export class Player {
   static get(client: SocketIO.Socket) {
     if (!PLAYERS[client.id]) PLAYERS[client.id] = new Player(client.id, client);
     return PLAYERS[client.id];
-  }
-
-  static getList(): PlayerInfo[] {
-    const list = [];
-    for (const id in PLAYERS) {
-      list.push(PLAYERS[id].getInfo());
-    }
-    return list;
   }
 
   static getCount(): number {
@@ -48,28 +41,29 @@ export class Player {
     return n;
   }
 
-  static endTurn() {
-    for (const id in PLAYERS) PLAYERS[id].endTurn();
-  }
-
-  setInfo(info: PlayerInfo) {
+  setPosition(message: Omit<PositionMessage, 'type'>) {
     const top = this.top;
     const left = this.left;
-    for (const key in info) {
-      const k = key as keyof typeof info;
-      if (k === 'id') continue;
-      if (k === 'time') continue;
-      if (info[k] !== undefined && info[k] !== null) this[k] = info[k];
-    }
+    this.left = message.left;
+    this.top = message.top;
     map.move(left, top, this.left, this.top, this);
   }
 
-  getInfo(): PlayerInfo {
+  getPosition(): PositionMessage & {id: string} {
+    if (this.left === null) throw new Error('Player not positioned');
+    if (this.top === null) throw new Error('Player not positioned');
     return {
+      type: 'position',
       id: this.id,
       left: this.left,
       top: this.top,
-      name: this.name,
+    };
+  }
+
+  getScore(): ScoreMessage & {id: string} {
+    return {
+      type: 'score',
+      id: this.id,
       score: this.score,
       total: this.total,
       succeeded: this.succeeded,
@@ -81,12 +75,16 @@ export class Player {
   }
 
   endTurn() {
+    serverEmit(this.client, {
+      type: 'progress',
+      progress: sign({score: this.score, succeeded: this.succeeded, total: this.total}),
+    });
     if (this.active) {
       this.idleTurns = 0;
     } else {
       if (this.idleTurns === IDLE_AFTER_TURNS) {
-        this.client.emit('idle', {id: this.id} as IdleMessage);
-        this.client.broadcast.emit('idle', {id: this.id} as IdleMessage);
+        serverEmit(this.client, {type: 'idle', id: this.id});
+        serverEmit(this.client.broadcast, {type: 'idle', id: this.id});
       }
       this.idleTurns++;
       if (this.idleTurns > MAX_IDLE) this.kick();
@@ -95,13 +93,13 @@ export class Player {
   }
 
   disconnect(sockets: SocketIO.Namespace) {
-    sockets.emit('disconnected', {id: this.id} as DisconnectedMessage);
+    serverEmit(sockets, {type: 'disconnected', id: this.id});
     delete PLAYERS[this.id];
   }
 
   kick() {
-    this.client.emit('kick', {reason: 'idle'});
-    this.client.broadcast.emit('disconnected', {id: this.id});
+    serverEmit(this.client, {type: 'kick', reason: 'idle'});
+    serverBroadcast(this.client, {type: 'disconnected', id: this.id});
     this.client.disconnect(true);
     delete PLAYERS[this.id];
   }

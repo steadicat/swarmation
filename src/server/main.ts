@@ -4,16 +4,10 @@ import * as express from 'express';
 import * as http from 'http';
 import * as SocketIO from 'socket.io';
 import {Formation, getFormations, sizeRange} from '../formations';
-import {
-  FlashMessage,
-  FormationMessage,
-  InfoMessage,
-  LockInMessage,
-  NextFormationMessage,
-  WelcomeMessage,
-} from '../types';
 import * as map from './map';
 import {Player, PLAYERS} from './players';
+import {validate} from './signing';
+import {serverListen, serverEmit, serverBroadcast} from '../protocol';
 
 const app = express();
 const server = http.createServer(app);
@@ -28,7 +22,7 @@ app.use('/', express.static('public'));
 
 // Error Handling
 app.use((err: Error | null, _: express.Request, res: express.Response, _next: unknown) => {
-  console.error(err.stack);
+  err && console.error(err.stack);
   res.status(500).send('Something broke!');
 });
 
@@ -37,7 +31,7 @@ process.on('uncaughtException', (e: Error) => {
 });
 
 function shutdown() {
-  if (io.sockets) io.sockets.emit('restart');
+  if (io.sockets) serverEmit(io.sockets, {type: 'restart'});
   setTimeout(() => {
     process.exit();
   }, 2000);
@@ -47,55 +41,68 @@ process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 process.on('SIGHUP', shutdown);
 
-// Events
-
-const PlayerEvents = {
-  info(player: Player, message: InfoMessage) {
-    player.setInfo(message);
-    // mark players that are active
-    if (!message.name) player.setActive();
-    message.id = player.id;
-    io.to(ROOM).emit('info', message);
-  },
-
-  flash(player: Player, message: FlashMessage) {
-    message.id = player.id;
-    io.to(ROOM).emit('flash', message);
-  },
-
-  lockIn(player: Player, message: FlashMessage) {
-    message.id = player.id;
-    io.to(ROOM).emit('lockIn', message);
-  },
-
-  disconnect(player: Player) {
-    player.disconnect(io.sockets);
-  },
-};
-
 // IO
 
-const ROOM = 'main';
-
 io.sockets.on('connection', (client: SocketIO.Socket) => {
-  client.join(ROOM);
-  client.emit('welcome', {id: client.id, players: Player.getList()} as WelcomeMessage);
+  const scores = Object.values(PLAYERS).map((player) => player.getScore());
+  const positions = Object.values(PLAYERS).map((player) => player.getPosition());
+  serverEmit(client, {type: 'welcome', id: client.id, scores, positions});
 
   if (FORMATION && TIME > 0) {
-    client.emit('nextFormation', {
+    serverEmit(client, {
+      type: 'nextFormation',
       formation: FORMATION.name,
       time: TIME,
       map: FORMATION.map,
       active: Player.getActive(),
-    } as NextFormationMessage);
+    });
   }
 
-  client.on('info', (message: InfoMessage) => PlayerEvents.info(Player.get(client), message));
-  client.on('flash', (message: FlashMessage) => PlayerEvents.flash(Player.get(client), message));
-  client.on('lockIn', (message: LockInMessage) => PlayerEvents.lockIn(Player.get(client), message));
+  serverListen(client, (message) => {
+    switch (message.type) {
+      case 'progress': {
+        const player = Player.get(client);
+        const validProgress = validate(message.progress) as {
+          score: number;
+          succeeded: number;
+          total: number;
+        } | null;
+        if (validProgress) {
+          const {score, succeeded, total} = validProgress;
+          serverEmit(io.sockets, {type: 'score', id: player.id, score, succeeded, total});
+        }
+        break;
+      }
+
+      case 'position': {
+        const player = Player.get(client);
+        player.setPosition(message);
+        player.setActive();
+        serverBroadcast(client, {...message, id: player.id});
+        break;
+      }
+
+      case 'flash': {
+        const player = Player.get(client);
+        serverBroadcast(client, {...message, id: player.id});
+        break;
+      }
+
+      case 'lockIn': {
+        const player = Player.get(client);
+        serverBroadcast(client, {...message, id: player.id});
+        break;
+      }
+
+      default:
+        // @ts-ignore
+        throw new Error(`Message type ${message.type} not implemented`);
+    }
+  });
+
   client.on('disconnect', () => {
-    client.leave(ROOM);
-    PlayerEvents.disconnect(Player.get(client));
+    const player = Player.get(client);
+    player.disconnect(io.sockets);
   });
 });
 
@@ -116,9 +123,9 @@ for (const id in formations) {
   }
 }
 
-function pickFormation(): Formation | null {
+function pickFormation(): Formation {
   const available = FORMATIONS[Math.max(MIN_SIZE, Math.min(Player.getActive(), MAX_SIZE))];
-  if (available.length === 0) return null;
+  if (available.length === 0) throw new Error('No formations available');
   return available[Math.floor(Math.random() * available.length)];
 }
 
@@ -128,7 +135,8 @@ function startTurn() {
   while (!FORMATION) FORMATION = pickFormation();
   TIME = FORMATION.difficulty;
   console.log(`Next formation is ${FORMATION.name} of size ${FORMATION.size}.`);
-  io.sockets.emit('nextFormation', {
+  serverEmit(io.sockets, {
+    type: 'nextFormation',
     formation: FORMATION.name,
     time: TIME,
     map: FORMATION.map,
@@ -144,23 +152,23 @@ function endTurn() {
   const loss = Math.round((MAX_POINTS - FORMATION.difficulty) / 4);
   const ids = Object.keys(players);
   console.log(`Formation ${FORMATION.name} completed with ${ids.length} participants.`);
-  io.sockets.emit('formation', {
+  serverEmit(io.sockets, {
+    type: 'formation',
     formation: FORMATION.name,
     difficulty: FORMATION.difficulty,
     gain,
     loss,
     ids,
-  } as FormationMessage);
-  for (const id of ids) {
-    const player = players[id];
-    player.setActive();
-    if (ids.indexOf(id) >= 0) {
+  });
+  for (const player of Object.values(PLAYERS)) {
+    if (ids.indexOf(player.id) >= 0) {
+      player.setActive();
       player.score += gain;
     } else {
       player.score = Math.max(0, player.score - loss);
     }
+    player.endTurn();
   }
-  Player.endTurn();
 }
 
 // main loop
@@ -174,6 +182,6 @@ setInterval(() => {
 }, 1000);
 
 // Only listen on $ node server.js
-const port = parseInt(process.env.PORT, 10) || parseInt(process.argv[2], 10) || 3000;
+const port = parseInt(process.env.PORT || '0', 10) || parseInt(process.argv[2], 10) || 3000;
 if (!module.parent) server.listen(port);
 console.log('Server now listening on port ' + port + '...');
