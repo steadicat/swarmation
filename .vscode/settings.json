@@ -4,5 +4,6 @@
   "search.exclude": {
     "yarn.lock": true
   },
-  "typescript.referencesCodeLens.showOnAllFunctions": true
+  "typescript.referencesCodeLens.showOnAllFunctions": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

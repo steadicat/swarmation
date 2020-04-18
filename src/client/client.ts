@@ -355,7 +355,7 @@ clientListen(socket, (message) => {
     }
 
     default:
-      // @ts-ignore
+      // @ts-expect-error
       throw new Error(`Message type ${message.type} not implemented`);
   }
 });

@@ -169,7 +169,7 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
       }
 
       default:
-        // @ts-ignore
+        // @ts-expect-error
         throw new Error(`Message type ${message.type} not implemented`);
     }
   });
