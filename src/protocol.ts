@@ -13,8 +13,15 @@ export type RestoreMessage = {type: 'restore'; data: string};
 export type FlashMessage = {type: 'flash'; stop?: true};
 export type LockInMessage = {type: 'lockIn'};
 
+export type MoveMessage = {
+  type: 'move';
+  direction: 'up' | 'down' | 'left' | 'right';
+  time: number;
+};
+
 export type PositionMessage = {
   type: 'position';
+  id: string;
   left: number;
   top: number;
   time: number;
@@ -52,10 +59,10 @@ export type IdleMessage = {type: 'idle'; id: string};
 export type DisconnectedMessage = {type: 'disconnected'; id: string};
 export type KickMessage = {type: 'kick'; reason: 'idle'};
 
-type ClientMessage = FlashMessage | LockInMessage | PositionMessage | RestoreMessage;
+type ClientMessage = FlashMessage | LockInMessage | MoveMessage | RestoreMessage;
 
 type RelayedClientMessage = ClientMessage extends unknown
-  ? Exclude<ClientMessage, RestoreMessage> & {id: string}
+  ? Exclude<ClientMessage, MoveMessage | RestoreMessage> & {id: string}
   : never;
 
 type ServerMessage =
@@ -64,6 +71,7 @@ type ServerMessage =
   | FormationMessage
   | NextFormationMessage
   | PlayerMessage
+  | PositionMessage
   | RestartMessage
   | KickMessage
   | IdleMessage

@@ -8,6 +8,7 @@ import {serverListen, serverEmit, serverBroadcast} from '../protocol';
 import {Player} from '../player';
 import Bugsnag from '@bugsnag/js';
 import BugsnagPluginExpress from '@bugsnag/plugin-express';
+import {directions} from '../client/directions';
 
 Bugsnag.start({
   apiKey: '598a6c87f69350bfffd18829c6e8a87c',
@@ -16,6 +17,7 @@ Bugsnag.start({
 
 const WIDTH = 84;
 const HEIGHT = 60;
+
 const NAMES = [
   'Saber',
   'Tooth',
@@ -106,6 +108,7 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
   };
   PLAYERS[client.id] = player;
   CLIENTS[client.id] = client;
+  map.set(left, top, player);
 
   serverEmit(client, {type: 'welcome', id: client.id, players: Object.values(PLAYERS)});
 
@@ -121,8 +124,9 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
 
   client.on('disconnect', () => {
     serverEmit(io.sockets, {type: 'disconnected', id: player.id});
-    delete CLIENTS[player.id];
+    map.unset(PLAYERS[player.id].left, PLAYERS[player.id].top);
     delete PLAYERS[player.id];
+    delete CLIENTS[player.id];
   });
 
   serverListen(client, (message) => {
@@ -146,14 +150,17 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
         break;
       }
 
-      case 'position': {
-        const top = player.top;
-        const left = player.left;
-        player.left = message.left;
-        player.top = message.top;
-        map.move(left, top, player.left, player.top, player);
+      case 'move': {
+        const {left, top, id} = player;
+        const {direction, time} = message;
+        const [newLeft, newTop] = directions[direction](left, top);
         player.active = true;
-        serverBroadcast(client, {...message, id: player.id});
+        const moved = map.move(left, top, newLeft, newTop, player);
+        if (moved) {
+          player.left = newLeft;
+          player.top = newTop;
+        }
+        serverEmit(io.sockets, {type: 'position', id, left: player.left, top: player.top, time});
         break;
       }
 
@@ -169,8 +176,12 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
       }
 
       default:
-        // @ts-expect-error
-        throw new Error(`Message type ${message.type} not implemented`);
+        throw new Error(
+          `Message type ${
+            // @ts-expect-error
+            message.type
+          } not implemented`
+        );
     }
   });
 });
@@ -266,7 +277,9 @@ function endTurn() {
         serverEmit(client, {type: 'kick', reason: 'idle'});
         serverBroadcast(client, {type: 'disconnected', id: player.id});
         client.disconnect(true);
+        map.unset(PLAYERS[player.id].left, PLAYERS[player.id].top);
         delete PLAYERS[player.id];
+        delete CLIENTS[player.id];
       }
     }
     player.active = false;

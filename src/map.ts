@@ -2,6 +2,8 @@ import {Formation} from './formations';
 import {Player} from './player';
 
 const MAP: {[x: number]: {[y: number]: Player | undefined}} = {};
+const WIDTH = 84;
+const HEIGHT = 60;
 
 export function set(x: number, y: number, v: Player) {
   if (!MAP[x]) MAP[x] = {};
@@ -17,16 +19,25 @@ export function unset(x: number, y: number) {
   if (MAP[x]) delete MAP[x][y];
 }
 
-export function move(x1: number, y1: number, x2: number, y2: number, v: Player) {
-  if (x1 !== x2 || y1 !== y2) {
-    x1 && y1 && unset(x1, y1);
-    set(x2, y2, v);
-  }
-}
-
 export function exists(x: number, y: number) {
   if (!MAP[x]) return false;
   return MAP[x][y] !== undefined;
+}
+
+export function isValidMove(x1: number, y1: number, x2: number, y2: number, v: Player) {
+  if (x1 === x2 && y1 === y2) return false;
+  if (x2 < 0 || x2 >= WIDTH) return false;
+  if (y2 < 0 || y2 >= HEIGHT) return false;
+  if (exists(x2, y2)) return false;
+  if (get(x1, y1) !== v) return false;
+  return true;
+}
+
+export function move(x1: number, y1: number, x2: number, y2: number, v: Player) {
+  if (!isValidMove(x1, y1, x2, y2, v)) return false;
+  unset(x1, y1);
+  set(x2, y2, v);
+  return true;
 }
 
 export function clear() {

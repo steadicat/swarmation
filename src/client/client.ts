@@ -12,8 +12,6 @@ import {showTooltip, hideTooltip} from './tooltip';
 import {initializeControls} from './controls';
 import * as map from '../map';
 
-const WIDTH = 84;
-const HEIGHT = 60;
 const MIN_ACTIVE = 6;
 
 let PLAYERS: {[id: string]: Player | undefined} = {};
@@ -86,14 +84,12 @@ function scoreChange(delta: number) {
   );
 }
 
-function setPosition(player: Player, left: number, top: number): boolean {
-  // cancel in case of collisions
-  if (map.exists(left, top)) return false;
-  // cancel if out of bounds
-  if (left < 0 || left >= WIDTH) return false;
-  if (top < 0 || top >= HEIGHT) return false;
-
-  map.move(player.left, player.top, left, top, player);
+function setPosition(player: Player, left: number, top: number) {
+  if (map.get(player.left, player.top) === player) {
+    map.unset(player.left, player.top);
+  }
+  if (map.get(left, top) === player) return;
+  map.set(left, top, player);
   player.left = left;
   player.top = top;
 
@@ -101,8 +97,6 @@ function setPosition(player: Player, left: number, top: number): boolean {
   if (!el) throw new Error('Element for player not found');
   el.style.left = getX(player) + 'px';
   el.style.top = getY(player) + 'px';
-
-  return true;
 }
 
 function initializePlayer(player: Player) {
@@ -114,7 +108,9 @@ function initializePlayer(player: Player) {
     if (!board) throw new Error('Element #board not found');
     board.appendChild(el);
   }
-  setPosition(player, player.left, player.top);
+  map.set(player.left, player.top, player);
+  el.style.left = getX(player) + 'px';
+  el.style.top = getY(player) + 'px';
 
   el.addEventListener('mouseover', () => {
     showTooltip(player, getScreenPosition(player));
@@ -205,12 +201,12 @@ clientListen(socket, (message) => {
       positionWelcome(getScreenPosition(self));
 
       initializeControls(self, {
-        move(left, top) {
-          const changed = setPosition(self, left, top);
-          if (!changed) return;
-          latestTimestamp = Date.now();
-          clientEmit(socket, {type: 'position', left, top, time: latestTimestamp});
+        move(direction, left, top) {
           el.classList.remove('idle');
+          if (!map.isValidMove(self.left, self.top, left, top, self)) return;
+          setPosition(self, left, top);
+          latestTimestamp = Date.now();
+          clientEmit(socket, {type: 'move', direction, time: latestTimestamp});
           startCountdown();
           positionWelcome(getScreenPosition(self));
         },
@@ -233,12 +229,13 @@ clientListen(socket, (message) => {
     }
 
     case 'player': {
-      if (!PLAYERS[message.player.id]) {
-        PLAYERS[message.player.id] = message.player;
+      let player = PLAYERS[message.player.id];
+      if (!player) {
+        player = PLAYERS[message.player.id] = message.player;
       } else {
-        Object.assign(PLAYERS[message.player.id], message.player);
+        Object.assign(player, message.player);
       }
-      initializePlayer(message.player);
+      initializePlayer(player);
       break;
     }
 
@@ -355,8 +352,12 @@ clientListen(socket, (message) => {
     }
 
     default:
-      // @ts-expect-error
-      throw new Error(`Message type ${message.type} not implemented`);
+      throw new Error(
+        `Message type ${
+          // @ts-expect-error
+          message.type
+        } not implemented`
+      );
   }
 });
 
