@@ -11,7 +11,7 @@ function successRate({total, succeeded}) {
 .tooltip {
   transform: translate(-50%, -100%);
   z-index: 1;
-  background: #fff
+  background: #fff;
 }
 
 .tooltip:after {

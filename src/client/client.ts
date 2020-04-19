@@ -1,10 +1,10 @@
+import 'core-js/es/array/find';
 import 'core-js/es/array/find-index';
 import 'core-js/es/string/trim';
 
 import * as io from 'socket.io-client';
 import {clientEmit, clientListen} from '../protocol';
 import {Player} from '../player';
-import {positionWelcome, showWelcome, startCountdown, hideWelcome} from './welcome';
 import {initializeControls} from './controls';
 import * as map from '../map';
 
@@ -24,7 +24,6 @@ const info = new Info({target: document.getElementById('info')!});
 const board = new Board({target: document.getElementById('board')!});
 
 function displayMessage(text: string) {
-  hideWelcome();
   const message = document.createElement('div');
   message.className = 'message';
   message.innerText = text;
@@ -90,10 +89,6 @@ function setPosition(player: Player, left: number, top: number) {
 
 // sockets
 
-function contains<T>(el: T, list: T[]): boolean {
-  return list.indexOf(el) >= 0;
-}
-
 let time: number;
 let formationInterval: NodeJS.Timer;
 
@@ -124,8 +119,6 @@ clientListen(socket, (message) => {
       if (!self) throw new Error('Local player object not found');
 
       board.$set({players: Object.values(PLAYERS), selfId: self.id});
-      showWelcome();
-      positionWelcome(getScreenPosition(self));
 
       initializeControls(self, {
         move(direction, left, top) {
@@ -134,9 +127,7 @@ clientListen(socket, (message) => {
           setPosition(self, left, top);
           latestTimestamp = Date.now();
           clientEmit(socket, {type: 'move', direction, time: latestTimestamp});
-          board.$set({players: Object.values(PLAYERS)});
-          startCountdown();
-          positionWelcome(getScreenPosition(self));
+          board.$set({players: Object.values(PLAYERS), hasMoved: true});
         },
         startFlash() {
           self.flashing = true;

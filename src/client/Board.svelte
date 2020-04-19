@@ -1,11 +1,15 @@
-<script>
+<script lang="ts">
   import Tooltip from './Tooltip.svelte';
+  import Welcome from './Welcome.svelte';
 
   export let players = [];
   export let selfId = null;
   export let activeIds = [];
+  export let hasMoved = false;
 
   let showTooltipForPlayer = null;
+
+  $: self = players.find(player => player.id === selfId);
 </script>
 
 <style>
@@ -47,7 +51,7 @@
   }
 </style>
 
-{#each players as player}
+{#each players as player (player.id)}
 <div
   class="player"
   class:self={player.id === selfId}
@@ -60,6 +64,10 @@
   on:mouseout={() => showTooltipForPlayer = null}
 />
 {/each}
+
+{#if self}
+<Welcome player={self} {hasMoved} />
+{/if}
 
 {#if showTooltipForPlayer}
 <Tooltip player={showTooltipForPlayer} />
