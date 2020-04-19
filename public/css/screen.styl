@@ -16,15 +16,9 @@ a
   font-weight bold
 .b
   font-weight bold
-.huge
-  font-size 60px
-  line-height 65px
 .larger
   font-size 36px
   line-height 35px
-.large
-  font-size 24px
-  line-height 25px
 .medium
   font-size 16px
   line-height 20px
@@ -129,6 +123,13 @@ a
   @extend .col
   @extend .shadow
   @extend .dark-border
+.welcome
+  @extend .rounded
+  @extend .abs
+  @extend .center
+  @extend .col
+  @extend .shadow
+  @extend .dark-border
   background #fff
   &:after
     background url(../images/tip.png) no-repeat center center
@@ -139,34 +140,6 @@ a
     bottom -10px
     left 50%
     margin-left -12px
-.welcome
-  @extend .tooltip
-
-.player
-  @extend .movement
-  @extend .abs
-  width 10px
-  height 10px
-  box-shadow inset -1px -1px 0px shadow, inset 1px 1px 0 rgba(255,255,255,0.3)
-  background #aaa
-  &.self
-    background #6dd
-  &.idle
-    opacity 0.5
-  &.flash
-    background #f85
-  &.active
-    box-shadow inset -1px -1px 0px shadow, inset 1px 1px 0 rgba(255,255,255,0.4)
-    background #fb3
-  &.locked-in
-    box-shadow inset -1px -1px 0px #000, inset 1px 1px 0 rgba(255,255,255,0.25)
-    background #444
-    animation bounceIn .75s cubic-bezier(0.215, 0.610, 0.355, 1.000)
-.ref
-  @extend .abs
-  @extend .player.active
-  width 15px
-  height 15px
 
 .score
   @extend .b
@@ -225,19 +198,4 @@ a
 .off
   display none
 
-
-
-@keyframes bounceIn 
-  0%
-    transform scale3d(.3, .3, .3)
-  20% 
-    transform scale3d(1.2, 1.2, 1.2)
-  40% 
-    transform scale3d(.85, .85, .85)
-  60% 
-    transform scale3d(1.08, 1.08, 1.08)
-  80% 
-    transform scale3d(.95, .95, .95)
-  100% 
-    transform scale3d(1, 1, 1)
 

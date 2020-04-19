@@ -47,6 +47,13 @@
     vertical-align: top;
     position: relative;
   }
+  .formation-pixel {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    box-shadow: inset -1px -1px 0px rgba(0,36,62,0.2), inset 1px 1px 0 rgba(255,255,255,0.4);
+    background: #fb3;
+  }
   .formation-name {
     font-size: 20px;
     line-height: 25px;
@@ -89,7 +96,7 @@
   <div class="formation-image" style="width: {width}px; height: {height}px">
     {#each formationMap as row, y}
       {#each row as cell, x}
-      <div class="ref" style="top: {y * (unit + 1)}px; left: {x * (unit + 1)}px;" />
+      <div class="formation-pixel" style="top: {y * (unit + 1)}px; left: {x * (unit + 1)}px;" />
       {/each}
     {/each}
   </div>

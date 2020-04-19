@@ -8,7 +8,6 @@ import * as io from 'socket.io-client';
 import {clientEmit, clientListen} from '../protocol';
 import {Player} from '../player';
 import {positionWelcome, showWelcome, startCountdown, hideWelcome} from './welcome';
-import {showTooltip, hideTooltip} from './tooltip';
 import {initializeControls} from './controls';
 import * as map from '../map';
 
