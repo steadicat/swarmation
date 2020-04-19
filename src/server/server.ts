@@ -13,6 +13,10 @@ import {directions} from '../client/directions';
 Bugsnag.start({
   apiKey: '598a6c87f69350bfffd18829c6e8a87c',
   plugins: [BugsnagPluginExpress],
+  // @ts-expect-error
+  onUncaughtException(e: Error) {
+    console.log(e.stack);
+  },
 });
 
 const WIDTH = 84;
@@ -35,9 +39,8 @@ const NAMES = [
   'Key',
 ];
 
-var middleware = Bugsnag.getPlugin('express');
-
 const app = express();
+const middleware = Bugsnag.getPlugin('express');
 app.use(middleware.requestHandler);
 
 const server = http.createServer(app);
@@ -56,10 +59,6 @@ app.use((err: Error | null, _: express.Request, res: express.Response, _next: un
 });
 
 app.use(middleware.errorHandler);
-
-process.on('uncaughtException', (e: Error) => {
-  console.log(e.stack);
-});
 
 function shutdown() {
   if (io.sockets) serverEmit(io.sockets, {type: 'restart'});
