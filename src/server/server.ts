@@ -111,6 +111,7 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
   map.set(left, top, player);
 
   serverEmit(client, {type: 'welcome', id: client.id, players: Object.values(PLAYERS)});
+  serverBroadcast(client, {type: 'player', player});
 
   if (FORMATION && TIME > 0) {
     serverEmit(client, {
