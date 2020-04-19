@@ -300,8 +300,6 @@ clientListen(socket, (message) => {
     }
 
     case 'formation': {
-      if (!SELF) throw new Error('Local player object not found');
-      formationDeadline(SELF, contains(SELF.id, message.ids), message.gain, message.loss);
       for (const id in PLAYERS) {
         const player = PLAYERS[id];
         if (!player) throw new Error('Player object not found');
