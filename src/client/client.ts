@@ -112,6 +112,15 @@ function initializePlayer(player: Player) {
   el.style.left = getX(player) + 'px';
   el.style.top = getY(player) + 'px';
 
+  if (player === SELF) {
+    const score = document.getElementById('score');
+    if (!score) throw new Error('#score element not found');
+    const success = document.getElementById('success');
+    if (!success) throw new Error('#success element not found');
+    score.textContent = `${SELF.score}`;
+    success.textContent = `${successRate(SELF)}`;
+  }
+
   el.addEventListener('mouseover', () => {
     showTooltip(player, getScreenPosition(player));
   });
