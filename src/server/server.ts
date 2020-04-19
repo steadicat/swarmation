@@ -72,7 +72,7 @@ process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 process.on('SIGHUP', shutdown);
 
-export const PLAYERS: {[id: string]: Player} = {};
+export const PLAYERS: {[id: string]: Player | undefined} = {};
 
 function getActivePlayers(): number {
   let n = 0;
@@ -111,7 +111,7 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
   CLIENTS[client.id] = client;
   map.set(left, top, player);
 
-  serverEmit(client, {type: 'welcome', id: client.id, players: Object.values(PLAYERS)});
+  serverEmit(client, {type: 'welcome', id: client.id, players: Object.values(PLAYERS) as Player[]});
   serverBroadcast(client, {type: 'player', player});
 
   if (FORMATION && TIME > 0) {
@@ -126,7 +126,9 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
 
   client.on('disconnect', () => {
     serverEmit(io.sockets, {type: 'disconnected', id: player.id});
-    map.unset(PLAYERS[player.id].left, PLAYERS[player.id].top);
+    if (PLAYERS[player.id]) {
+      map.unset(PLAYERS[player.id]!.left, PLAYERS[player.id]!.top);
+    }
     delete PLAYERS[player.id];
     delete CLIENTS[player.id];
   });
