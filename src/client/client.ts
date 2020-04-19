@@ -1,7 +1,4 @@
-import 'core-js/es/array/filter';
-import 'core-js/es/array/index-of';
-import 'core-js/es/array/is-array';
-import 'core-js/es/function/bind';
+import 'core-js/es/array/find-index';
 import 'core-js/es/string/trim';
 
 import * as io from 'socket.io-client';
@@ -231,7 +228,7 @@ clientListen(socket, (message) => {
       for (const id in PLAYERS) {
         const player = PLAYERS[id];
         if (!player) throw new Error('Player object not found');
-        const success = contains(id, message.ids);
+        const success = message.ids.indexOf(id) >= 0;
         player.total++;
         player.lockedIn = false;
         if (success) {
