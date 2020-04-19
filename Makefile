@@ -24,17 +24,15 @@ devserver: node_modules
 .PHONY: devserver
 
 devjs: node_modules
-	yarn run webpack \
-		--mode development \
+	yarn run rollup \
 		--watch \
-		--debug \
-		--output-pathinfo \
-		--devtool inline-source-map \
-		--module-bind ts=ts-loader \
-		--module-bind svelte=svelte-loader \
-		--entry ./src/client/client.ts \
-		--output public/main.js \
-		--resolve-extensions '.ts,.js'
+		--plugin commonjs \
+		--plugin node-resolve \
+		--plugin typescript \
+		--plugin svelte \
+		--file public/main.js \
+		--format iife \
+		./src/client/client.ts
 .PHONY: devjs
 
 devcss: node_modules
@@ -48,13 +46,16 @@ dev: public/formation/*.png
 # Deployment
 
 buildjs: node_modules
-	-NODE_ENV=production yarn run webpack \
-		--mode production \
-		--module-bind ts=ts-loader \
-		--module-bind svelte=svelte-loader \
-		--entry ./src/client/client.ts \
-		--output public/main.js \
-		--resolve-extensions '.ts,.js'
+	-NODE_ENV=production \
+	  yarn run rollup \
+		--plugin commonjs \
+		--plugin node-resolve \
+		--plugin typescript \
+		--plugin svelte \
+		--plugin terser \
+		--file public/main.js \
+		--format iife \
+		./src/client/client.ts
 .PHONY: buildjs
 
 buildcss: node_modules
