@@ -100,6 +100,7 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
     top,
     name,
     active: true,
+    flashing: false,
     lockedIn: false,
     idleTurns: 0,
     succeeded: 0,
@@ -270,6 +271,7 @@ function endTurn() {
       const client = CLIENTS[player.id];
       if (!client) throw new Error('Client for player not found');
       if (player.idleTurns === IDLE_AFTER_TURNS) {
+        player.active = false;
         serverEmit(client, {type: 'idle', id: player.id});
         serverEmit(client.broadcast, {type: 'idle', id: player.id});
       }

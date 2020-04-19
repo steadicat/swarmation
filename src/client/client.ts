@@ -16,15 +16,16 @@ const MIN_ACTIVE = 6;
 
 let PLAYERS: {[id: string]: Player | undefined} = {};
 let SELF: Player | null = null;
-const ELEMENTS: {[id: string]: HTMLElement | undefined} = {};
 
 let socket = io.connect('');
 
 let RESTARTING = false;
 
 import Info from './Info.svelte';
+import Board from './Board.svelte';
 
 const info = new Info({target: document.getElementById('info')!});
+const board = new Board({target: document.getElementById('board')!});
 
 function displayMessage(text: string) {
   hideWelcome();
@@ -70,8 +71,6 @@ function scoreChange(delta: number) {
   const popup = document.createElement('div');
   popup.className = `score abs center ${delta > 0 ? 'positive' : 'negative'}`;
   popup.innerText = (delta > 0 ? '+' : '') + delta;
-  const el = ELEMENTS[SELF.id];
-  if (!el) throw new Error('Element for player not found');
   const [left, top] = getScreenPosition(SELF);
   popup.style.left = left - 200 + 'px';
   popup.style.top = top - 50 + 'px';
@@ -91,54 +90,6 @@ function setPosition(player: Player, left: number, top: number) {
   map.set(left, top, player);
   player.left = left;
   player.top = top;
-
-  const el = ELEMENTS[player.id];
-  if (!el) throw new Error('Element for player not found');
-  el.style.left = getX(player) + 'px';
-  el.style.top = getY(player) + 'px';
-}
-
-function initializePlayer(player: Player) {
-  let el = ELEMENTS[player.id];
-  if (!el) {
-    el = ELEMENTS[player.id] = document.createElement('div');
-    el.className = 'player';
-    const board = document.getElementById('board');
-    if (!board) throw new Error('Element #board not found');
-    board.appendChild(el);
-  }
-  map.set(player.left, player.top, player);
-  el.style.left = getX(player) + 'px';
-  el.style.top = getY(player) + 'px';
-
-  if (player === SELF) {
-    info.$set({score: SELF.score, successRate: successRate(SELF)});
-  }
-
-  el.addEventListener('mouseover', () => {
-    showTooltip(player, getScreenPosition(player));
-  });
-  el.addEventListener('mouseout', () => hideTooltip());
-  return el;
-}
-
-function formationDeadline(player: Player, success: boolean, gain: number, loss: number) {
-  player.total++;
-  if (success) {
-    const el = ELEMENTS[player.id];
-    if (!el) throw new Error('Element for player not found');
-    el.classList.add('active');
-    setTimeout(() => {
-      el.classList.remove('active');
-    }, 1000);
-    player.score += gain;
-    player.succeeded++;
-    if (player === SELF) scoreChange(+gain);
-    el.classList.remove('idle');
-  } else {
-    player.score = Math.max(0, player.score - loss);
-    if (player === SELF) scoreChange(-loss);
-  }
 }
 
 // sockets
@@ -168,39 +119,44 @@ clientListen(socket, (message) => {
     case 'welcome': {
       for (const player of message.players) {
         PLAYERS[player.id] = player;
-        initializePlayer(player);
+        map.set(player.left, player.top, player);
+        if (player === SELF) {
+          info.$set({score: SELF.score, successRate: successRate(SELF)});
+        }
       }
       const self = (SELF = PLAYERS[message.id] || null);
       if (!self) throw new Error('Local player object not found');
-      const el = ELEMENTS[message.id];
-      if (!el) throw new Error('Local player element not found');
-      el.classList.add('self');
+
+      board.$set({players: Object.values(PLAYERS), selfId: self.id});
       showWelcome();
       positionWelcome(getScreenPosition(self));
 
       initializeControls(self, {
         move(direction, left, top) {
-          el.classList.remove('idle');
+          self.active = true;
           if (!map.isValidMove(self.left, self.top, left, top, self)) return;
           setPosition(self, left, top);
           latestTimestamp = Date.now();
           clientEmit(socket, {type: 'move', direction, time: latestTimestamp});
+          board.$set({players: Object.values(PLAYERS)});
           startCountdown();
           positionWelcome(getScreenPosition(self));
         },
         startFlash() {
-          el.classList.add('flash');
+          self.flashing = true;
           clientEmit(socket, {type: 'flash'});
+          board.$set({players: Object.values(PLAYERS)});
         },
         stopFlash() {
-          el.classList.remove('flash');
+          self.flashing = false;
           clientEmit(socket, {type: 'flash', stop: true});
+          board.$set({players: Object.values(PLAYERS)});
         },
         lockIn() {
           if (self.lockedIn) return;
           self.lockedIn = true;
-          el.classList.add('locked-in');
           clientEmit(socket, {type: 'lockIn'});
+          board.$set({players: Object.values(PLAYERS)});
         },
       });
       break;
@@ -211,9 +167,14 @@ clientListen(socket, (message) => {
       if (!player) {
         player = PLAYERS[message.player.id] = message.player;
       } else {
+        map.unset(player.left, player.top);
         Object.assign(player, message.player);
       }
-      initializePlayer(player);
+      map.set(player.left, player.top, player);
+      if (player === SELF) {
+        info.$set({score: SELF.score, successRate: successRate(SELF)});
+      }
+      board.$set({players: Object.values(PLAYERS)});
       break;
     }
 
@@ -224,7 +185,9 @@ clientListen(socket, (message) => {
         // Discard stale self moves
         break;
       }
+      player.active = true;
       setPosition(player, message.left, message.top);
+      board.$set({players: Object.values(PLAYERS)});
       break;
     }
 
@@ -232,11 +195,8 @@ clientListen(socket, (message) => {
       const {id, stop} = message;
       const player = PLAYERS[id];
       if (!player) throw new Error('Player not found');
-      if (stop) {
-        ELEMENTS[player.id]?.classList.remove('flash');
-      } else {
-        ELEMENTS[player.id]?.classList.add('flash');
-      }
+      player.flashing = !stop;
+      board.$set({players: Object.values(PLAYERS)});
       break;
     }
 
@@ -246,14 +206,15 @@ clientListen(socket, (message) => {
       if (!player) throw new Error('Player not found');
       if (player.lockedIn) break;
       player.lockedIn = true;
-      ELEMENTS[player.id]?.classList.add('locked-in');
+      board.$set({players: Object.values(PLAYERS)});
       break;
     }
 
     case 'idle': {
-      const el = ELEMENTS[message.id];
-      if (!el) throw new Error('Element for player not found');
-      el.classList.add('idle');
+      const player = PLAYERS[message.id];
+      if (!player) throw new Error('Player not found');
+      player.active = false;
+      board.$set({players: Object.values(PLAYERS)});
       break;
     }
 
@@ -261,23 +222,34 @@ clientListen(socket, (message) => {
       const p = PLAYERS[message.id];
       if (!p || !p.left || !p.top) return;
       map.unset(p.left, p.top);
-      const el = ELEMENTS[message.id];
-      if (!el) throw new Error('Element for player not found');
-      el.parentNode?.removeChild(el);
       delete PLAYERS[message.id];
+      board.$set({players: Object.values(PLAYERS)});
       break;
     }
 
     case 'formation': {
+      const {gain, loss} = message;
       for (const id in PLAYERS) {
         const player = PLAYERS[id];
         if (!player) throw new Error('Player object not found');
-        formationDeadline(player, contains(id, message.ids), message.gain, message.loss);
-        if (player.lockedIn) {
-          ELEMENTS[player.id]?.classList.remove('locked-in');
-          player.lockedIn = false;
+        const success = contains(id, message.ids);
+        player.total++;
+        player.lockedIn = false;
+        if (success) {
+          player.score += gain;
+          player.succeeded++;
+          if (player === SELF) scoreChange(+gain);
+          player.active = true;
+        } else {
+          player.score = Math.max(0, player.score - loss);
+          if (player === SELF) scoreChange(-loss);
         }
       }
+      board.$set({players: Object.values(PLAYERS), activeIds: message.ids});
+      setTimeout(() => {
+        board.$set({activeIds: []});
+      }, 1000);
+
       try {
         localStorage.setItem('save', message.save);
       } catch {
@@ -331,12 +303,9 @@ clientListen(socket, (message) => {
 });
 
 socket.on('connect', () => {
-  for (const element of Object.values(ELEMENTS)) {
-    if (!element) continue;
-    element.parentNode?.removeChild(element);
-  }
   PLAYERS = {};
   map.clear();
+  board.$set({players: Object.values(PLAYERS)});
 });
 
 socket.on('disconnect', () => {

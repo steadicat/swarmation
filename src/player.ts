@@ -2,6 +2,7 @@ export type Player = {
   id: string;
   active: boolean;
   lockedIn: boolean;
+  flashing: boolean;
   name: string;
   idleTurns: number;
   succeeded: number;
