@@ -1,4 +1,5 @@
 import {Player} from './player';
+import type * as ServerWebSocket from 'ws';
 
 export type SaveData = {
   score: number;
@@ -77,25 +78,20 @@ type ServerMessage =
   | IdleMessage
   | DisconnectedMessage;
 
-export function clientEmit(socket: SocketIOClient.Socket, message: ClientMessage) {
-  socket.send(message);
+export function clientListen(socket: WebSocket, listener: (message: ServerMessage) => void) {
+  socket.addEventListener('message', (event) => listener(JSON.parse(event.data) as ServerMessage));
 }
 
-export function clientListen(
-  socket: SocketIOClient.Socket,
-  listener: (message: ServerMessage) => void
-) {
-  socket.on('message', listener);
+export function clientSend(socket: WebSocket, message: ClientMessage) {
+  socket.send(JSON.stringify(message));
 }
 
-export function serverListen(socket: SocketIO.Socket, listener: (message: ClientMessage) => void) {
-  socket.on('message', listener);
+export function serverListen(socket: ServerWebSocket, listener: (message: ClientMessage) => void) {
+  socket.addEventListener('message', (event) => listener(JSON.parse(event.data) as ClientMessage));
 }
 
-export function serverEmit(socket: SocketIO.Socket | SocketIO.Namespace, message: ServerMessage) {
-  socket.send(message);
-}
-
-export function serverBroadcast(socket: SocketIO.Socket, message: ServerMessage) {
-  socket.broadcast.send(message);
+export function serverSend(sockets: ServerWebSocket[], message: ServerMessage) {
+  for (const socket of sockets) {
+    socket.send(JSON.stringify(message));
+  }
 }

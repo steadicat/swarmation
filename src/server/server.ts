@@ -1,10 +1,10 @@
 import * as express from 'express';
 import * as http from 'http';
-import * as SocketIO from 'socket.io';
+import * as WebSocket from 'ws';
 import {Formation, getFormations, sizeRange} from '../formations';
 import * as map from '../map';
 import {validate, sign} from './signing';
-import {serverListen, serverEmit, serverBroadcast} from '../protocol';
+import {serverListen, serverSend} from '../protocol';
 import {Player} from '../player';
 import Bugsnag from '@bugsnag/js';
 import BugsnagPluginExpress from '@bugsnag/plugin-express';
@@ -13,7 +13,7 @@ import {directions} from '../client/directions';
 Bugsnag.start({
   apiKey: '598a6c87f69350bfffd18829c6e8a87c',
   plugins: [BugsnagPluginExpress],
-  // @ts-expect-error
+  // @ts-ignore
   onUncaughtException(e: Error) {
     console.log(e.stack);
   },
@@ -44,7 +44,7 @@ const middleware = Bugsnag.getPlugin('express');
 app.use(middleware.requestHandler);
 
 const server = http.createServer(app);
-const io = SocketIO(server);
+const wss = new WebSocket.Server({server});
 
 // Configuration
 
@@ -61,7 +61,7 @@ app.use((err: Error | null, _: express.Request, res: express.Response, _next: un
 app.use(middleware.errorHandler);
 
 function shutdown() {
-  if (io.sockets) serverEmit(io.sockets, {type: 'restart'});
+  serverSend(Object.values(CLIENTS) as WebSocket[], {type: 'restart'});
   setTimeout(() => {
     process.exit();
   }, 2000);
@@ -83,7 +83,10 @@ function getActivePlayers(): number {
 
 // IO
 
-io.sockets.on('connection', (client: SocketIO.Socket) => {
+let nextId = 0;
+
+wss.on('connection', (client) => {
+  const id = `${nextId++}`;
   let left;
   let top;
   do {
@@ -94,7 +97,7 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
   const name = NAMES[Math.floor(Math.random() * NAMES.length)];
 
   const player = {
-    id: client.id,
+    id,
     left,
     top,
     name,
@@ -106,15 +109,18 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
     total: 0,
     score: 0,
   };
-  PLAYERS[client.id] = player;
-  CLIENTS[client.id] = client;
+  PLAYERS[id] = player;
+  CLIENTS[id] = client;
   map.set(left, top, player);
 
-  serverEmit(client, {type: 'welcome', id: client.id, players: Object.values(PLAYERS) as Player[]});
-  serverBroadcast(client, {type: 'player', player});
+  serverSend([client], {type: 'welcome', id, players: Object.values(PLAYERS) as Player[]});
+  serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], {
+    type: 'player',
+    player,
+  });
 
   if (FORMATION && TIME > 0) {
-    serverEmit(client, {
+    serverSend([client], {
       type: 'nextFormation',
       formation: FORMATION.name,
       time: TIME,
@@ -123,13 +129,13 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
     });
   }
 
-  client.on('disconnect', () => {
-    serverEmit(io.sockets, {type: 'disconnected', id: player.id});
+  client.on('close', () => {
+    delete CLIENTS[player.id];
     if (PLAYERS[player.id]) {
       map.unset(PLAYERS[player.id]!.left, PLAYERS[player.id]!.top);
+      delete PLAYERS[player.id];
     }
-    delete PLAYERS[player.id];
-    delete CLIENTS[player.id];
+    serverSend(Object.values(CLIENTS) as WebSocket[], {type: 'disconnected', id});
   });
 
   serverListen(client, (message) => {
@@ -148,7 +154,7 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
           player.succeeded += succeeded;
           player.total += total;
           player.name = name;
-          serverEmit(io.sockets, {type: 'player', player});
+          serverSend(Object.values(CLIENTS) as WebSocket[], {type: 'player', player});
         }
         break;
       }
@@ -163,28 +169,36 @@ io.sockets.on('connection', (client: SocketIO.Socket) => {
           player.left = newLeft;
           player.top = newTop;
         }
-        serverEmit(io.sockets, {type: 'position', id, left: player.left, top: player.top, time});
+        serverSend(Object.values(CLIENTS) as WebSocket[], {
+          type: 'position',
+          id,
+          left: player.left,
+          top: player.top,
+          time,
+        });
         break;
       }
 
       case 'flash': {
-        serverBroadcast(client, {...message, id: player.id});
+        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], {
+          ...message,
+          id: player.id,
+        });
         break;
       }
 
       case 'lockIn': {
         player.lockedIn = true;
-        serverBroadcast(client, {...message, id: player.id});
+        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], {
+          ...message,
+          id: player.id,
+        });
         break;
       }
 
       default:
-        throw new Error(
-          `Message type ${
-            // @ts-expect-error
-            message.type
-          } not implemented`
-        );
+        // @ts-expect-error
+        throw new Error(`Message type ${message.type} not implemented`);
     }
   });
 });
@@ -219,7 +233,7 @@ function startTurn() {
   while (!FORMATION) FORMATION = pickFormation();
   TIME = FORMATION.difficulty;
   console.log(`Next formation is ${FORMATION.name} of size ${FORMATION.size}.`);
-  serverEmit(io.sockets, {
+  serverSend(Object.values(CLIENTS) as WebSocket[], {
     type: 'nextFormation',
     formation: FORMATION.name,
     time: TIME,
@@ -232,15 +246,15 @@ const MAX_POINTS = 26;
 const MAX_IDLE = 120;
 const IDLE_AFTER_TURNS = 2;
 
-const CLIENTS: {[id: string]: SocketIO.Socket | undefined} = {};
+const CLIENTS: {[id: string]: WebSocket | undefined} = {};
 
 function endTurn() {
-  const players = map.checkFormation(FORMATION, PLAYERS);
+  const players = map.checkFormation(FORMATION, PLAYERS as Record<string, Player>);
   const gain = FORMATION.difficulty;
   const loss = Math.round((MAX_POINTS - FORMATION.difficulty) / 4);
   const ids = Object.keys(players);
   console.log(`Formation ${FORMATION.name} completed with ${ids.length} participants.`);
-  for (const player of Object.values(PLAYERS)) {
+  for (const player of Object.values(PLAYERS) as Player[]) {
     player.total++;
     player.lockedIn = false;
     if (ids.indexOf(player.id) >= 0) {
@@ -252,7 +266,7 @@ function endTurn() {
     }
     const client = CLIENTS[player.id];
     if (!client) throw new Error('Client for player not found');
-    serverEmit(client, {
+    serverSend([client], {
       type: 'formation',
       formation: FORMATION.name,
       difficulty: FORMATION.difficulty,
@@ -273,15 +287,19 @@ function endTurn() {
       if (!client) throw new Error('Client for player not found');
       if (player.idleTurns === IDLE_AFTER_TURNS) {
         player.active = false;
-        serverEmit(client, {type: 'idle', id: player.id});
-        serverEmit(client.broadcast, {type: 'idle', id: player.id});
+        serverSend(Object.values(CLIENTS) as WebSocket[], {type: 'idle', id: player.id});
       }
       player.idleTurns++;
       if (player.idleTurns > MAX_IDLE) {
-        serverEmit(client, {type: 'kick', reason: 'idle'});
-        serverBroadcast(client, {type: 'disconnected', id: player.id});
-        client.disconnect(true);
-        map.unset(PLAYERS[player.id].left, PLAYERS[player.id].top);
+        serverSend([client], {type: 'kick', reason: 'idle'});
+        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], {
+          type: 'disconnected',
+          id: player.id,
+        });
+        client.close();
+        if (PLAYERS[player.id]) {
+          map.unset(PLAYERS[player.id]!.left, PLAYERS[player.id]!.top);
+        }
         delete PLAYERS[player.id];
         delete CLIENTS[player.id];
       }
