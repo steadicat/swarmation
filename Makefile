@@ -31,6 +31,7 @@ devjs: node_modules
 		--output-pathinfo \
 		--devtool inline-source-map \
 		--module-bind ts=ts-loader \
+		--module-bind svelte=svelte-loader \
 		--entry ./src/client/client.ts \
 		--output public/main.js \
 		--resolve-extensions '.ts,.js'
@@ -50,6 +51,7 @@ buildjs: node_modules
 	-NODE_ENV=production yarn run webpack \
 		--mode production \
 		--module-bind ts=ts-loader \
+		--module-bind svelte=svelte-loader \
 		--entry ./src/client/client.ts \
 		--output public/main.js \
 		--resolve-extensions '.ts,.js'

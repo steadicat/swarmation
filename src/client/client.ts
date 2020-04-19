@@ -22,6 +22,10 @@ let socket = io.connect('');
 
 let RESTARTING = false;
 
+import Info from './Info.svelte';
+
+const info = new Info({target: document.getElementById('info')!});
+
 function displayMessage(text: string) {
   hideWelcome();
   const message = document.createElement('div');
@@ -62,12 +66,7 @@ function animate(duration: number, start: () => void, end: () => void) {
 
 function scoreChange(delta: number) {
   if (!SELF) throw new Error('Local player object not found');
-  const score = document.getElementById('score');
-  if (!score) throw new Error('#score element not found');
-  const success = document.getElementById('success');
-  if (!success) throw new Error('#success element not found');
-  score.textContent = `${SELF.score}`;
-  success.textContent = `${successRate(SELF)}`;
+  info.$set({score: SELF.score, successRate: successRate(SELF)});
   const popup = document.createElement('div');
   popup.className = `score abs center ${delta > 0 ? 'positive' : 'negative'}`;
   popup.innerText = (delta > 0 ? '+' : '') + delta;
@@ -113,12 +112,7 @@ function initializePlayer(player: Player) {
   el.style.top = getY(player) + 'px';
 
   if (player === SELF) {
-    const score = document.getElementById('score');
-    if (!score) throw new Error('#score element not found');
-    const success = document.getElementById('success');
-    if (!success) throw new Error('#success element not found');
-    score.textContent = `${SELF.score}`;
-    success.textContent = `${successRate(SELF)}`;
+    info.$set({score: SELF.score, successRate: successRate(SELF)});
   }
 
   el.addEventListener('mouseover', () => {
@@ -151,31 +145,6 @@ function formationDeadline(player: Player, success: boolean, gain: number, loss:
 
 function contains<T>(el: T, list: T[]): boolean {
   return list.indexOf(el) >= 0;
-}
-
-function showFormation(formationMap: boolean[][]) {
-  const formationImage = document.getElementById('formation-image');
-  if (!formationImage) throw new Error('#formation-image element not found');
-  formationImage.innerHTML = '';
-  let width = 0;
-  let height = 0;
-
-  for (const [y, row] of Object.entries(formationMap)) {
-    if (!row) continue;
-    for (const [x, cell] of Object.entries(row)) {
-      if (!cell) continue;
-      const p = document.createElement('div');
-      p.className = 'ref';
-      formationImage.appendChild(p);
-      p.style.top = Number(y) * (p.offsetHeight + 1) + 'px';
-      p.style.left = Number(x) * (p.offsetWidth + 1) + 'px';
-      width = Math.max(width, Number(x) * (p.offsetWidth + 1) + p.offsetWidth);
-      height = Math.max(height, Number(y) * (p.offsetHeight + 1) + p.offsetHeight);
-    }
-  }
-
-  formationImage.style.width = width + 'px';
-  formationImage.style.top = 50 - height / 2 + 'px';
 }
 
 let time: number;
@@ -318,20 +287,17 @@ clientListen(socket, (message) => {
     }
 
     case 'nextFormation': {
-      const formationName = document.getElementById('formation-name');
-      if (!formationName) throw new Error('#formation-name element not found');
-      const countdown = document.getElementById('countdown');
-      if (!countdown) throw new Error('#countdown element not found');
-      formationName.textContent = message.formation;
-      showFormation(message.map);
-
       time = message.time;
-      countdown.textContent = time + '';
+      info.$set({
+        countdown: time,
+        formationName: message.formation,
+        formationMap: message.map,
+      });
 
       if (formationInterval) clearInterval(formationInterval);
       formationInterval = setInterval(() => {
         time--;
-        countdown.textContent = time + '';
+        info.$set({countdown: time});
         if (time === 0) clearInterval(formationInterval);
       }, 1000);
 
@@ -359,12 +325,8 @@ clientListen(socket, (message) => {
     }
 
     default:
-      throw new Error(
-        `Message type ${
-          // @ts-expect-error
-          message.type
-        } not implemented`
-      );
+      // @ts-expect-error
+      throw new Error(`Message type ${message.type} not implemented`);
   }
 });
 

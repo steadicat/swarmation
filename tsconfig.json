@@ -8,9 +8,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "awesomeTypescriptLoaderOptions": {
-    "transpileOnly": true
-  },
-  "include": ["src/**/*.ts"],
-  "files": ["src/server/server.ts"]
+  "include": ["src/**/*.ts"]
 }
