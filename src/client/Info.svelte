@@ -39,8 +39,7 @@
     font-weight: bold;
     position: fixed;
     top: 0;
-    right: 0;
-    padding: 20px;
+    right: 20px;
   }
   .formation-box {
     display: flex;

@@ -20,6 +20,11 @@
 
 <style>
 
+:global(html, body, h1, h2, h3, h4, p) {
+  margin: 0;
+  padding: 0;
+}
+
 :global(html) {
   display: flex;
   min-height: 100%;
@@ -31,14 +36,24 @@
   font: 14px/20px 'Source Sans Pro', sans-serif;
   color: #024;
   background: #abbdd1;
-  margin: 0;
-  padding: 0;
 }
 
 :global(#game) {
   position: relative;
   flex: 1;
   background: #eee;
+}
+
+h1 {
+  font-family: 'Lobster';
+  position: absolute;
+  top: 25px;
+  left: 0;
+  right: 0;
+  font-size: 40px;
+  color: #fff;
+  text-shadow: #abbdd1 1px 1px 0px;
+  text-align: center;
 }
 
 .message {
@@ -60,6 +75,9 @@
 </style>
 
 <Board {players} {selfId} {activeIds} {hasMoved} {scoreChanges} />
+
+<h1>Swarmation</h1>
+
 <Info {score} {successRate} {countdown} {formationName} {formationMap} />
 
 {#if message}
