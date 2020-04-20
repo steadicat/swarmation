@@ -1,6 +1,9 @@
 <script>
-  import Info from './Info.svelte';
   import Board from './Board.svelte';
+  import Formation from './Formation.svelte';
+  import Countdown from './Countdown.svelte';
+  import Score from './Score.svelte';
+  import SuccessRate from './SuccessRate.svelte';
 
   export let message = null;
 
@@ -78,8 +81,11 @@ h1 {
 
 <h1>Swarmation</h1>
 
-<Info {score} {successRate} {countdown} {formationName} {formationMap} />
+<Formation {formationName} {formationMap} />
+<Countdown {countdown} />
+<Score {score} />
+<SuccessRate {successRate} />
 
 {#if message}
-<div class="message">{message}</div>
+  <div class="message">{message}</div>
 {/if}
