@@ -65,7 +65,7 @@ h1 {
 }
 
 .message {
-  padding: 200px 260px;
+  padding: 20px;
   box-sizing: border-box;
   width: 100%;
   height: 100%;
@@ -73,11 +73,19 @@ h1 {
   left: 0;
   background-color: rgba(0,36,62,0.2);
   font-weight: bold;
-  text-align: center;
   position: absolute;
   color: #fff;
   font-size: 36px;
   line-height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-bottom: 40px;
+}
+
+.inner {
+  max-width: 16em;
 }
 </style>
 
@@ -91,5 +99,7 @@ h1 {
 <SuccessRate {successRate} />
 
 {#if message}
-  <div class="message">{message}</div>
+  <div class="message">
+    <div class="inner">{message}</div>
+  </div>
 {/if}
