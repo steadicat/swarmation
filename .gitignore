@@ -1,6 +1,5 @@
 /node_modules
 /src/config.ts
-/public/css/screen.css
 /public/main.js
 /public/formation
 /server

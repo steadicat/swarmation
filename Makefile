@@ -4,7 +4,6 @@ NODE=ts-node -T -O '{"module": "commonjs"}'
 
 clean:
 	rm public/main.js &
-	rm public/css/screen.css &
 	rm -rf public/formation &
 	rm -rf server
 .PHONY: clean
@@ -35,12 +34,8 @@ devjs: node_modules
 		./src/client/client.ts
 .PHONY: devjs
 
-devcss: node_modules
-	yarn run stylus --sourcemap-inline -w -u nib public/css/screen.styl -o public/css/screen.css
-.PHONY: devcss
-
 dev: public/formation/*.png
-	make devjs & make devcss & make devserver
+	make devjs & make devserver
 .PHONY: dev
 
 # Deployment
@@ -58,15 +53,11 @@ buildjs: node_modules
 		./src/client/client.ts
 .PHONY: buildjs
 
-buildcss: node_modules
-	yarn run stylus -U -c -u nib public/css/screen.styl -o public/css/screen.css
-.PHONY: buildcss
-
 buildserver: node_modules
 	-yarn run tsc --module commonjs
 .PHONY: buildserver
 
-build: buildserver buildjs buildcss public/formation/*.png
+build: buildserver buildjs public/formation/*.png
 .PHONY: build
 
 deploy: build
