@@ -67,7 +67,6 @@ h1 {
   top: 0;
   left: 0;
   background-color: rgba(0,36,62,0.2);
-  border-radius: 12px;
   font-weight: bold;
   text-align: center;
   position: absolute;

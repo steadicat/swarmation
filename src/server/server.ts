@@ -19,9 +19,6 @@ Bugsnag.start({
   },
 });
 
-const WIDTH = 84;
-const HEIGHT = 60;
-
 const NAMES = [
   'Saber',
   'Tooth',
@@ -90,8 +87,8 @@ wss.on('connection', (client) => {
   let left;
   let top;
   do {
-    left = Math.floor(Math.random() * WIDTH);
-    top = Math.floor(Math.random() * HEIGHT);
+    left = Math.floor(Math.random() * 40);
+    top = Math.floor(Math.random() * 60);
   } while (map.exists(left, top));
 
   const name = NAMES[Math.floor(Math.random() * NAMES.length)];
