@@ -4,7 +4,7 @@
 
   import { afterUpdate } from 'svelte';
 
-  let unit = 10;
+  let unit = 12;
 
   export let players = [];
   export let selfId = null;
@@ -30,17 +30,10 @@
 </script>
 
 <style>
-  .board {
-    position: relative;
-    width: 841px;
-    height: 601px;
-    background: #eee;
-  }
-
   .player {
     position: absolute;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     transition: left 0.1s ease-in-out, top 0.1s ease-in-out;
     box-shadow: inset -1px -1px 0px rgba(0,36,62,0.2), inset 1px 1px 0 rgba(255,255,255,0.3);
     background: #aaa;
@@ -93,29 +86,28 @@
   }
 </style>
 
-<div id="board" class="board">
-  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <pattern id="grid" width="{unit}" height="{unit}" patternUnits="userSpaceOnUse">
-        <rect width="{unit}" height="{unit}" fill="none" stroke="#e0e0e0" stroke-width="1"/>
-      </pattern>
-    </defs>
-    <rect width="100%" height="100%" fill="url(#grid)" />
-  </svg>
-  {#each players as player (player.id)}
-  <div
-    class="player"
-    class:self={player.id === selfId}
-    class:flash={player.flashing}
-    class:locked-in={player.lockedIn}
-    class:idle={!player.active}
-    class:active={activeIds.findIndex(id => id === player.id) >= 0}
-    style="left: {player.left * unit + 1}px; top: {player.top * unit + 1}px"
-    on:mouseover={() => showTooltipForPlayer = player}
-    on:mouseout={() => showTooltipForPlayer = null}
-  />
-  {/each}
-</div>
+<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="grid" width="{unit}" height="{unit}" patternUnits="userSpaceOnUse">
+      <rect width="{unit}" height="{unit}" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#grid)" />
+</svg>
+
+{#each players as player (player.id)}
+<div
+  class="player"
+  class:self={player.id === selfId}
+  class:flash={player.flashing}
+  class:locked-in={player.lockedIn}
+  class:idle={!player.active}
+  class:active={activeIds.findIndex(id => id === player.id) >= 0}
+  style="left: {player.left * unit + 1}px; top: {player.top * unit + 1}px"
+  on:mouseover={() => showTooltipForPlayer = player}
+  on:mouseout={() => showTooltipForPlayer = null}
+/>
+{/each}
 
 {#if self}
 <Welcome {hasMoved} left={self.left * unit} top={self.top * unit} />

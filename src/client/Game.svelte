@@ -19,7 +19,15 @@
 </script>
 
 <style>
+
+:global(html) {
+  display: flex;
+  min-height: 100%;
+}
+
 :global(body) {
+  display: flex;
+  flex: 1;
   font: 14px/20px 'Source Sans Pro', sans-serif;
   color: #024;
   background: #abbdd1;
@@ -29,6 +37,8 @@
 
 :global(#game) {
   position: relative;
+  flex: 1;
+  background: #eee;
 }
 
 .message {
