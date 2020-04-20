@@ -29,11 +29,16 @@
 }
 
 :global(html) {
-  display: flex;
   min-height: 100%;
 }
 
 :global(body) {
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
   flex: 1;
   font: 14px/20px 'Source Sans Pro', sans-serif;

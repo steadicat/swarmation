@@ -26,17 +26,17 @@ export function initializeControls(
 ) {
   const moveIntervals: {[key in Direction]?: number} = {};
 
-  function moveHandler(player: Player, direction: Direction) {
-    if (player.lockedIn) return;
-    const [left, top] = directions[direction](player.left, player.top);
+  function moveHandler(direction: Direction) {
+    if (self.lockedIn) return;
+    const [left, top] = directions[direction](self.left, self.top);
     move(direction, left, top);
   }
 
   function startMove(direction: Direction) {
     if (moveIntervals[direction]) return;
-    moveHandler(self, direction);
+    moveHandler(direction);
     moveIntervals[direction] = window.setInterval(() => {
-      moveHandler(self, direction);
+      moveHandler(direction);
     }, MOVEMENT_RATE);
   }
 
@@ -73,5 +73,43 @@ export function initializeControls(
       event.preventDefault();
       stopFlash();
     }
+  });
+
+  let startX = 0;
+  let startY = 0;
+
+  document.addEventListener('touchstart', (event) => {
+    if (event.touches.length !== 1) return;
+    const {screenX, screenY} = event.touches[0];
+    startX = screenX;
+    startY = screenY;
+  });
+
+  document.addEventListener('touchmove', (event) => {
+    if (event.touches.length !== 1) return;
+    if (startX === 0 && startY === 0) return;
+    const {screenX: endX, screenY: endY} = event.changedTouches[0];
+    const dx2 = Math.pow(endX - startX, 2);
+    const dy2 = Math.pow(endY - startY, 2);
+    const distance = Math.sqrt(dx2 + dy2);
+    if (distance < 10) return;
+
+    if (dx2 >= dy2) {
+      // horizontal
+      if (endX > startX) {
+        moveHandler('right');
+      } else {
+        moveHandler('left');
+      }
+    } else {
+      // vertical
+      if (endY > startY) {
+        moveHandler('down');
+      } else {
+        moveHandler('up');
+      }
+    }
+    startX = 0;
+    startY = 0;
   });
 }

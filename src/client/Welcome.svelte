@@ -7,6 +7,8 @@
   export let hasMoved = false;
   export let hidden = false;
 
+  let touch = 'ontouchstart' in window;
+
   let timeout;
   afterUpdate(() => {
     if (hasMoved && !timeout) {
@@ -72,11 +74,15 @@ p {
   class="welcome"
   style="width: 240px; left: {left + 6}px; top: {top - 14}px"
   transition:fade>
-  {#if hasMoved}
-  <p>Get into a formation with other players before the countdown expires</p>
-  {:else}
+  {#if !hasMoved}
   <h3>Welcome to life as a pixel</h3>
-  <p>Use your <span class="arrow-image arrow">arrow</span> keys to move</p>
+    {#if touch}
+    <p>Swipe in any direction to move</p>
+    {:else}
+    <p>Use your <span class="arrow-image arrow">arrow</span> keys to move</p>
+    {/if}
+  {:else}
+  <p>Get into a formation with other players before the countdown expires</p>
   {/if}
 </div>
 {/if}
