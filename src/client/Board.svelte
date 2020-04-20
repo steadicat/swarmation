@@ -4,6 +4,8 @@
 
   import { afterUpdate } from 'svelte';
 
+  let unit = 10;
+
   export let players = [];
   export let selfId = null;
   export let activeIds = [];
@@ -32,7 +34,7 @@
     position: relative;
     width: 841px;
     height: 601px;
-    background: url(/images/cell.png);
+    background: #eee;
   }
 
   .player {
@@ -92,6 +94,14 @@
 </style>
 
 <div id="board" class="board">
+  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="grid" width="{unit}" height="{unit}" patternUnits="userSpaceOnUse">
+        <rect width="{unit}" height="{unit}" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#grid)" />
+  </svg>
   {#each players as player (player.id)}
   <div
     class="player"
@@ -100,7 +110,7 @@
     class:locked-in={player.lockedIn}
     class:idle={!player.active}
     class:active={activeIds.findIndex(id => id === player.id) >= 0}
-    style="left: {player.left * 10 + 1}px; top: {player.top * 10 + 1}px"
+    style="left: {player.left * unit + 1}px; top: {player.top * unit + 1}px"
     on:mouseover={() => showTooltipForPlayer = player}
     on:mouseout={() => showTooltipForPlayer = null}
   />
@@ -108,11 +118,11 @@
 </div>
 
 {#if self}
-<Welcome player={self} {hasMoved} />
+<Welcome {hasMoved} left={self.left * unit} top={self.top * unit} />
 {/if}
 
 {#if showTooltipForPlayer}
-<Tooltip player={showTooltipForPlayer} />
+<Tooltip player={showTooltipForPlayer} left={self.left * unit} top={self.top * unit} />
 {/if}
 
 {#if self}
@@ -121,7 +131,7 @@
       class="score"
       class:positive={scoreChange > 0}
       class:negative={scoreChange <= 0}
-      style="left: {self.left * 10 - 200}px; top: {self.top * 10 - 50}px"
+      style="left: {self.left * unit - 200}px; top: {self.top * unit - 50}px"
       in:explode
       on:introend="{() => scoreChangesSeen++}">
       {#if scoreChange > 0}+{/if}{scoreChange}

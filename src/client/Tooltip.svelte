@@ -1,5 +1,7 @@
 <script>
 export let player;
+export let left;
+export let top;
 
 function successRate({total, succeeded}) {
   if (total === 0) return 100;
@@ -20,6 +22,7 @@ function successRate({total, succeeded}) {
   border: 1px solid #798796;
   display: inline-block;
   vertical-align: top;
+  padding: 5px;
 }
 
 .tooltip:after {
@@ -33,9 +36,19 @@ function successRate({total, succeeded}) {
   margin-left: -12px;
 }
 
-.large {
+.name {
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 20px;
+  margin: 0;
+  padding: 0;
+  margin-bottom: 5px;
+}
+
+.number {
   font-size: 24px;
-  line-height: 25px;
+  line-height: 24px;
+  font-weight: bold;
 }
 
 .flex {
@@ -48,14 +61,16 @@ function successRate({total, succeeded}) {
 }
 </style>
 
-<div class="tooltip pas" style="left: {player.left * 10 + 6}px; top: {player.top * 10 - 14}px">
-  <h3 class="b medium mbs">{player.name}</h3>
+<div class="tooltip" style="left: {left + 6}px; top: {top - 14}px">
+  <h3 class="name">{player.name}</h3>
   <div class="flex">
-    <div class="col mrs light">
-      <div class="large b">{player.score}</div> points
+    <div class="col" style="margin-right: 5px; opacity: 0.7">
+      <div class="number">{player.score}</div>
+      points
     </div>
-    <div class="col dim">
-      <div class="large b">{successRate(player)}%</div> success
+    <div class="col" style="opacity: 0.5">
+      <div class="number">{successRate(player)}%</div>
+      success
     </div>
   </div>
 </div>

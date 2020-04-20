@@ -2,7 +2,8 @@
   import { afterUpdate } from 'svelte';
   import { fade } from 'svelte/transition';
 
-  export let player;
+  export let left;
+  export let top;
   export let hasMoved = false;
   export let hidden = false;
 
@@ -44,6 +45,8 @@
 h3 {
   margin: 0;
   padding: 0;
+  font-size: 16px;
+  line-height: 20px;
   font-weight: bold;
   margin-bottom: 10px;
 }
@@ -51,18 +54,30 @@ p {
   margin: 0;
   padding: 0;
 }
+
+.arrow-image {
+  background: url(../images/arrow-keys-dark.svg) no-repeat center center;
+  display: inline-block;
+  width: 37px;
+  height: 24px;
+  position: relative;
+  top: 2px;
+  text-indent: -10000px;
+  overflow: hidden;
+}
+
 </style>
 
 {#if !hidden}
 <div
   class="welcome"
-  style="width: 240px; left: {player.left * 10 + 6}px; top: {player.top * 10 - 14}px"
+  style="width: 240px; left: {left + 6}px; top: {top - 14}px"
   transition:fade>
   {#if hasMoved}
   <p>Get into a formation with other players before the countdown expires</p>
   {:else}
   <h3>Welcome to life as a pixel</h3>
-  <p>Use your <span class="arrow-image arrow"></span> keys to move</p>
+  <p>Use your <span class="arrow-image arrow">arrow</span> keys to move</p>
   {/if}
 </div>
 {/if}
