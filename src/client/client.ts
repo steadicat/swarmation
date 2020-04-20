@@ -5,6 +5,7 @@ import {clientSend, clientListen} from '../protocol';
 import {Player} from '../player';
 import {initializeControls} from './controls';
 import * as map from '../map';
+import Game from './Game.svelte';
 
 const MIN_ACTIVE = 6;
 
@@ -16,64 +17,11 @@ let ws = new WebSocket(websocketURL);
 
 let RESTARTING = false;
 
-import Info from './Info.svelte';
-import Board from './Board.svelte';
-
-const info = new Info({target: document.getElementById('info')!});
-const board = new Board({target: document.getElementById('board')!});
-
-function displayMessage(text: string) {
-  const message = document.createElement('div');
-  message.className = 'message';
-  message.innerText = text;
-  document.getElementById('board-container')?.appendChild(message);
-}
+const game = new Game({target: document.getElementById('game')!});
 
 function successRate({total, succeeded}: Player) {
   if (total === 0) return 100;
   return Math.round((1000.0 * succeeded) / total) / 10;
-}
-
-function getX({left}: Player) {
-  return left * 10 + 1;
-}
-
-function getY({top}: Player) {
-  return top * 10 + 1;
-}
-
-function getScreenPosition(player: Player) {
-  const board = document.getElementById('board');
-  if (!board) throw new Error('Element #board not found');
-  const {left, top} = board.getBoundingClientRect();
-  return [getX(player) + left + window.pageXOffset, getY(player) + top + window.pageYOffset] as [
-    number,
-    number
-  ];
-}
-
-function animate(duration: number, start: () => void, end: () => void) {
-  setTimeout(() => {
-    start();
-    if (end) setTimeout(end, duration);
-  }, 0);
-}
-
-function scoreChange(delta: number) {
-  if (!SELF) throw new Error('Local player object not found');
-  info.$set({score: SELF.score, successRate: successRate(SELF)});
-  const popup = document.createElement('div');
-  popup.className = `score abs center ${delta > 0 ? 'positive' : 'negative'}`;
-  popup.innerText = (delta > 0 ? '+' : '') + delta;
-  const [left, top] = getScreenPosition(SELF);
-  popup.style.left = left - 200 + 'px';
-  popup.style.top = top - 50 + 'px';
-  document.body.appendChild(popup);
-  animate(
-    600,
-    () => popup.classList.add('scale'),
-    () => popup.parentNode?.removeChild(popup)
-  );
 }
 
 function setPosition(player: Player, left: number, top: number) {
@@ -89,12 +37,11 @@ function setPosition(player: Player, left: number, top: number) {
 // sockets
 
 let connected = false;
-
 ws.addEventListener('open', () => {
   connected = true;
   PLAYERS = {};
   map.clear();
-  board.$set({players: Object.values(PLAYERS)});
+  game.$set({players: Object.values(PLAYERS)});
 
   let time: number;
   let formationInterval: NodeJS.Timer;
@@ -110,6 +57,7 @@ ws.addEventListener('open', () => {
   }
 
   let latestTimestamp = 0;
+  const scoreChanges: number[] = [];
 
   clientListen(ws, (message) => {
     // console.debug(message);
@@ -119,13 +67,13 @@ ws.addEventListener('open', () => {
           PLAYERS[player.id] = player;
           map.set(player.left, player.top, player);
           if (player === SELF) {
-            info.$set({score: SELF.score, successRate: successRate(SELF)});
+            game.$set({score: SELF.score, successRate: successRate(SELF)});
           }
         }
         const self = (SELF = PLAYERS[message.id] || null);
         if (!self) throw new Error('Local player object not found');
 
-        board.$set({players: Object.values(PLAYERS), selfId: self.id});
+        game.$set({players: Object.values(PLAYERS), selfId: self.id});
 
         initializeControls(self, {
           move(direction, left, top) {
@@ -134,23 +82,23 @@ ws.addEventListener('open', () => {
             setPosition(self, left, top);
             latestTimestamp = Date.now();
             clientSend(ws, {type: 'move', direction, time: latestTimestamp});
-            board.$set({players: Object.values(PLAYERS), hasMoved: true});
+            game.$set({players: Object.values(PLAYERS), hasMoved: true});
           },
           startFlash() {
             self.flashing = true;
             clientSend(ws, {type: 'flash'});
-            board.$set({players: Object.values(PLAYERS)});
+            game.$set({players: Object.values(PLAYERS)});
           },
           stopFlash() {
             self.flashing = false;
             clientSend(ws, {type: 'flash', stop: true});
-            board.$set({players: Object.values(PLAYERS)});
+            game.$set({players: Object.values(PLAYERS)});
           },
           lockIn() {
             if (self.lockedIn) return;
             self.lockedIn = true;
             clientSend(ws, {type: 'lockIn'});
-            board.$set({players: Object.values(PLAYERS)});
+            game.$set({players: Object.values(PLAYERS)});
           },
         });
         break;
@@ -166,9 +114,9 @@ ws.addEventListener('open', () => {
         }
         map.set(player.left, player.top, player);
         if (player === SELF) {
-          info.$set({score: SELF.score, successRate: successRate(SELF)});
+          game.$set({score: SELF.score, successRate: successRate(SELF)});
         }
-        board.$set({players: Object.values(PLAYERS)});
+        game.$set({players: Object.values(PLAYERS)});
         break;
       }
 
@@ -181,7 +129,7 @@ ws.addEventListener('open', () => {
         }
         player.active = true;
         setPosition(player, message.left, message.top);
-        board.$set({players: Object.values(PLAYERS)});
+        game.$set({players: Object.values(PLAYERS)});
         break;
       }
 
@@ -190,7 +138,7 @@ ws.addEventListener('open', () => {
         const player = PLAYERS[id];
         if (!player) throw new Error('Player not found');
         player.flashing = !stop;
-        board.$set({players: Object.values(PLAYERS)});
+        game.$set({players: Object.values(PLAYERS)});
         break;
       }
 
@@ -200,7 +148,7 @@ ws.addEventListener('open', () => {
         if (!player) throw new Error('Player not found');
         if (player.lockedIn) break;
         player.lockedIn = true;
-        board.$set({players: Object.values(PLAYERS)});
+        game.$set({players: Object.values(PLAYERS)});
         break;
       }
 
@@ -208,7 +156,7 @@ ws.addEventListener('open', () => {
         const player = PLAYERS[message.id];
         if (!player) throw new Error('Player not found');
         player.active = false;
-        board.$set({players: Object.values(PLAYERS)});
+        game.$set({players: Object.values(PLAYERS)});
         break;
       }
 
@@ -217,7 +165,7 @@ ws.addEventListener('open', () => {
         if (!p || !p.left || !p.top) return;
         map.unset(p.left, p.top);
         delete PLAYERS[message.id];
-        board.$set({players: Object.values(PLAYERS)});
+        game.$set({players: Object.values(PLAYERS)});
         break;
       }
 
@@ -232,16 +180,22 @@ ws.addEventListener('open', () => {
           if (success) {
             player.score += gain;
             player.succeeded++;
-            if (player === SELF) scoreChange(+gain);
+            if (player === SELF) {
+              scoreChanges.push(gain);
+              game.$set({score: SELF.score, successRate: successRate(SELF), scoreChanges});
+            }
             player.active = true;
           } else {
             player.score = Math.max(0, player.score - loss);
-            if (player === SELF) scoreChange(-loss);
+            if (player === SELF) {
+              scoreChanges.push(-loss);
+              game.$set({score: SELF.score, successRate: successRate(SELF), scoreChanges});
+            }
           }
         }
-        board.$set({players: Object.values(PLAYERS), activeIds: message.ids});
+        game.$set({players: Object.values(PLAYERS), activeIds: message.ids});
         setTimeout(() => {
-          board.$set({activeIds: []});
+          game.$set({activeIds: []});
         }, 1000);
 
         try {
@@ -254,7 +208,7 @@ ws.addEventListener('open', () => {
 
       case 'nextFormation': {
         time = message.time;
-        info.$set({
+        game.$set({
           countdown: time,
           formationName: message.formation,
           formationMap: message.map,
@@ -263,7 +217,7 @@ ws.addEventListener('open', () => {
         if (formationInterval) clearInterval(formationInterval);
         formationInterval = setInterval(() => {
           time--;
-          info.$set({countdown: time});
+          game.$set({countdown: time});
           if (time === 0) clearInterval(formationInterval);
         }, 1000);
 
@@ -277,16 +231,17 @@ ws.addEventListener('open', () => {
       case 'restart': {
         RESTARTING = true;
         ws.close();
-        displayMessage('Swarmation needs to restart for an update. Please reload the page.');
+        game.$set({message: 'Swarmation needs to restart for an update. Please reload the page.'});
         break;
       }
 
       case 'kick': {
         RESTARTING = true;
         ws.close();
-        displayMessage(
-          'You have been disconnected for being idle too long. Reload the page to resume playing.'
-        );
+        game.$set({
+          message:
+            'You have been disconnected for being idle too long. Reload the page to resume playing.',
+        });
         break;
       }
 

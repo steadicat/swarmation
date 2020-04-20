@@ -12,6 +12,14 @@ function successRate({total, succeeded}) {
   transform: translate(-50%, -100%);
   z-index: 1;
   background: #fff;
+  transition: left 0.1s ease-in-out, top 0.1s ease-in-out;
+  position: absolute;
+  text-align: center;
+  border-radius: 3px;
+  box-shadow: rgba(0,36,62,0.2) 2px 2px 0px;
+  border: 1px solid #798796;
+  display: inline-block;
+  vertical-align: top;
 }
 
 .tooltip:after {
