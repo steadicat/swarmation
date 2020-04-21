@@ -83,7 +83,7 @@ export function clientListen(socket: WebSocket, listener: (message: ServerMessag
   socket.addEventListener('message', (event) => listener(JSON.parse(event.data) as ServerMessage));
 }
 
-export function clientSend(socket: WebSocket, message: ClientMessage) {
+export function clientSend(socket: WebSocket | ServerWebSocket, message: ClientMessage) {
   socket.send(JSON.stringify(message));
 }
 

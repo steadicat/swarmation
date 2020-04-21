@@ -38,6 +38,9 @@ dev: public/formation/*.png
 	make devjs & make devserver
 .PHONY: dev
 
+bots: node_modules
+	$(NODE) src/bots/bots.ts 100 ws://localhost:3000
+
 # Deployment
 
 buildjs: node_modules
