@@ -6,16 +6,15 @@
 
   let unit = 12;
 
-  export let players = [];
-  export let selfId = null;
-  export let activeIds = [];
-  export let hasMoved = false;
-  export let scoreChanges = [];
+  export let players;
+  export let self;
+  export let activeIds;
+  export let hasMoved;
+  export let scoreChanges;
 
   let showTooltipForPlayer = null;
   let scoreChangesSeen = 0;
 
-  $: self = players.find(player => player.id === selfId);
   $: unseenScoreChanges = scoreChanges.slice(scoreChangesSeen);
   
 	function explode(node, {duration} = {duration: 600}) {
@@ -98,7 +97,7 @@
 {#each players as player (player.id)}
 <div
   class="player"
-  class:self={player.id === selfId}
+  class:self={player === self}
   class:flash={player.flashing}
   class:locked-in={player.lockedIn}
   class:idle={!player.active}

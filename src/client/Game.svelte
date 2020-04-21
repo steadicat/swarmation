@@ -12,13 +12,14 @@
   export let activeIds = [];
   export let hasMoved = false;
 
-  export let score = 0;
-  export let successRate = 100;
   export let countdown = -1;
   export let formationName = '\xa0';
   export let formationMap = [];
 
   export let scoreChanges = [];
+
+  $: self = players.find(player => player.id === selfId);
+  $: score = self ? self.score : 0;
 </script>
 
 <style>
@@ -90,14 +91,14 @@ h1 {
 }
 </style>
 
-<Board {players} {selfId} {activeIds} {hasMoved} {scoreChanges} />
+<Board {players} {self} {activeIds} {hasMoved} {scoreChanges} />
 
 <h1>Swarmation</h1>
 
 <Formation {formationName} {formationMap} />
 <Countdown {countdown} />
 <Score {score} />
-<SuccessRate {successRate} />
+<SuccessRate {self} />
 
 {#if message}
   <div class="message">

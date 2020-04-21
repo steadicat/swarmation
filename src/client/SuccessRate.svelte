@@ -1,5 +1,12 @@
-<script>
-  export let successRate;
+<script lang="ts">
+  export let self;
+
+  function getSuccessRate({total, succeeded}) {
+    if (total === 0) return 100;
+    return Math.round((1000.0 * succeeded) / total) / 10;
+  }
+
+  $: successRate = self ? getSuccessRate(self) : 100;
 </script>
 
 <style>
