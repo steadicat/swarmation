@@ -1,12 +1,14 @@
 import 'core-js/es/array/find';
 import 'core-js/es/array/find-index';
 
-import {clientSend, clientListen} from '../protocol';
-import {Player} from '../player';
-import {initializeControls} from './controls';
-import * as map from '../map';
-import Game from './Game.svelte';
 import Bugsnag from '@bugsnag/js';
+
+import * as map from '../map';
+import {Player} from '../player';
+import {clientSend, clientListen} from '../protocol';
+import {initializeControls} from './controls';
+
+import Game from './Game.svelte';
 
 Bugsnag.start({
   apiKey: '598a6c87f69350bfffd18829c6e8a87c',

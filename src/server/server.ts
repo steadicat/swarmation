@@ -1,14 +1,16 @@
+import Bugsnag from '@bugsnag/js';
+import BugsnagPluginExpress from '@bugsnag/plugin-express';
 import * as express from 'express';
 import * as http from 'http';
 import * as WebSocket from 'ws';
+
+import {directions} from '../client/directions';
 import {Formation, getFormations, sizeRange} from '../formations';
 import * as map from '../map';
-import {validate, sign} from './signing';
-import {serverListen, serverSend} from '../protocol';
 import {Player} from '../player';
-import Bugsnag from '@bugsnag/js';
-import BugsnagPluginExpress from '@bugsnag/plugin-express';
-import {directions} from '../client/directions';
+import {serverListen, serverSend} from '../protocol';
+import {validate, sign} from './signing';
+
 
 Bugsnag.start({
   apiKey: '598a6c87f69350bfffd18829c6e8a87c',

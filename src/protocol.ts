@@ -1,5 +1,6 @@
-import {Player} from './player';
 import type * as ServerWebSocket from 'ws';
+
+import {Player} from './player';
 
 export type SaveData = {
   score: number;

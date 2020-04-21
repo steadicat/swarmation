@@ -13,5 +13,24 @@ module.exports = {
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
     'import/no-unresolved': 'off',
+
+    'import/order': [
+      'warn',
+      {
+        groups: [['builtin', 'external'], ['parent', 'sibling', 'index'], 'unknown'],
+        pathGroups: [
+          {
+            pattern: './**/*.svelte',
+            group: 'sibling',
+            position: 'after',
+          },
+        ],
+        'newlines-between': 'always',
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
+      },
+    ],
   },
 };

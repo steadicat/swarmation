@@ -1,6 +1,6 @@
-import {Canvas} from 'canvas';
-import {Image} from 'canvas';
+import {Canvas,Image} from 'canvas';
 import * as fs from 'fs';
+
 import * as Formations from '../formations';
 import {Formation} from '../formations';
 

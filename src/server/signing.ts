@@ -1,5 +1,6 @@
-import * as dotenv from 'dotenv';
 import * as crypto from 'crypto';
+import * as dotenv from 'dotenv';
+
 import {SaveData} from '../protocol';
 dotenv.config();
 
