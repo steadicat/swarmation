@@ -22,7 +22,8 @@ let SELF: Player | null = null;
 const websocketURL = `${location.protocol.replace('http', 'ws')}//${location.host}`;
 let ws = new WebSocket(websocketURL);
 
-let RESTARTING = false;
+let connected = false;
+let kickedOut = false;
 
 const target = document.getElementById('game');
 if (!target) throw new Error('Element #game not found');
@@ -45,7 +46,6 @@ function setPosition(player: Player, left: number, top: number) {
 
 // sockets
 
-let connected = false;
 ws.addEventListener('open', () => {
   connected = true;
   PLAYERS = {};
@@ -238,14 +238,14 @@ ws.addEventListener('open', () => {
       }
 
       case 'restart': {
-        RESTARTING = true;
+        kickedOut = true;
         ws.close();
         game.$set({message: 'Swarmation needs to restart for an update. Please reload the page.'});
         break;
       }
 
       case 'kick': {
-        RESTARTING = true;
+        kickedOut = true;
         ws.close();
         game.$set({
           message:
@@ -265,18 +265,20 @@ ws.addEventListener('open', () => {
   });
 });
 
-ws.addEventListener('close', () => {
+function onDisconnect() {
   connected = false;
-  if (RESTARTING) return;
-  // eslint-disable-next-line prefer-const
-  let interval: NodeJS.Timer;
-  function connect() {
-    if (connected) {
-      clearInterval(interval);
-    } else {
-      ws = new WebSocket(websocketURL);
-    }
+  if (kickedOut) return;
+  function reconnect(delay: number) {
+    ws = new WebSocket(websocketURL);
+    setTimeout(() => {
+      if (!connected) {
+        ws.close();
+        reconnect(delay * 2);
+      }
+    }, delay);
   }
-  connect();
-  interval = setInterval(connect, 2000);
-});
+  reconnect(1000);
+}
+
+ws.addEventListener('close', onDisconnect);
+ws.addEventListener('error', onDisconnect);
