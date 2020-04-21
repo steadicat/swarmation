@@ -6,6 +6,11 @@ import {Player} from '../player';
 import {initializeControls} from './controls';
 import * as map from '../map';
 import Game from './Game.svelte';
+import Bugsnag from '@bugsnag/js';
+
+Bugsnag.start({
+  apiKey: '598a6c87f69350bfffd18829c6e8a87c',
+});
 
 const MIN_ACTIVE = 6;
 
