@@ -50,6 +50,7 @@
   position: relative;
   flex: 1;
   background: #eee;
+  display: flex;
 }
 
 h1 {
