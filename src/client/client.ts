@@ -24,7 +24,9 @@ let ws = new WebSocket(websocketURL);
 
 let RESTARTING = false;
 
-const game = new Game({target: document.getElementById('game')!});
+const target = document.getElementById('game');
+if (!target) throw new Error('Element #game not found');
+const game = new Game({target});
 
 function successRate({total, succeeded}: Player) {
   if (total === 0) return 100;
@@ -253,8 +255,12 @@ ws.addEventListener('open', () => {
       }
 
       default:
-        // @ts-expect-error
-        throw new Error(`Message type ${message.type} not implemented`);
+        throw new Error(
+          `Message type ${
+            // @ts-expect-error
+            message.type
+          } not implemented`
+        );
     }
   });
 });

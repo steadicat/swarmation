@@ -14,6 +14,9 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     'import/no-unresolved': 'off',
 
+    'func-style': ['warn', 'declaration', {allowArrowFunctions: true}],
+    'prefer-template': 'warn',
+
     'import/order': [
       'warn',
       {

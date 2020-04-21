@@ -48,7 +48,7 @@ export function initializeControls(
   }
 
   document.addEventListener('keydown', (event: KeyboardEvent) => {
-    const keyCode = (event.keyCode + '') as keyof typeof controls;
+    const keyCode = `${event.keyCode}` as keyof typeof controls;
     if (controls[keyCode]) {
       startMove(controls[keyCode]);
       event.preventDefault();
@@ -64,7 +64,7 @@ export function initializeControls(
   });
 
   document.addEventListener('keyup', (event: KeyboardEvent) => {
-    const keyCode = (event.keyCode + '') as keyof typeof controls;
+    const keyCode = `${event.keyCode}` as keyof typeof controls;
     if (controls[keyCode]) {
       event.preventDefault();
       stopMove(controls[keyCode]);
@@ -88,7 +88,7 @@ export function initializeControls(
   document.addEventListener('touchmove', (event) => {
     if (event.touches.length !== 1) return;
     if (startX === 0 && startY === 0) return;
-    const {screenX: endX, screenY: endY} = event.changedTouches[0];
+    const {screenX: endX, screenY: endY} = event.touches[0];
     const dx2 = Math.pow(endX - startX, 2);
     const dy2 = Math.pow(endY - startY, 2);
     const distance = Math.sqrt(dx2 + dy2);

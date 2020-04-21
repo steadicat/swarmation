@@ -11,11 +11,10 @@ import {Player} from '../player';
 import {serverListen, serverSend} from '../protocol';
 import {validate, sign} from './signing';
 
-
 Bugsnag.start({
   apiKey: '598a6c87f69350bfffd18829c6e8a87c',
   plugins: [BugsnagPluginExpress],
-  // @ts-ignore
+  // @ts-expect-error
   onUncaughtException(e: Error) {
     console.log(e.stack);
   },
@@ -38,6 +37,30 @@ const NAMES = [
   'Key',
 ];
 
+const MAX_POINTS = 26;
+const MAX_IDLE = 120;
+const IDLE_AFTER_TURNS = 2;
+
+const CLIENTS: {[id: string]: WebSocket | undefined} = {};
+
+const formations = getFormations();
+
+const FORMATIONS: Formation[][] = [];
+let FORMATION: Formation;
+const [MIN_SIZE, MAX_SIZE] = sizeRange(formations);
+let TIME = 0;
+
+for (let i = 0; i <= MAX_SIZE; i++) FORMATIONS[i] = [];
+
+for (const id in formations) {
+  const formation = formations[id];
+  for (let i = formation.size; i <= MAX_SIZE; i++) {
+    FORMATIONS[i].push(formation);
+  }
+}
+
+// Configuration
+
 const app = express();
 const middleware = Bugsnag.getPlugin('express');
 app.use(middleware.requestHandler);
@@ -45,13 +68,13 @@ app.use(middleware.requestHandler);
 const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
 
-// Configuration
-
 app.use('/', express.static('public'));
 
 // Routes
 
 // Error Handling
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error | null, _: express.Request, res: express.Response, _next: unknown) => {
   err && Bugsnag.notify(err);
   res.status(500).send('Something broke!');
@@ -74,8 +97,8 @@ export const PLAYERS: {[id: string]: Player | undefined} = {};
 
 function getActivePlayers(): number {
   let n = 0;
-  for (const id in PLAYERS) {
-    if (!PLAYERS[id]!.idleTurns) n++;
+  for (const player of Object.values(PLAYERS) as Player[]) {
+    if (!player.idleTurns) n++;
   }
   return n;
 }
@@ -196,28 +219,17 @@ wss.on('connection', (client) => {
       }
 
       default:
-        // @ts-expect-error
-        throw new Error(`Message type ${message.type} not implemented`);
+        throw new Error(
+          `Message type ${
+            // @ts-expect-error
+            message.type
+          } not implemented`
+        );
     }
   });
 });
 
 // Formation countdown
-
-const formations = getFormations();
-
-const FORMATIONS: Formation[][] = [];
-let FORMATION: Formation;
-const [MIN_SIZE, MAX_SIZE] = sizeRange(formations);
-
-for (let i = 0; i <= MAX_SIZE; i++) FORMATIONS[i] = [];
-
-for (const id in formations) {
-  const formation = formations[id];
-  for (let i = formation.size; i <= MAX_SIZE; i++) {
-    FORMATIONS[i].push(formation);
-  }
-}
 
 function pickFormation(): Formation {
   const available = FORMATIONS[Math.max(MIN_SIZE, Math.min(getActivePlayers(), MAX_SIZE))];
@@ -240,12 +252,6 @@ function startTurn() {
     active: getActivePlayers(),
   });
 }
-
-const MAX_POINTS = 26;
-const MAX_IDLE = 120;
-const IDLE_AFTER_TURNS = 2;
-
-const CLIENTS: {[id: string]: WebSocket | undefined} = {};
 
 function endTurn() {
   const players = map.checkFormation(FORMATION, PLAYERS as Record<string, Player>);
@@ -308,7 +314,6 @@ function endTurn() {
 }
 
 // main loop
-let TIME = 0;
 setInterval(() => {
   TIME--;
   if (TIME === 0) {
@@ -320,4 +325,4 @@ setInterval(() => {
 // Only listen on $ node server.js
 const port = parseInt(process.env.PORT || '0', 10) || parseInt(process.argv[2], 10) || 3000;
 if (!module.parent) server.listen(port);
-console.log('Server now listening on port ' + port + '...');
+console.log(`Server now listening on port ${port}...`);
