@@ -1,7 +1,7 @@
 import * as WebSocket from 'ws';
 
 import {Direction} from '../client/directions';
-import {clientSend} from '../protocol';
+import {clientSend, clientListen} from '../protocol';
 
 const [, , countS, websocketURL] = process.argv;
 
@@ -17,6 +17,8 @@ function pick<T>(options: T[]) {
 }
 
 let nextId = 0;
+let movingAverageLag = 0;
+let lastLog = 0;
 
 function createBot() {
   const id = ++nextId;
@@ -30,9 +32,20 @@ function createBot() {
     connected = true;
     let flashing = false;
 
+    clientListen(ws, (message) => {
+      switch (message.type) {
+        case 'position':
+          movingAverageLag = (movingAverageLag * 29 + (Date.now() - message.time)) / 30;
+          if (Date.now() - lastLog > 1000) {
+            console.log('lag', movingAverageLag);
+            lastLog = Date.now();
+          }
+      }
+    });
+
     while (connected) {
       await new Promise((resolve) => setTimeout(resolve, 500 + Math.random() * 2000));
-      switch (pick(['move', 'move', 'move', 'move', 'move', 'move', 'flash', 'flash'])) {
+      switch (pick(['move', 'move', 'move', 'move', 'move', 'move', 'flash'])) {
         case 'move': {
           const direction = pick(['up', 'down', 'left', 'right'] as Direction[]);
           // console.log(`[${id}] Moving ${direction}`);

@@ -79,8 +79,13 @@ type ServerMessage =
   | IdleMessage
   | DisconnectedMessage;
 
-export function clientListen(socket: WebSocket, listener: (message: ServerMessage) => void) {
-  socket.addEventListener('message', (event) => listener(JSON.parse(event.data) as ServerMessage));
+export function clientListen(
+  socket: WebSocket | ServerWebSocket,
+  listener: (message: ServerMessage) => void
+) {
+  (socket as WebSocket).addEventListener('message', (event) =>
+    listener(JSON.parse(event.data) as ServerMessage)
+  );
 }
 
 export function clientSend(socket: WebSocket | ServerWebSocket, message: ClientMessage) {
