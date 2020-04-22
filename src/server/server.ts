@@ -111,9 +111,10 @@ wss.on('connection', (client) => {
   const id = `${nextId++}`;
   let left;
   let top;
+  const radius = 60;
   do {
-    left = Math.floor(Math.random() * 40);
-    top = Math.floor(Math.random() * 60);
+    left = Math.floor(Math.random() * radius) - Math.round(radius / 2);
+    top = Math.floor(Math.random() * radius) - Math.round(radius / 2);
   } while (map.exists(left, top));
 
   const name = NAMES[Math.floor(Math.random() * NAMES.length)];

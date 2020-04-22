@@ -15,6 +15,13 @@
   let showTooltipForPlayer = null;
   let scoreChangesSeen = 0;
 
+  let width;
+  let height;
+
+  $: centerX = Math.floor(width / 2 / unit) * unit;
+  $: centerY = Math.floor(height / 2 / unit) * unit;
+
+
   $: unseenScoreChanges = scoreChanges.slice(scoreChangesSeen);
   
 	function explode(node, {duration} = {duration: 600}) {
@@ -85,6 +92,8 @@
   }
 </style>
 
+<svelte:window bind:innerWidth={width} bind:innerHeight={height} />
+
 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <pattern id="grid" width="{unit}" height="{unit}" patternUnits="userSpaceOnUse">
@@ -102,18 +111,18 @@
   class:locked-in={player.lockedIn}
   class:idle={!player.active}
   class:active={activeIds.findIndex(id => id === player.id) >= 0}
-  style="left: {player.left * unit + 1}px; top: {player.top * unit + 1}px"
+  style="left: {centerX + player.left * unit + 1}px; top: {centerY + player.top * unit + 1}px"
   on:mouseover={() => showTooltipForPlayer = player}
   on:mouseout={() => showTooltipForPlayer = null}
 />
 {/each}
 
 {#if self}
-<Welcome {hasMoved} left={self.left * unit} top={self.top * unit} />
+<Welcome {hasMoved} left={centerX + self.left * unit} top={centerY + self.top * unit} />
 {/if}
 
 {#if showTooltipForPlayer}
-<Tooltip player={showTooltipForPlayer} left={self.left * unit} top={self.top * unit} />
+<Tooltip player={showTooltipForPlayer} left={centerX + self.left * unit} top={centerY + self.top * unit} />
 {/if}
 
 {#if self}
@@ -122,7 +131,7 @@
       class="score"
       class:positive={scoreChange > 0}
       class:negative={scoreChange <= 0}
-      style="left: {self.left * unit - 200}px; top: {self.top * unit - 50}px"
+      style="left: {centerX + self.left * unit - 200}px; top: {centerY + self.top * unit - 50}px"
       in:explode
       on:introend="{() => scoreChangesSeen++}">
       {#if scoreChange > 0}+{/if}{scoreChange}
