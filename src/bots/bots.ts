@@ -45,7 +45,23 @@ function createBot() {
 
     while (connected) {
       await new Promise((resolve) => setTimeout(resolve, 500 + Math.random() * 2000));
-      switch (pick(['move', 'move', 'move', 'move', 'move', 'move', 'flash'])) {
+      switch (
+        pick([
+          'move',
+          'move',
+          'move',
+          'move',
+          'move',
+          'move',
+          'move',
+          'move',
+          'move',
+          'move',
+          'move',
+          'move',
+          'flash',
+        ])
+      ) {
         case 'move': {
           const direction = pick(['up', 'down', 'left', 'right'] as Direction[]);
           // console.log(`[${id}] Moving ${direction}`);

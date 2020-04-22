@@ -122,7 +122,7 @@
 {/if}
 
 {#if showTooltipForPlayer}
-<Tooltip player={showTooltipForPlayer} left={centerX + self.left * unit} top={centerY + self.top * unit} />
+<Tooltip player={showTooltipForPlayer} left={centerX + showTooltipForPlayer.left * unit} top={centerY + showTooltipForPlayer.top * unit} />
 {/if}
 
 {#if self}

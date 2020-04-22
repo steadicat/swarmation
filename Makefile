@@ -39,7 +39,7 @@ dev: public/formation/*.png
 .PHONY: dev
 
 bots: node_modules
-	$(NODE) src/bots/bots.ts 300 ws://localhost:3000
+	$(NODE) src/bots/bots.ts 100 ws://localhost:3000
 
 # Deployment
 
