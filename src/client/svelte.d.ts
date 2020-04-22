@@ -1,7 +1,5 @@
 type GameProps = {
-  countdown: number;
-  formationName: string;
-  formationMap: boolean[][];
+  formation: {time: number; name: string; map: boolean[][]};
   activeIds: string[];
   players: Player[];
   selfId: string;

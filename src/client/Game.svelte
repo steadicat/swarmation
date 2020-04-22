@@ -11,10 +11,7 @@
   export let selfId = null;
   export let activeIds = [];
   export let hasMoved = false;
-
-  export let countdown = -1;
-  export let formationName = '\xa0';
-  export let formationMap = [];
+  export let formation;
 
   export let scoreChanges = [];
 
@@ -95,8 +92,8 @@ h1 {
 
 <h1>Swarmation</h1>
 
-<Formation {formationName} {formationMap} />
-<Countdown {countdown} />
+<Formation {formation} />
+<Countdown {formation} />
 <Score {score} />
 <SuccessRate {self} />
 

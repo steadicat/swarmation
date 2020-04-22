@@ -1,5 +1,22 @@
-<script>
-  export let countdown;
+<script lang="ts">
+  import { afterUpdate } from 'svelte';
+
+  export let formation;
+
+	let lastFormation = formation;
+  let countdown = formation ? formation.time : -1;
+	let interval = -1;
+	
+	afterUpdate(() => {
+		if (formation !== lastFormation) {
+			countdown = formation.time;
+			clearInterval(interval);
+			interval = setInterval(() => {
+				countdown--;
+			}, 1000);
+		}
+		lastFormation = formation;
+	});
 </script>
 
 <style>

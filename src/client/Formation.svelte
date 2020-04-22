@@ -1,6 +1,5 @@
 <script lang="ts">
-  export let formationMap;
-  export let formationName;
+  export let formation;
   let unit = 16;
 
   function formationWidth(map) {
@@ -23,8 +22,10 @@
       ));
   }
 
-  $: width = formationWidth(formationMap);
-  $: height = formationHeight(formationMap);
+  $: name = formation ? formation.name : '\xa0';
+  $: map = formation ? formation.map : [];
+  $: width = formationWidth(map);
+  $: height = formationHeight(map);
 </script>
 
 <style>
@@ -63,7 +64,7 @@
 
 <div class="box">
   <div class="image" style="width: {width}px; height: {height}px">
-    {#each formationMap as row, y (y)}
+    {#each map as row, y (y)}
       {#each row as cell, x (x)}
         {#if cell}
           <div class="pixel" style="top: {y * (unit + 1)}px; left: {x * (unit + 1)}px;" />
@@ -71,5 +72,5 @@
       {/each}
     {/each}
   </div>
-  <div class="name">{formationName}</div>
+  <div class="name">{name}</div>
 </div>
