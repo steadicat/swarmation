@@ -12,7 +12,8 @@
 			countdown = formation.time;
 			clearInterval(interval);
 			interval = setInterval(() => {
-				countdown--;
+        countdown--;
+        if (countdown === 0) clearInterval(interval);
 			}, 1000);
 		}
 		lastFormation = formation;

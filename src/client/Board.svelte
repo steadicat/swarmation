@@ -3,6 +3,7 @@
   import Welcome from './Welcome.svelte';
 
   import { beforeUpdate, afterUpdate } from 'svelte';
+	import { quintOut } from 'svelte/easing';
 
   let unit = 12;
 
@@ -44,9 +45,10 @@
   $: gridX = centerX - Math.floor(gridWidth / 2);
   $: gridY = centerY - Math.floor(gridHeight / 2);
 
-	function explode(node, {duration} = {duration: 600}) {
+	function explode(node, {duration = 600}) {
 		return {
       duration,
+      easing: quintOut,
 			css: t => `
         transform: scale(${0.1 + 0.9 * t}, ${0.1 + 0.9 *t});
         opacity: ${1 - t};
