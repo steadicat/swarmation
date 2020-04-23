@@ -4,6 +4,7 @@
   import Countdown from './Countdown.svelte';
   import Score from './Score.svelte';
   import SuccessRate from './SuccessRate.svelte';
+  import About from './About.svelte';
 
   export let message = null;
 
@@ -14,6 +15,8 @@
   export let formation;
 
   export let scoreChanges = [];
+
+  let showAbout = false;
 
   $: self = players.find(player => player.id === selfId);
   $: score = self ? self.score : 0;
@@ -61,6 +64,7 @@ h1 {
   color: #fff;
   text-shadow: #abbdd1 1px 1px 0px;
   text-align: center;
+  cursor: pointer;
 }
 
 .message {
@@ -86,11 +90,12 @@ h1 {
 .inner {
   max-width: 16em;
 }
+
 </style>
 
 <Board {players} {self} {activeIds} {hasMoved} {scoreChanges} />
 
-<h1>Swarmation</h1>
+<h1 on:click={() => showAbout = true}>Swarmation</h1>
 
 <Formation {formation} />
 <Countdown {formation} />
@@ -101,4 +106,8 @@ h1 {
   <div class="message">
     <div class="inner">{message}</div>
   </div>
+{/if}
+
+{#if showAbout}
+  <About on:click={() => showAbout = false} />
 {/if}
