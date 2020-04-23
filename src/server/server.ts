@@ -103,6 +103,16 @@ function getActivePlayers(): number {
   return n;
 }
 
+function placePlayer(numberOfPlayers: number): [number, number] {
+  // Enough room around the center for 4x the number of players
+  const radius = Math.ceil(4 * Math.sqrt(numberOfPlayers / Math.PI));
+  const angle = Math.random() * Math.PI * 2;
+  const distance = Math.random() * radius;
+  const x = Math.cos(angle) * distance;
+  const y = Math.sin(angle) * distance;
+  return [Math.round(x), Math.round(y)];
+}
+
 // IO
 
 let nextId = 0;
@@ -111,10 +121,8 @@ wss.on('connection', (client) => {
   const id = `${nextId++}`;
   let left;
   let top;
-  const radius = 60;
   do {
-    left = Math.floor(Math.random() * radius) - Math.round(radius / 2);
-    top = Math.floor(Math.random() * radius) - Math.round(radius / 2);
+    [left, top] = placePlayer(Object.keys(PLAYERS).length);
   } while (map.exists(left, top));
 
   const name = NAMES[Math.floor(Math.random() * NAMES.length)];
