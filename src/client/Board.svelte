@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Player from './Player.svelte';
   import PlayerTooltip from './PlayerTooltip.svelte';
   import Welcome from './Welcome.svelte';
 
@@ -68,35 +69,7 @@
     position: fixed;
     transition: left 0.1s ease-in-out, top 0.1s ease-in-out;
   }
-
-  .player {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    transition: left 0.1s ease-in-out, top 0.1s ease-in-out;
-    box-shadow: inset -1px -1px 0px var(--shadow), inset 1px 1px 0 var(--highlight);
-    background: var(--gray);
-  }
-
-  .self {
-    background: var(--teal);
-  }
-  .idle {
-    opacity: 0.5;
-  }
-  .flash {
-    background: var(--orange);
-  }
-  .locked-in {
-    box-shadow: inset -1px -1px 0px var(--dark-shadow), inset 1px 1px 0 var(--light-highlight);
-    background: var(--dark-gray);
-    animation: bounceIn .75s cubic-bezier(0.215, 0.610, 0.355, 1.000);
-  }
-  .active {
-    box-shadow: inset -1px -1px 0px var(--shadow), inset 1px 1px 0 var(--dark-highlight);
-    background: var(--yellow);
-  }
-
+  
   .score {
     font-weight: bold;
     transform-origin: 50% 100%;
@@ -111,17 +84,9 @@
   .positive {
     color: var(--teal);
   }
+
   .negative {
     color: var(--orange);
-  }
-
-  @keyframes bounceIn {
-    0% { transform: scale3d(.3, .3, .3) }
-    20% { transform: scale3d(1.2, 1.2, 1.2) }
-    40% { transform: scale3d(.85, .85, .85) }
-    60% { transform: scale3d(1.08, 1.08, 1.08) }
-    80% { transform: scale3d(.95, .95, .95) }
-    100% { transform: scale3d(1, 1, 1) }
   }
 </style>
 
@@ -137,25 +102,29 @@
 </svg>
 
 {#each players as player (player.id)}
-<div
-  class="player"
-  class:self={player === self}
-  class:flash={player.flashing}
-  class:locked-in={player.lockedIn}
-  class:idle={!player.active}
-  class:active={activeIds.findIndex(id => id === player.id) >= 0}
-  style="left: {(centerX + player.left) * unit}px; top: {(centerY + player.top) * unit}px"
-  on:mouseover={() => showTooltipForPlayer = player}
-  on:mouseout={() => showTooltipForPlayer = null}
-/>
+  <Player
+    left={(centerX + player.left) * unit}
+    top={(centerY + player.top) * unit}
+    flashing={player.flashing}
+    idle={!player.active}
+    lockedIn={player.lockedIn}
+    self={player === self}
+    active={activeIds.findIndex(id => id === player.id) >= 0}
+    on:mouseover={() => showTooltipForPlayer = player}
+    on:mouseout={() => showTooltipForPlayer = null}
+  />
 {/each}
 
 {#if self}
-<Welcome {hasMoved} left={(centerX + self.left) * unit} top={(centerY + self.top) * unit} />
+  <Welcome {hasMoved} left={(centerX + self.left) * unit} top={(centerY + self.top) * unit} />
 {/if}
 
 {#if showTooltipForPlayer}
-<PlayerTooltip player={showTooltipForPlayer} left={(centerX + showTooltipForPlayer.left) * unit} top={(centerY + showTooltipForPlayer.top) * unit} />
+  <PlayerTooltip
+    player={showTooltipForPlayer}
+    left={(centerX + showTooltipForPlayer.left) * unit}
+    top={(centerY + showTooltipForPlayer.top) * unit}
+  />
 {/if}
 
 {#if self}

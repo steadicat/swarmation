@@ -87,7 +87,7 @@ export const PLAYERS: {[id: string]: Player | undefined} = {};
 function getActivePlayers(): number {
   let n = 0;
   for (const player of Object.values(PLAYERS) as Player[]) {
-    if (player.idleTurns === 0) n++;
+    if (player.active) n++;
   }
   return n;
 }
