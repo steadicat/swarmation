@@ -10,9 +10,9 @@
     right: 0;
     bottom: 0;
     min-height: 100%;
-    background: #abbdd1;
-    color: #fff;
-    text-shadow: rgba(0,36,62,0.2) 1px 1px 0;
+    background: var(--light-blue);
+    color: var(--light-text);
+    text-shadow: var(--shadow) 1px 1px 0;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -20,15 +20,15 @@
   h1 {
     font-family: 'Lobster';
     font-size: 50px;
-    color: #fff;
-    text-shadow: #7F93A9 2px 2px 0px;
+    color: var(--light-text);
+    text-shadow: var(--medium-blue) 2px 2px 0px;
     text-align: center;
     cursor: pointer;
     margin: 40px 20px;
   }
 
   a {
-    color: #fff;
+    color: var(--light-text);
     font-weight: bold;
     text-decoration: none;
   }
@@ -51,7 +51,7 @@
   .key {
     box-shadow: none;
     font-size: 12px;
-    border: 1px solid white;
+    border: 1px solid var(--light-text);
     border-radius: 3px;
     display: inline-block;
     line-height: 16px;
@@ -91,7 +91,6 @@
     </p>
 
     <p>Get into formation with other players before the countdown runs out.</p>
-
 
     <h2 style="margin-top: 40px">About</h2>
 

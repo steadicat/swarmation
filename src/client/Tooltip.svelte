@@ -12,13 +12,13 @@ function successRate({total, succeeded}) {
 <style>
 .tooltip {
   transform: translate(-50%, -100%);
-  background: #fff;
+  background: var(--light-text);
   transition: left 0.1s ease-in-out, top 0.1s ease-in-out;
   position: absolute;
   text-align: center;
   border-radius: 3px;
-  box-shadow: rgba(0,36,62,0.2) 2px 2px 0px;
-  border: 1px solid #798796;
+  box-shadow: var(--shadow) 2px 2px 0px;
+  border: 1px solid var(--medium-blue);
   display: inline-block;
   vertical-align: top;
   padding: 5px;

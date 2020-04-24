@@ -51,7 +51,7 @@
     width: 15px;
     height: 15px;
     box-shadow: inset -1px -1px 0px rgba(0,36,62,0.2), inset 1px 1px 0 rgba(255,255,255,0.4);
-    background: #fb3;
+    background: var(--yellow);
   }
   .name {
     font-size: 20px;

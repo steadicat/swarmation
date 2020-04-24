@@ -23,6 +23,27 @@
 </script>
 
 <style>
+:global(:root) {
+  --light-text: #fff;
+  --dark-text: #024;
+
+  --shadow: rgba(0, 36, 62, 0.2);
+  --dark-shadow: #000000;
+  --light-highlight: rgba(255, 255, 255, 0.25);
+  --highlight: rgba(255, 255, 255, 0.3);
+  --dark-highlight: rgba(255, 255, 255, 0.4);
+
+  --light-blue: #abbdd1;
+  --medium-blue: #798796;
+
+  --light-gray: #eeeeee;
+  --gray: #aaaaaa;
+  --dark-gray: #444444;
+
+  --teal: #66dddd;
+  --orange: #ff8855;
+  --yellow: #ffbb33;
+}
 
 :global(html, body, h1, h2, h3, h4, p) {
   margin: 0;
@@ -43,14 +64,14 @@
   display: flex;
   flex: 1;
   font: 14px/20px 'Source Sans Pro', sans-serif;
-  color: #024;
-  background: #abbdd1;
+  color: var(--dark-text);
+  background: var(--light-blue);
 }
 
 :global(#game) {
   position: relative;
   flex: 1;
-  background: #eee;
+  background: var(--light-gray);
   display: flex;
 }
 
@@ -61,8 +82,8 @@ h1 {
   left: 0;
   right: 0;
   font-size: 40px;
-  color: #fff;
-  text-shadow: #abbdd1 1px 1px 0px;
+  color: var(--light-text);
+  text-shadow: var(--light-blue) 1px 1px 0px;
   text-align: center;
   cursor: pointer;
 }
@@ -74,10 +95,10 @@ h1 {
   height: 100%;
   top: 0;
   left: 0;
-  background-color: rgba(0,36,62,0.2);
+  background-color: var(--shadow);
   font-weight: bold;
   position: absolute;
-  color: #fff;
+  color: var(--light-text);
   font-size: 36px;
   line-height: 35px;
   display: flex;

@@ -74,26 +74,26 @@
     width: 12px;
     height: 12px;
     transition: left 0.1s ease-in-out, top 0.1s ease-in-out;
-    box-shadow: inset -1px -1px 0px rgba(0,36,62,0.2), inset 1px 1px 0 rgba(255,255,255,0.3);
-    background: #aaa;
+    box-shadow: inset -1px -1px 0px var(--shadow), inset 1px 1px 0 var(--highlight);
+    background: var(--gray);
   }
 
   .self {
-    background: #6dd;
+    background: var(--teal);
   }
   .idle {
     opacity: 0.5;
   }
   .flash {
-    background: #f85;
+    background: var(--orange);
   }
   .active {
-    box-shadow: inset -1px -1px 0px rgba(0,36,62,0.2), inset 1px 1px 0 rgba(255,255,255,0.4);
-    background: #fb3;
+    box-shadow: inset -1px -1px 0px var(--shadow), inset 1px 1px 0 var(--dark-highlight);
+    background: var(--yellow);
   }
   .locked-in {
-    box-shadow: inset -1px -1px 0px #000, inset 1px 1px 0 rgba(255,255,255,0.25);
-    background: #444;
+    box-shadow: inset -1px -1px 0px var(--dark-shadow), inset 1px 1px 0 var(--light-highlight);
+    background: var(--dark-gray);
     animation: bounceIn .75s cubic-bezier(0.215, 0.610, 0.355, 1.000);
   }
 
@@ -109,10 +109,10 @@
   }
 
   .positive {
-    color: #6dd;
+    color: var(--teal);
   }
   .negative {
-    color: #f85;
+    color: var(--orange);
   }
 
   @keyframes bounceIn {
