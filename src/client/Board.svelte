@@ -87,14 +87,14 @@
   .flash {
     background: var(--orange);
   }
-  .active {
-    box-shadow: inset -1px -1px 0px var(--shadow), inset 1px 1px 0 var(--dark-highlight);
-    background: var(--yellow);
-  }
   .locked-in {
     box-shadow: inset -1px -1px 0px var(--dark-shadow), inset 1px 1px 0 var(--light-highlight);
     background: var(--dark-gray);
     animation: bounceIn .75s cubic-bezier(0.215, 0.610, 0.355, 1.000);
+  }
+  .active {
+    box-shadow: inset -1px -1px 0px var(--shadow), inset 1px 1px 0 var(--dark-highlight);
+    background: var(--yellow);
   }
 
   .score {

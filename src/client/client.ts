@@ -161,11 +161,9 @@ ws.addEventListener('open', () => {
       }
 
       case 'formation': {
-        const {gain, loss} = message;
-        for (const id in state.players) {
-          const player = state.players[id];
-          if (!player) throw new Error('Player object not found');
-          const success = message.ids.indexOf(id) >= 0;
+        const {gain, loss, ids} = message;
+        for (const player of state.players) {
+          const success = ids.indexOf(player.id) >= 0;
           player.total++;
           player.lockedIn = false;
           if (success) {
