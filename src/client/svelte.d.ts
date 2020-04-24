@@ -1,11 +1,15 @@
 type GameProps = {
+  players: Player[];
+  self: Player | null;
+
   formation: {time: number; name: string; map: boolean[][]};
   activeIds: string[];
-  players: Player[];
-  selfId: string;
-  hasMoved: boolean;
-  message?: string;
   scoreChanges: number[];
+
+  hasMoved: boolean;
+  connected: boolean;
+  kickedOut: boolean;
+  message: string | null;
 };
 
 declare module '*/Game.svelte' {

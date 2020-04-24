@@ -8,23 +8,29 @@ import {initializeControls} from './controls';
 
 import Game from './Game.svelte';
 
-const MIN_ACTIVE = 6;
+const state: GameProps = {
+  players: [] as Player[],
+  self: null as Player | null,
 
-let PLAYERS: Player[] = [];
-let SELF: Player | null = null;
+  formation: {time: 0, name: 'wait', map: [] as boolean[][]},
+  activeIds: [] as string[],
+  scoreChanges: [] as number[],
+
+  hasMoved: false,
+  connected: false,
+  kickedOut: false,
+  message: null as string | null,
+};
 
 const websocketURL = `${location.protocol.replace('http', 'ws')}//${location.host}`;
 let ws = new WebSocket(websocketURL);
-
-let connected = false;
-let kickedOut = false;
 
 const target = document.getElementById('game');
 if (!target) throw new Error('Element #game not found');
 const game = new Game({target});
 
 function updateGame() {
-  game.$set({players: PLAYERS});
+  game.$set(state);
   requestAnimationFrame(updateGame);
 }
 
@@ -43,11 +49,9 @@ function setPosition(player: Player, left: number, top: number) {
 // sockets
 
 ws.addEventListener('open', () => {
-  connected = true;
-  PLAYERS = [];
+  state.connected = true;
+  state.players = [];
   map.clear();
-
-  let time: number;
 
   let saveData;
   try {
@@ -60,20 +64,17 @@ ws.addEventListener('open', () => {
   }
 
   let latestTimestamp = 0;
-  const scoreChanges: number[] = [];
 
   clientListen(ws, (message) => {
     // console.debug(message);
     switch (message.type) {
       case 'welcome': {
-        PLAYERS = message.players;
+        state.players = message.players;
         for (const player of message.players) {
           map.set(player.left, player.top, player);
         }
-        const self = (SELF = PLAYERS.find(({id}) => id === message.id) || null);
+        const self = (state.self = state.players.find(({id}) => id === message.id) || null);
         if (!self) throw new Error('Local player object not found');
-
-        game.$set({selfId: self.id});
 
         initializeControls(self, {
           move(direction, left, top) {
@@ -81,8 +82,7 @@ ws.addEventListener('open', () => {
             if (!map.isValidMove(self.left, self.top, left, top, self)) return;
             setPosition(self, left, top);
             latestTimestamp = Date.now();
-            clientSend(ws, {type: 'move', direction, time: latestTimestamp});
-            game.$set({hasMoved: true});
+            state.hasMoved = true;
           },
           startFlash() {
             self.flashing = true;
@@ -102,10 +102,10 @@ ws.addEventListener('open', () => {
       }
 
       case 'player': {
-        let player = PLAYERS.find(({id}) => id == message.player.id);
+        let player = state.players.find(({id}) => id == message.player.id);
         if (!player) {
           player = message.player;
-          PLAYERS.push(player);
+          state.players.push(player);
         } else {
           map.unset(player.left, player.top);
           Object.assign(player, message.player);
@@ -115,9 +115,9 @@ ws.addEventListener('open', () => {
       }
 
       case 'position': {
-        const player = PLAYERS.find(({id}) => id == message.id);
+        const player = state.players.find(({id}) => id == message.id);
         if (!player) throw new Error('Player not found');
-        if (player === SELF && message.time !== latestTimestamp) {
+        if (player === state.self && message.time !== latestTimestamp) {
           // Discard stale self moves
           break;
         }
@@ -127,14 +127,14 @@ ws.addEventListener('open', () => {
       }
 
       case 'flash': {
-        const player = PLAYERS.find(({id}) => id == message.id);
+        const player = state.players.find(({id}) => id == message.id);
         if (!player) throw new Error('Player not found');
         player.flashing = !message.stop;
         break;
       }
 
       case 'lockIn': {
-        const player = PLAYERS.find(({id}) => id == message.id);
+        const player = state.players.find(({id}) => id == message.id);
         if (!player) throw new Error('Player not found');
         if (player.lockedIn) break;
         player.lockedIn = true;
@@ -142,24 +142,24 @@ ws.addEventListener('open', () => {
       }
 
       case 'idle': {
-        const player = PLAYERS.find(({id}) => id == message.id);
+        const player = state.players.find(({id}) => id == message.id);
         if (!player) throw new Error('Player not found');
         player.active = false;
         break;
       }
 
       case 'disconnected': {
-        const index = PLAYERS.findIndex(({id}) => id == message.id);
-        const player = PLAYERS[index];
+        const index = state.players.findIndex(({id}) => id == message.id);
+        const player = state.players[index];
         map.unset(player.left, player.top);
-        PLAYERS.splice(index, 1);
+        state.players.splice(index, 1);
         break;
       }
 
       case 'formation': {
         const {gain, loss} = message;
-        for (const id in PLAYERS) {
-          const player = PLAYERS[id];
+        for (const id in state.players) {
+          const player = state.players[id];
           if (!player) throw new Error('Player object not found');
           const success = message.ids.indexOf(id) >= 0;
           player.total++;
@@ -167,20 +167,20 @@ ws.addEventListener('open', () => {
           if (success) {
             player.score += gain;
             player.succeeded++;
-            if (player === SELF) {
-              scoreChanges.push(gain);
+            if (player === state.self) {
+              state.scoreChanges.push(gain);
             }
             player.active = true;
           } else {
             player.score = Math.max(0, player.score - loss);
-            if (player === SELF) {
-              scoreChanges.push(-loss);
+            if (player === state.self) {
+              state.scoreChanges.push(-loss);
             }
           }
         }
-        game.$set({activeIds: message.ids, scoreChanges});
+        state.activeIds = message.ids;
         setTimeout(() => {
-          game.$set({activeIds: []});
+          state.activeIds = [];
         }, 1000);
 
         try {
@@ -193,29 +193,22 @@ ws.addEventListener('open', () => {
 
       case 'nextFormation': {
         const {time, formation, map} = message;
-        game.$set({formation: {time, name: formation, map}});
-
-        if (message.active < MIN_ACTIVE) {
-          // TODO
-          // if (!weeklyGameNoticeShown) showRequestPopup();
-        }
+        state.formation = {time, name: formation, map};
         break;
       }
 
       case 'restart': {
-        kickedOut = true;
+        state.kickedOut = true;
         ws.close();
-        game.$set({message: 'Swarmation needs to restart for an update. Please reload the page.'});
+        state.message = 'Swarmation needs to restart for an update. Please reload the page.';
         break;
       }
 
       case 'kick': {
-        kickedOut = true;
+        state.kickedOut = true;
         ws.close();
-        game.$set({
-          message:
-            'You have been disconnected for being idle too long. Reload the page to resume playing.',
-        });
+        state.message =
+          'You have been disconnected for being idle too long. Reload the page to resume playing.';
         break;
       }
 
@@ -231,12 +224,12 @@ ws.addEventListener('open', () => {
 });
 
 function onDisconnect() {
-  connected = false;
-  if (kickedOut) return;
+  state.connected = false;
+  if (state.kickedOut) return;
   function reconnect(delay: number) {
     ws = new WebSocket(websocketURL);
     setTimeout(() => {
-      if (!connected) {
+      if (!state.connected) {
         ws.close();
         reconnect(delay * 2);
       }

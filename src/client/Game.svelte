@@ -9,7 +9,7 @@
   export let message = null;
 
   export let players = [];
-  export let selfId = null;
+  export let self = null;
   export let activeIds = [];
   export let hasMoved = false;
   export let formation;
@@ -18,7 +18,6 @@
 
   let showAbout = false;
 
-  $: self = players.find(player => player.id === selfId);
   $: score = self ? self.score : 0;
 </script>
 

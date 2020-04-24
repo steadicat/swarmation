@@ -13,7 +13,7 @@
   let timeout;
   afterUpdate(() => {
     if (hasMoved && !timeout) {
-      timeout = setTimeout(() => hidden = true, 10000);
+      timeout = setTimeout(() => hidden = true, 6000);
     }
   });
 </script>
