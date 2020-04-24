@@ -20,10 +20,11 @@
 
   let width;
   let height;
+  let last = {x: 0, y: 0};
 
   $: centerX = (() => {
     if (!self) return width / 2;
-    let cx = Math.floor(width / 2 / unit);
+    let cx = last.x ? last.x : Math.floor(width / 2 / unit);
     let minLeft = Math.floor(width / 4 / unit);
     let maxRight = Math.ceil(width * 3 / 4 / unit);
     while (cx + self.left < minLeft) cx++;
@@ -32,7 +33,7 @@
   })();
   $: centerY = (() => {
     if (!self) return height / 2;
-    let cy = Math.floor(height / 2 / unit);
+    let cy = last.y ? last.y : Math.floor(height / 2 / unit);
     let minTop = Math.floor(height / 4 / unit);
     let maxBottom = Math.ceil(height * 3 / 4 / unit);
     while (cy + self.top < minTop) cy++;
@@ -44,6 +45,11 @@
   $: gridHeight = Math.ceil(height * 3 / unit);
   $: gridX = centerX - Math.floor(gridWidth / 2);
   $: gridY = centerY - Math.floor(gridHeight / 2);
+
+  afterUpdate(() => {
+    last.x = centerX;
+    last.y = centerY;
+  });
 
 	function explode(node, {duration = 600}) {
 		return {
