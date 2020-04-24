@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Tooltip from './Tooltip.svelte';
+  import PlayerTooltip from './PlayerTooltip.svelte';
   import Welcome from './Welcome.svelte';
 
   import { beforeUpdate, afterUpdate } from 'svelte';
@@ -155,7 +155,7 @@
 {/if}
 
 {#if showTooltipForPlayer}
-<Tooltip player={showTooltipForPlayer} left={(centerX + showTooltipForPlayer.left) * unit} top={(centerY + showTooltipForPlayer.top) * unit} />
+<PlayerTooltip player={showTooltipForPlayer} left={(centerX + showTooltipForPlayer.left) * unit} top={(centerY + showTooltipForPlayer.top) * unit} />
 {/if}
 
 {#if self}
