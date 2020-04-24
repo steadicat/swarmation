@@ -5,7 +5,7 @@ import * as http from 'http';
 import * as WebSocket from 'ws';
 
 import {directions} from '../client/directions';
-import {Formation, getFormations, sizeRange} from '../formations';
+import {Formation, getFormations} from '../formations';
 import * as map from '../map';
 import {Player} from '../player';
 import {serverListen, serverSend} from '../protocol';
@@ -43,21 +43,10 @@ const IDLE_AFTER_TURNS = 2;
 
 const CLIENTS: {[id: string]: WebSocket | undefined} = {};
 
-const formations = getFormations();
+const formations = Object.values(getFormations());
 
-const FORMATIONS: Formation[][] = [];
 let FORMATION: Formation;
-const [MIN_SIZE, MAX_SIZE] = sizeRange(formations);
 let TIME = 0;
-
-for (let i = 0; i <= MAX_SIZE; i++) FORMATIONS[i] = [];
-
-for (const id in formations) {
-  const formation = formations[id];
-  for (let i = formation.size; i <= MAX_SIZE; i++) {
-    FORMATIONS[i].push(formation);
-  }
-}
 
 // Configuration
 
@@ -98,7 +87,7 @@ export const PLAYERS: {[id: string]: Player | undefined} = {};
 function getActivePlayers(): number {
   let n = 0;
   for (const player of Object.values(PLAYERS) as Player[]) {
-    if (!player.idleTurns) n++;
+    if (player.idleTurns === 0) n++;
   }
   return n;
 }
@@ -241,8 +230,9 @@ wss.on('connection', (client) => {
 // Formation countdown
 
 function pickFormation(): Formation {
-  const available = FORMATIONS[Math.max(MIN_SIZE, Math.min(getActivePlayers(), MAX_SIZE))];
-  if (available.length === 0) throw new Error('No formations available');
+  const active = Math.max(2, getActivePlayers());
+  const available = formations.filter(({size}) => size <= active);
+  if (available.length === 0) return formations[0];
   return available[Math.floor(Math.random() * available.length)];
 }
 

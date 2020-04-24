@@ -2,11 +2,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 function getPoints(diagram: string[], y: number, x: number): Array<[number, number]> {
-  const points: Array<[number, number]> = [];
-  for (let i = 0; i < diagram.length; i++) {
-    for (let j = 0; j < diagram[i].length; j++) {
-      if (diagram[i].charAt(j) === 'x') {
-        if (x !== j || y !== i) points.push([j - x, i - y]);
+  const points: [number, number][] = [];
+  for (let row = 0; row < diagram.length; row++) {
+    for (let col = 0; col < diagram[row].length; col++) {
+      if (diagram[row].charAt(col) === 'x') {
+        if (x !== col || y !== row) points.push([col - x, row - y]);
       }
     }
   }
@@ -19,9 +19,11 @@ export type FormationDefinition = {
   diagram: string[];
 };
 
-export type Formation = FormationDefinition & {
+export type Formation = {
+  name: string;
   map: boolean[][];
-  points: Array<[number, number]>;
+  points: [number, number][];
+  difficulty: number;
   size: number;
 };
 
@@ -40,8 +42,8 @@ function parseFormation(lines: string[]): FormationDefinition {
   };
 }
 
-function parse(file: string) {
-  const formations: {[name: string]: FormationDefinition} = {};
+function parse(file: string): FormationDefinition[] {
+  const formations: FormationDefinition[] = [];
   let buffer: string[] = [];
   const lines = file.split('\n');
   lines.forEach((line, i) => {
@@ -49,54 +51,39 @@ function parse(file: string) {
     if (line.charAt(0) === '=') {
       if (buffer.length > 0) {
         const formation = parseFormation(buffer);
-        formations[formation.name] = formation;
+        formations.push(formation);
         buffer = [];
       }
     }
     buffer.push(line);
   });
-  const formation = parseFormation(buffer);
-  formations[formation.name] = formation;
+  formations.push(parseFormation(buffer));
   return formations;
 }
 
-export function getFormations(): {[id: string]: Formation} {
-  const formations = parse(fs.readFileSync(path.join(__dirname, '../formations.txt'), 'utf-8')) as {
-    [id: string]: Formation;
-  };
-  for (const name in formations) {
-    const formation = formations[name];
-    formation.map = [];
-    for (let i = 0; i < formation.diagram.length; i++) {
-      formation.map[i] || (formation.map[i] = []);
-      for (let j = 0; j < formation.diagram[i].length; j++) {
-        const c = formation.diagram[i].charAt(j);
-        if (c === 'x') {
-          formation.map[i][j] = true;
-          if (!formation.points) formation.points = getPoints(formation.diagram, i, j);
+export function getFormations(): Formation[] {
+  return parse(fs.readFileSync(path.join(__dirname, '../formations.txt'), 'utf-8'))
+    .map(({name, diagram, difficulty}): Formation | null => {
+      const map: boolean[][] = [];
+      let points;
+      for (let i = 0; i < diagram.length; i++) {
+        map[i] || (map[i] = []);
+        for (let j = 0; j < diagram[i].length; j++) {
+          const c = diagram[i].charAt(j);
+          if (c === 'x') {
+            map[i][j] = true;
+            if (!points) points = getPoints(diagram, i, j);
+          }
         }
       }
-    }
 
-    if (!formation.points) {
-      // malformed formation?
-      console.log('Formation ' + formation.name + ' is malformed!');
-      continue;
-    }
+      if (!points) {
+        // malformed formation?
+        console.log(`Formation ${name} is malformed!`);
+        return null;
+      }
 
-    formation.size = formation.points.length;
-    formations[name] = formation;
-    delete formation.diagram;
-  }
-  return formations;
-}
-
-export function sizeRange(formations: {[id: string]: Formation}): [number, number] {
-  let maxSize = 0;
-  let minSize = Infinity;
-  for (const id in formations) {
-    minSize = Math.min(minSize, formations[id].size);
-    maxSize = Math.max(maxSize, formations[id].size);
-  }
-  return [minSize, maxSize];
+      return {name, map, points, difficulty, size: points.length + 1} as Formation;
+    })
+    .filter(Boolean) as Formation[];
 }
