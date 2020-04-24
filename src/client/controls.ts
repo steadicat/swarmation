@@ -1,5 +1,5 @@
 import {Player} from '../player';
-import {directions, Direction} from './directions';
+import {Direction} from './directions';
 
 const MOVEMENT_RATE = 140;
 
@@ -18,7 +18,7 @@ export function initializeControls(
     stopFlash,
     lockIn,
   }: {
-    move(direction: Direction, left: number, top: number): void;
+    move(direction: Direction): void;
     startFlash(): void;
     stopFlash(): void;
     lockIn(): void;
@@ -28,8 +28,7 @@ export function initializeControls(
 
   function moveHandler(direction: Direction) {
     if (self.lockedIn) return;
-    const [left, top] = directions[direction](self.left, self.top);
-    move(direction, left, top);
+    move(direction);
   }
 
   function startMove(direction: Direction) {

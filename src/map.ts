@@ -22,15 +22,14 @@ export function exists(x: number, y: number) {
   return MAP[x][y] !== undefined;
 }
 
-export function isValidMove(x1: number, y1: number, x2: number, y2: number, v: Player) {
+export function isValidMove(x1: number, y1: number, x2: number, y2: number) {
   if (x1 === x2 && y1 === y2) return false;
   if (exists(x2, y2)) return false;
-  if (get(x1, y1) !== v) return false;
   return true;
 }
 
 export function move(x1: number, y1: number, x2: number, y2: number, v: Player) {
-  if (!isValidMove(x1, y1, x2, y2, v)) return false;
+  if (!isValidMove(x1, y1, x2, y2)) return false;
   unset(x1, y1);
   set(x2, y2, v);
   return true;

@@ -5,6 +5,7 @@ import * as map from '../map';
 import {Player} from '../player';
 import {clientSend, clientListen} from '../protocol';
 import {initializeControls} from './controls';
+import {directions} from './directions';
 
 import Game from './Game.svelte';
 
@@ -77,12 +78,15 @@ ws.addEventListener('open', () => {
         if (!self) throw new Error('Local player object not found');
 
         initializeControls(self, {
-          move(direction, left, top) {
+          move(direction) {
             self.active = true;
-            if (!map.isValidMove(self.left, self.top, left, top, self)) return;
+            const [left, top] = directions[direction](self.left, self.top);
+            if (!map.isValidMove(self.left, self.top, left, top)) return;
             setPosition(self, left, top);
             latestTimestamp = Date.now();
             state.hasMoved = true;
+            const time = (latestTimestamp = Date.now());
+            clientSend(ws, {type: 'move', direction, time});
           },
           startFlash() {
             self.flashing = true;
