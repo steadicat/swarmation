@@ -53,10 +53,17 @@ dev: public/formation/*.png
 	make devjs & make devserver
 .PHONY: dev
 
+# Debug
+
 bots: node_modules
 	$(NODE) src/bots/bots.ts 100 ws://localhost:3000
+.PHONY: bots
 
-# Deployment
+profileserver: buildserver
+	SECRET=$(SECRET) node --inspect server/server/server.js
+.PHONY: profileserver
+
+# Build
 
 buildjs: node_modules
 	-NODE_ENV=production \
@@ -78,7 +85,7 @@ buildserver: node_modules
 build: buildserver buildjs public/formation/*.png
 .PHONY: build
 
-# Server Configuration
+# Deploy
 
 new:
 	doctl compute droplet create $(NAME) \

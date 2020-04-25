@@ -11,14 +11,16 @@ import {Player} from '../player';
 import {serverListen, serverSend} from '../protocol';
 import {validate, sign} from './signing';
 
-Bugsnag.start({
-  apiKey: '598a6c87f69350bfffd18829c6e8a87c',
-  plugins: [BugsnagPluginExpress],
-  // @ts-expect-error
-  onUncaughtException(e: Error) {
-    console.log(e.stack);
-  },
-});
+if (process.env.NODE_ENV === 'production') {
+  Bugsnag.start({
+    apiKey: '598a6c87f69350bfffd18829c6e8a87c',
+    plugins: [BugsnagPluginExpress],
+    // @ts-expect-error
+    onUncaughtException(e: Error) {
+      console.log(e.stack);
+    },
+  });
+}
 
 const NAMES = [
   'Saber',
@@ -51,8 +53,13 @@ let TIME = 0;
 // Configuration
 
 const app = express();
-const middleware = Bugsnag.getPlugin('express');
-app.use(middleware.requestHandler);
+
+let middleware;
+
+if (process.env.NODE_ENV === 'production') {
+  middleware = Bugsnag.getPlugin('express');
+  app.use(middleware.requestHandler);
+}
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
@@ -69,7 +76,9 @@ app.use((err: Error | null, _: express.Request, res: express.Response, _next: un
   res.status(500).send('Something broke!');
 });
 
-app.use(middleware.errorHandler);
+if (process.env.NODE_ENV === 'production') {
+  app.use(middleware.errorHandler);
+}
 
 function shutdown() {
   serverSend(Object.values(CLIENTS) as WebSocket[], {type: 'restart'});
