@@ -71,14 +71,12 @@
 
     <h2>How to play</h2>
 
-    <p>Welcome to life as a pixel.</p> 
-
     <p>
       {#if touch}
+      Swipe anywhere to move.
+      {:else}
       Use your <img class="arrow-keys" src="/images/arrow-keys.svg" alt="arrow keys" />
       <span class="text">to move</span>.
-      {:else}
-      Swipe anywhere to move.
       {/if}
     </p>
 
