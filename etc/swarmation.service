@@ -1,0 +1,18 @@
+[Unit]
+Description=Swarmation
+
+[Service]
+Type=simple
+
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=HOME=/root
+Environment=NODE_ENV=production
+Environment=SECRET=secret
+
+Restart=on-failure
+RestartSec=4
+
+WorkingDirectory=/opt/swarmation
+ExecStart=/usr/bin/node server/server/server.js
+ExecStop=/bin/kill $MAINPID
+ExecReload=/bin/kill -HUP $MAINPID

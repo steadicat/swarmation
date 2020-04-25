@@ -1,8 +1,6 @@
 import * as crypto from 'crypto';
-import * as dotenv from 'dotenv';
 
 import {SaveData} from '../protocol';
-dotenv.config();
 
 export function sign(value: SaveData) {
   if (!process.env.SECRET) throw new Error('Missing SECRET environment variable');
@@ -11,7 +9,7 @@ export function sign(value: SaveData) {
     .createHmac('sha256', process.env.SECRET)
     .update(serializedValue)
     .digest('base64')
-    .replace(/\=+$/, '')}`;
+    .replace(/=+$/, '')}`;
 }
 
 export function validate(signedValue: string) {

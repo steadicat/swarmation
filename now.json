@@ -1,9 +1,0 @@
-{
-  "public": true,
-  "alias": ["swarmation.com", "www.swarmation.com"],
-  "files": ["server", "public", "formations.txt", "package.json", "yarn.lock"],
-  "env": {
-    "NODE_ENV": "production",
-    "SECRET": "@secret"
-  }
-}
