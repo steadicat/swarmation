@@ -33,13 +33,15 @@ function createBot() {
     let flashing = false;
 
     clientListen(ws, (message) => {
-      switch (message.type) {
-        case MessageType.Position:
-          movingAverageLag = (movingAverageLag * 29 + (Date.now() - message.time)) / 30;
+      switch (message[0]) {
+        case MessageType.Position: {
+          const [, , , , time] = message;
+          movingAverageLag = (movingAverageLag * 29 + (Date.now() - time)) / 30;
           if (Date.now() - lastLog > 1000) {
             console.log('lag', movingAverageLag);
             lastLog = Date.now();
           }
+        }
       }
     });
 
@@ -65,22 +67,18 @@ function createBot() {
         case 'move': {
           const direction = pick([Direction.Up, Direction.Down, Direction.Left, Direction.Right]);
           // console.log(`[${id}] Moving ${direction}`);
-          clientSend(ws, {
-            type: MessageType.Move,
-            direction,
-            time: Date.now(),
-          });
+          clientSend(ws, [MessageType.Move, direction, Date.now()]);
           break;
         }
         case 'flash': {
           // console.log(`[${id}] Flashing ${flashing ? 'off' : 'on'}`);
-          clientSend(ws, {type: MessageType.Flash, stop: flashing ? true : undefined});
+          clientSend(ws, flashing ? [MessageType.StopFlash] : [MessageType.StartFlash]);
           flashing = !flashing;
           break;
         }
         case 'lockIn': {
           // console.log(`[${id}] Locking in`);
-          clientSend(ws, {type: MessageType.LockIn});
+          clientSend(ws, [MessageType.LockIn]);
           break;
         }
       }

@@ -15,7 +15,7 @@ function getPoints(diagram: string[], y: number, x: number): Array<[number, numb
 
 export type FormationDefinition = {
   name: string;
-  difficulty: number;
+  time: number;
   diagram: string[];
 };
 
@@ -23,7 +23,7 @@ export type Formation = {
   name: string;
   map: boolean[][];
   points: [number, number][];
-  difficulty: number;
+  time: number;
   size: number;
 };
 
@@ -31,7 +31,7 @@ function parseFormation(lines: string[]): FormationDefinition {
   const signature = lines[0].replace(/^=+|=+$/g, '').trim();
   return {
     name: signature.split('(')[0].trim(),
-    difficulty: parseInt(
+    time: parseInt(
       signature
         .split('(')[1]
         .replace(/^\(|\)$/g, '')
@@ -63,7 +63,7 @@ function parse(file: string): FormationDefinition[] {
 
 export function getFormations(): Formation[] {
   return parse(fs.readFileSync(path.join(__dirname, '../formations.txt'), 'utf-8'))
-    .map(({name, diagram, difficulty}): Formation | null => {
+    .map(({name, diagram, time}): Formation | null => {
       const map: boolean[][] = [];
       let points;
       for (let i = 0; i < diagram.length; i++) {
@@ -83,7 +83,7 @@ export function getFormations(): Formation[] {
         return null;
       }
 
-      return {name, map, points, difficulty, size: points.length + 1} as Formation;
+      return {name, map, points, time, size: points.length + 1} as Formation;
     })
     .filter(Boolean) as Formation[];
 }

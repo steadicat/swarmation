@@ -5,7 +5,7 @@ import * as http from 'http';
 import * as WebSocket from 'ws';
 
 import {directions} from '../client/directions';
-import {Formation, getFormations} from '../formations';
+import {getFormations} from '../formations';
 import * as map from '../map';
 import {serverListen, serverSend, MessageType} from '../protocol';
 import {validate, sign} from './signing';
@@ -46,9 +46,6 @@ const CLIENTS: {[id: string]: WebSocket | undefined} = {};
 
 const formations = Object.values(getFormations());
 
-let FORMATION: Formation;
-let TIME = 0;
-
 // Configuration
 
 const app = express();
@@ -80,7 +77,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 function shutdown() {
-  serverSend(Object.values(CLIENTS) as WebSocket[], {type: MessageType.Restart});
+  serverSend(Object.values(CLIENTS) as WebSocket[], [MessageType.Restart]);
   setTimeout(() => {
     process.exit();
   }, 2000);
@@ -109,6 +106,16 @@ function placePlayer(numberOfPlayers: number): [number, number] {
   const y = Math.sin(angle) * distance;
   return [Math.round(x), Math.round(y)];
 }
+
+function pickFormation() {
+  const active = Math.max(2, getActivePlayers());
+  const available = formations.filter(({size}) => size <= active);
+  if (available.length === 0) return formations[0];
+  return available[Math.floor(Math.random() * available.length)];
+}
+
+let nextFormation = pickFormation();
+let nextFormationTimestamp = Date.now() + nextFormation.time * 1000;
 
 // IO
 
@@ -141,25 +148,25 @@ wss.on('connection', (client) => {
   CLIENTS[id] = client;
   map.set(left, top, player);
 
-  serverSend([client], {
-    type: MessageType.Welcome,
-    id,
-    players: Object.values(PLAYERS) as Player[],
-  });
-  serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], {
-    type: MessageType.Player,
+  serverSend([client], [MessageType.Welcome, id, Object.values(PLAYERS) as Player[]]);
+  serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
+    MessageType.Player,
     player,
-  });
+  ]);
 
-  if (FORMATION && TIME > 0) {
-    serverSend([client], {
-      type: MessageType.NextFormation,
-      formation: FORMATION.name,
-      time: TIME,
-      map: FORMATION.map,
-      active: getActivePlayers(),
-    });
-  }
+  serverSend(
+    [client],
+    [
+      MessageType.Formation,
+      0,
+      0,
+      [],
+      '',
+      nextFormation.name,
+      (nextFormationTimestamp - Date.now()) / 1000,
+      nextFormation.map,
+    ]
+  );
 
   client.on('close', () => {
     delete CLIENTS[player.id];
@@ -167,13 +174,14 @@ wss.on('connection', (client) => {
       map.unset(PLAYERS[player.id]!.left, PLAYERS[player.id]!.top);
       delete PLAYERS[player.id];
     }
-    serverSend(Object.values(CLIENTS) as WebSocket[], {type: MessageType.Disconnected, id});
+    serverSend(Object.values(CLIENTS) as WebSocket[], [MessageType.Disconnected, id]);
   });
 
   serverListen(client, (message) => {
-    switch (message.type) {
+    switch (message[0]) {
       case MessageType.Restore: {
-        const saveData = validate(message.data) as {
+        const [, data] = message;
+        const saveData = validate(data) as {
           name: string;
           score: number;
           succeeded: number;
@@ -186,14 +194,14 @@ wss.on('connection', (client) => {
           player.succeeded += succeeded;
           player.total += total;
           player.name = name;
-          serverSend(Object.values(CLIENTS) as WebSocket[], {type: MessageType.Player, player});
+          serverSend(Object.values(CLIENTS) as WebSocket[], [MessageType.Player, player]);
         }
         break;
       }
 
       case MessageType.Move: {
         const {left, top, id} = player;
-        const {direction, time} = message;
+        const [, direction, time] = message;
         const [newLeft, newTop] = directions[direction](left, top);
         player.active = true;
         const moved = map.move(left, top, newLeft, newTop, player);
@@ -201,30 +209,38 @@ wss.on('connection', (client) => {
           player.left = newLeft;
           player.top = newTop;
         }
-        serverSend(Object.values(CLIENTS) as WebSocket[], {
-          type: MessageType.Position,
+        serverSend(Object.values(CLIENTS) as WebSocket[], [
+          MessageType.Position,
           id,
-          left: player.left,
-          top: player.top,
+          player.left,
+          player.top,
           time,
-        });
+        ]);
         break;
       }
 
-      case MessageType.Flash: {
-        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], {
-          ...message,
-          id: player.id,
-        });
+      case MessageType.StartFlash: {
+        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
+          MessageType.StartFlash,
+          player.id,
+        ]);
+        break;
+      }
+
+      case MessageType.StopFlash: {
+        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
+          MessageType.StopFlash,
+          player.id,
+        ]);
         break;
       }
 
       case MessageType.LockIn: {
         player.lockedIn = true;
-        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], {
-          ...message,
-          id: player.id,
-        });
+        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
+          MessageType.LockIn,
+          player.id,
+        ]);
         break;
       }
 
@@ -241,77 +257,68 @@ wss.on('connection', (client) => {
 
 // Formation countdown
 
-function pickFormation(): Formation {
-  const active = Math.max(2, getActivePlayers());
-  const available = formations.filter(({size}) => size <= active);
-  if (available.length === 0) return formations[0];
-  return available[Math.floor(Math.random() * available.length)];
-}
-
-function startTurn() {
-  const playerCount = Object.keys(PLAYERS).length;
-  console.log(`Starting turn with ${playerCount} players (${getActivePlayers()} active).`);
-  FORMATION = pickFormation();
-  while (!FORMATION) FORMATION = pickFormation();
-  TIME = FORMATION.difficulty;
-  console.log(`Next formation is ${FORMATION.name} of size ${FORMATION.size}.`);
-  serverSend(Object.values(CLIENTS) as WebSocket[], {
-    type: MessageType.NextFormation,
-    formation: FORMATION.name,
-    time: TIME,
-    map: FORMATION.map,
-    active: getActivePlayers(),
-  });
-}
-
 function endTurn() {
-  const players = map.checkFormation(FORMATION, PLAYERS as Record<string, Player>);
-  const gain = FORMATION.difficulty;
-  const loss = Math.round((MAX_POINTS - FORMATION.difficulty) / 4);
-  const ids = players.map(({id}) => id);
-  console.log(`Formation ${FORMATION.name} completed with ${ids.length} participants.`);
+  const successfulPlayers = map.checkFormation(nextFormation, Object.values(PLAYERS) as Player[]);
+  const successfulIds = successfulPlayers.map((player) => player.id);
+  const gain = nextFormation.time;
+  const loss = Math.round((MAX_POINTS - nextFormation.time) / 4);
+  const playerCount = Object.keys(PLAYERS).length;
+  nextFormation = pickFormation();
+  console.log(
+    `Formation ${nextFormation.name} completed with ${
+      successfulPlayers.length
+    } participants. Starting next turn with ${playerCount} players (${getActivePlayers()} active). Next formation in ${
+      nextFormation.time
+    }s is ${nextFormation.name} of size ${nextFormation.size}.`
+  );
+
   for (const player of Object.values(PLAYERS) as Player[]) {
     player.total++;
     player.lockedIn = false;
-    if (ids.indexOf(player.id) >= 0) {
+    if (successfulIds.indexOf(player.id) >= 0) {
       player.succeeded++;
       player.active = true;
       player.score += gain;
+      player.idleTurns = 0;
     } else {
       player.score = Math.max(0, player.score - loss);
     }
     const client = CLIENTS[player.id];
-    if (!client) throw new Error('Client for player not found');
-    serverSend([client], {
-      type: MessageType.Formation,
-      formation: FORMATION.name,
-      difficulty: FORMATION.difficulty,
-      gain,
-      loss,
-      ids,
-      save: sign({
-        score: player.score,
-        succeeded: player.succeeded,
-        total: player.total,
-        name: player.name,
-      }),
-    });
-    if (player.active) {
-      player.idleTurns = 0;
-    } else {
-      const client = CLIENTS[player.id];
-      if (!client) throw new Error('Client for player not found');
+    if (!client) {
+      console.warn(`Client for player ${player.id} not found`);
+      continue;
+    }
+    serverSend(
+      [client],
+      [
+        MessageType.Formation,
+        gain,
+        loss,
+        successfulIds,
+        sign({
+          score: player.score,
+          succeeded: player.succeeded,
+          total: player.total,
+          name: player.name,
+        }),
+        nextFormation.name,
+        nextFormation.time,
+        nextFormation.map,
+      ]
+    );
+
+    if (!player.active) {
+      player.idleTurns++;
       if (player.idleTurns === IDLE_AFTER_TURNS) {
         player.active = false;
-        serverSend(Object.values(CLIENTS) as WebSocket[], {type: MessageType.Idle, id: player.id});
+        serverSend(Object.values(CLIENTS) as WebSocket[], [MessageType.Idle, player.id]);
       }
-      player.idleTurns++;
       if (player.idleTurns > MAX_IDLE) {
-        serverSend([client], {type: MessageType.Kick, reason: 'idle'});
-        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], {
-          type: MessageType.Disconnected,
-          id: player.id,
-        });
+        serverSend([client], [MessageType.Kick, 'idle']);
+        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
+          MessageType.Disconnected,
+          player.id,
+        ]);
         client.close();
         if (PLAYERS[player.id]) {
           map.unset(PLAYERS[player.id]!.left, PLAYERS[player.id]!.top);
@@ -320,18 +327,15 @@ function endTurn() {
         delete CLIENTS[player.id];
       }
     }
+
     player.active = false;
   }
+
+  nextFormationTimestamp = Date.now() + 1000 + nextFormation.time * 1000;
+  setTimeout(endTurn, 1000 + nextFormation.time * 1000);
 }
 
-// main loop
-setInterval(() => {
-  TIME--;
-  if (TIME === 0) {
-    if (FORMATION) endTurn();
-  }
-  if (TIME === -1) startTurn();
-}, 1000);
+setTimeout(endTurn, nextFormation.time * 1000);
 
 // Only listen on $ node server.js
 const port = parseInt(process.argv[2] ?? '3000', 10);

@@ -53,9 +53,9 @@ export function checkFormationAtOrigin(formation: Formation, x: number, y: numbe
   return players;
 }
 
-export function checkFormation(formation: Formation, players: {[id: string]: Player}) {
+export function checkFormation(formation: Formation, players: Player[]) {
   const winners: Player[] = [];
-  for (const player of Object.values(players)) {
+  for (const player of players) {
     for (const winner of checkFormationAtOrigin(formation, player.left, player.top)) {
       winners.push(winner);
     }

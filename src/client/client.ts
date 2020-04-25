@@ -13,7 +13,7 @@ const state: GameProps = {
   players: [],
   self: null,
 
-  formation: {time: 0, name: '\xa0', map: []},
+  formation: {time: -1, name: '\xa0', map: []},
   activeIds: [],
   scoreChanges: [],
 
@@ -61,20 +61,20 @@ ws.addEventListener('open', () => {
     console.log('Error reading from localStorage');
   }
   if (saveData !== null) {
-    clientSend(ws, {type: MessageType.Restore, data: saveData});
+    clientSend(ws, [MessageType.Restore, saveData]);
   }
 
   let latestTimestamp = 0;
 
   clientListen(ws, (message) => {
-    // console.debug(message);
-    switch (message.type) {
+    switch (message[0]) {
       case MessageType.Welcome: {
-        state.players = message.players;
-        for (const player of message.players) {
+        const [, id, players] = message;
+        state.players = players;
+        for (const player of players) {
           map.set(player.left, player.top, player);
         }
-        const self = (state.self = state.players.find(({id}) => id === message.id) || null);
+        const self = (state.self = state.players.find((player) => player.id === id) || null);
         if (!self) throw new Error('Local player object not found');
 
         initializeControls(self, {
@@ -86,59 +86,71 @@ ws.addEventListener('open', () => {
             latestTimestamp = Date.now();
             state.hasMoved = true;
             const time = (latestTimestamp = Date.now());
-            clientSend(ws, {type: MessageType.Move, direction, time});
+            clientSend(ws, [MessageType.Move, direction, time]);
           },
           startFlash() {
             self.flashing = true;
-            clientSend(ws, {type: MessageType.Flash});
+            clientSend(ws, [MessageType.StartFlash]);
           },
           stopFlash() {
             self.flashing = false;
-            clientSend(ws, {type: MessageType.Flash, stop: true});
+            clientSend(ws, [MessageType.StopFlash]);
           },
           lockIn() {
             if (self.lockedIn) return;
             self.lockedIn = true;
-            clientSend(ws, {type: MessageType.LockIn});
+            clientSend(ws, [MessageType.LockIn]);
           },
         });
         break;
       }
 
       case MessageType.Player: {
-        let player = state.players.find(({id}) => id == message.player.id);
+        const [, newPlayer] = message;
+        let player = state.players.find((player) => player.id == newPlayer.id);
         if (!player) {
-          player = message.player;
+          player = newPlayer;
           state.players.push(player);
         } else {
           map.unset(player.left, player.top);
-          Object.assign(player, message.player);
+          Object.assign(player, newPlayer);
         }
         map.set(player.left, player.top, player);
         break;
       }
 
       case MessageType.Position: {
-        const player = state.players.find(({id}) => id == message.id);
+        const [, id, left, top, time] = message;
+        const player = state.players.find((player) => player.id == id);
         if (!player) throw new Error('Player not found');
-        if (player === state.self && message.time !== latestTimestamp) {
+        if (player === state.self && time !== latestTimestamp) {
           // Discard stale self moves
           break;
         }
         player.active = true;
-        setPosition(player, message.left, message.top);
+        setPosition(player, left, top);
         break;
       }
 
-      case MessageType.Flash: {
-        const player = state.players.find(({id}) => id == message.id);
+      case MessageType.StartFlash: {
+        const [, id] = message;
+        const player = state.players.find((player) => player.id == id);
         if (!player) throw new Error('Player not found');
-        player.flashing = !message.stop;
+        player.flashing = true;
+        break;
+      }
+
+      case MessageType.StopFlash: {
+        const [, id] = message;
+        const player = state.players.find((player) => player.id == id);
+        if (!player) throw new Error('Player not found');
+        player.flashing = false;
         break;
       }
 
       case MessageType.LockIn: {
-        const player = state.players.find(({id}) => id == message.id);
+        const [, id] = message;
+        const player = state.players.find((player) => player.id == id);
         if (!player) throw new Error('Player not found');
         if (player.lockedIn) break;
         player.lockedIn = true;
@@ -146,14 +158,16 @@ ws.addEventListener('open', () => {
       }
 
       case MessageType.Idle: {
-        const player = state.players.find(({id}) => id == message.id);
+        const [, id] = message;
+        const player = state.players.find((player) => player.id == id);
         if (!player) throw new Error('Player not found');
         player.active = false;
         break;
       }
 
       case MessageType.Disconnected: {
-        const index = state.players.findIndex(({id}) => id == message.id);
+        const [, id] = message;
+        const index = state.players.findIndex((player) => player.id == id);
         const player = state.players[index];
         map.unset(player.left, player.top);
         state.players.splice(index, 1);
@@ -161,41 +175,45 @@ ws.addEventListener('open', () => {
       }
 
       case MessageType.Formation: {
-        const {gain, loss, ids} = message;
+        const [, gain, loss, ids, save, name, time, map] = message;
+
         for (const player of state.players) {
           const success = ids.indexOf(player.id) >= 0;
           player.total++;
           player.lockedIn = false;
           if (success) {
-            player.score += gain;
-            player.succeeded++;
-            if (player === state.self) {
-              state.scoreChanges.push(gain);
+            if (gain > 0) {
+              player.score += gain;
+              player.succeeded++;
+              if (player === state.self) {
+                state.scoreChanges.push(gain);
+              }
+              player.active = true;
             }
-            player.active = true;
           } else {
-            player.score = Math.max(0, player.score - loss);
-            if (player === state.self) {
-              state.scoreChanges.push(-loss);
+            if (loss < 0) {
+              player.score = Math.max(0, player.score - loss);
+              if (player === state.self) {
+                state.scoreChanges.push(-loss);
+              }
             }
           }
         }
-        state.activeIds = message.ids;
+
+        const roundedTime = Math.floor(time);
+        state.activeIds = ids;
         setTimeout(() => {
           state.activeIds = [];
-        }, 1000);
+          state.formation = {time: roundedTime, name, map};
+        }, 1000 + (time - roundedTime));
 
-        try {
-          localStorage.setItem('save', message.save);
-        } catch {
-          console.log('Error writing to localStorage');
+        if (save !== null) {
+          try {
+            localStorage.setItem('save', save);
+          } catch {
+            console.log('Error writing to localStorage');
+          }
         }
-        break;
-      }
-
-      case MessageType.NextFormation: {
-        const {time, formation, map} = message;
-        state.formation = {time, name: formation, map};
         break;
       }
 

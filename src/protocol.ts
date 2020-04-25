@@ -14,7 +14,8 @@ export enum MessageType {
   Restore,
   Player,
   Move,
-  Flash,
+  StartFlash,
+  StopFlash,
   LockIn,
   Position,
   Formation,
@@ -25,73 +26,37 @@ export enum MessageType {
   Kick,
 }
 
-export type PlayerMessage = {type: MessageType.Player; player: Player};
-export type RestoreMessage = {type: MessageType.Restore; data: string};
-
-export type FlashMessage = {type: MessageType.Flash; stop?: true};
-export type LockInMessage = {type: MessageType.LockIn};
-
-export type MoveMessage = {
-  type: MessageType.Move;
-  direction: Direction;
-  time: number;
-};
-
-export type PositionMessage = {
-  type: MessageType.Position;
-  id: number;
-  left: number;
-  top: number;
-  time: number;
-};
-
-export type NextFormationMessage = {
-  type: MessageType.NextFormation;
-  formation: string;
-  time: number;
-  map: boolean[][];
-  active: number;
-};
-
-export type FormationMessage = {
-  type: MessageType.Formation;
-  formation: string;
-  difficulty: number;
-  gain: number;
-  loss: number;
-  ids: number[];
-  save: string;
-};
-
-export type WelcomeMessage = {
-  type: MessageType.Welcome;
-  id: number;
-  players: Player[];
-};
-
-export type RestartMessage = {type: MessageType.Restart};
-
-export type IdleMessage = {type: MessageType.Idle; id: number};
-export type DisconnectedMessage = {type: MessageType.Disconnected; id: number};
-export type KickMessage = {type: MessageType.Kick; reason: 'idle'};
-
-type ClientMessage = FlashMessage | LockInMessage | MoveMessage | RestoreMessage;
-
-type RelayedClientMessage = ClientMessage extends unknown
-  ? Exclude<ClientMessage, MoveMessage | RestoreMessage> & {id: number}
-  : never;
+type ClientMessage =
+  | [MessageType.StartFlash]
+  | [MessageType.StopFlash]
+  | [MessageType.LockIn]
+  | [MessageType.Move, Direction, /* time */ number]
+  | [MessageType.Restore, string];
 
 type ServerMessage =
-  | RelayedClientMessage
-  | WelcomeMessage
-  | FormationMessage
-  | NextFormationMessage
-  | PlayerMessage
-  | PositionMessage
-  | RestartMessage
-  | KickMessage
-  | IdleMessage
-  | DisconnectedMessage;
+  // Relayed client messages
+  | [MessageType.StartFlash, number]
+  | [MessageType.StopFlash, number]
+  | [MessageType.LockIn, number]
+
+  // Server-sent messages
+  | [MessageType.Welcome, /* id */ number, /* players */ Player[]]
+  | [MessageType.Player, Player]
+  | [MessageType.Position, /* id */ number, /* left */ number, /* top */ number, /* time */ number]
+  | [
+      MessageType.Formation,
+      /* gain */ number,
+      /* loss */ number,
+      /* ids */ number[],
+      /* save */ string | null,
+      /* name */ string,
+      /* time */ number,
+      /* map */ boolean[][]
+    ]
+  | [MessageType.Restart]
+  | [MessageType.Kick, /* reason */ 'idle']
+  | [MessageType.Idle, /* id */ number]
+  | [MessageType.Disconnected, /* id */ number];
 
 export function clientListen(
   socket: WebSocket | ServerWebSocket,
