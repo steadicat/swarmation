@@ -32,7 +32,7 @@
   }
 </style>
 
-<h1 class="countdown" style="font-size: {countdown < 0 ? 40 : 80}px">
+<div class="countdown" style="font-size: {countdown < 0 ? 40 : 80}px">
   {countdown < 0 ? 'wait' : countdown}
-</h1>
+</div>
 

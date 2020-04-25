@@ -20,7 +20,7 @@
   }
 </style>
 
-<h2 class="box">
+<div class="box">
   <span class="text">{score}</span>
   points
-</h2>
+</div>

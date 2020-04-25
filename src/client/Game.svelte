@@ -72,6 +72,7 @@
   flex: 1;
   background: var(--light-gray);
   display: flex;
+  user-select: none;
 }
 
 h1 {

@@ -15,6 +15,7 @@
     text-shadow: var(--shadow) 1px 1px 0;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
+    user-select: text;
   }
 
   h1 {

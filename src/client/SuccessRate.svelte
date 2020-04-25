@@ -27,7 +27,7 @@
   }
 </style>
 
-<h3 class="box">
+<div class="box">
   <span class="text">{successRate}%</span>
   success
-</h3>
+</div>
