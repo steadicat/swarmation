@@ -1,5 +1,4 @@
 import {Formation} from './formations';
-import {Player} from './player';
 
 const MAP: {[x: number]: {[y: number]: Player | undefined}} = {};
 
@@ -55,16 +54,11 @@ export function checkFormationAtOrigin(formation: Formation, x: number, y: numbe
 }
 
 export function checkFormation(formation: Formation, players: {[id: string]: Player}) {
-  const winners: {[id: string]: Player} = {};
-  for (const id in players) {
-    const player = players[id];
-    const f =
-      player.left && player.top ? checkFormationAtOrigin(formation, player.left, player.top) : [];
-    f.forEach((p) => {
-      // work around dirty map bug
-      if (!p) return;
-      winners[p.id] = p;
-    });
+  const winners: Player[] = [];
+  for (const player of Object.values(players)) {
+    for (const winner of checkFormationAtOrigin(formation, player.left, player.top)) {
+      winners.push(winner);
+    }
   }
   return winners;
 }

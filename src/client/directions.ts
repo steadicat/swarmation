@@ -1,16 +1,13 @@
-export type Direction = 'left' | 'right' | 'up' | 'down';
+export enum Direction {
+  Up,
+  Down,
+  Left,
+  Right,
+}
 
 export const directions = {
-  left(left: number, top: number): [number, number] {
-    return [left - 1, top];
-  },
-  right(left: number, top: number): [number, number] {
-    return [left + 1, top];
-  },
-  up(left: number, top: number): [number, number] {
-    return [left, top - 1];
-  },
-  down(left: number, top: number): [number, number] {
-    return [left, top + 1];
-  },
+  [Direction.Up]: (left: number, top: number): [number, number] => [left, top - 1],
+  [Direction.Down]: (left: number, top: number): [number, number] => [left, top + 1],
+  [Direction.Left]: (left: number, top: number): [number, number] => [left - 1, top],
+  [Direction.Right]: (left: number, top: number): [number, number] => [left + 1, top],
 };

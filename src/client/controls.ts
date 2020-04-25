@@ -1,14 +1,6 @@
-import {Player} from '../player';
 import {Direction} from './directions';
 
 const MOVEMENT_RATE = 140;
-
-const controls = {
-  '38': 'up',
-  '40': 'down',
-  '37': 'left',
-  '39': 'right',
-} as const;
 
 export function initializeControls(
   self: Player,
@@ -32,7 +24,7 @@ export function initializeControls(
   }
 
   function startMove(direction: Direction) {
-    if (moveIntervals[direction]) return;
+    if (moveIntervals[direction] !== undefined) return;
     moveHandler(direction);
     moveIntervals[direction] = window.setInterval(() => {
       moveHandler(direction);
@@ -40,37 +32,63 @@ export function initializeControls(
   }
 
   function stopMove(direction: Direction) {
-    if (moveIntervals[direction]) {
+    if (moveIntervals[direction] !== undefined) {
       clearInterval(moveIntervals[direction]);
       moveIntervals[direction] = undefined;
     }
   }
 
   document.addEventListener('keydown', (event: KeyboardEvent) => {
-    const keyCode = `${event.keyCode}` as keyof typeof controls;
-    if (controls[keyCode]) {
-      startMove(controls[keyCode]);
-      event.preventDefault();
-    } else if (event.keyCode === 32) {
-      // space
-      event.preventDefault();
-      startFlash();
-    } else if (event.keyCode === 83) {
-      // "s"
-      event.preventDefault();
-      lockIn();
+    switch (event.keyCode) {
+      case 38: // up
+        event.preventDefault();
+        startMove(Direction.Up);
+        break;
+      case 40: // down
+        event.preventDefault();
+        startMove(Direction.Down);
+        break;
+      case 37: // left
+        event.preventDefault();
+        startMove(Direction.Left);
+        break;
+      case 39: // right
+        event.preventDefault();
+        startMove(Direction.Right);
+        break;
+      case 32: // space
+        event.preventDefault();
+        startFlash();
+        break;
+      case 83: // s
+        event.preventDefault();
+        lockIn();
+        break;
     }
   });
 
   document.addEventListener('keyup', (event: KeyboardEvent) => {
-    const keyCode = `${event.keyCode}` as keyof typeof controls;
-    if (controls[keyCode]) {
-      event.preventDefault();
-      stopMove(controls[keyCode]);
-    } else if (event.keyCode === 32) {
-      // space
-      event.preventDefault();
-      stopFlash();
+    switch (event.keyCode) {
+      case 38: // up
+        event.preventDefault();
+        stopMove(Direction.Up);
+        break;
+      case 40: // down
+        event.preventDefault();
+        stopMove(Direction.Down);
+        break;
+      case 37: // left
+        event.preventDefault();
+        stopMove(Direction.Left);
+        break;
+      case 39: // right
+        event.preventDefault();
+        stopMove(Direction.Right);
+        break;
+      case 32: // space
+        event.preventDefault();
+        stopFlash();
+        break;
     }
   });
 
@@ -96,16 +114,16 @@ export function initializeControls(
     if (dx2 >= dy2) {
       // horizontal
       if (endX > startX) {
-        moveHandler('right');
+        moveHandler(Direction.Right);
       } else {
-        moveHandler('left');
+        moveHandler(Direction.Left);
       }
     } else {
       // vertical
       if (endY > startY) {
-        moveHandler('down');
+        moveHandler(Direction.Down);
       } else {
-        moveHandler('up');
+        moveHandler(Direction.Up);
       }
     }
     startX = 0;

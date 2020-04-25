@@ -3,7 +3,7 @@ export type GameProps = {
   self: Player | null;
 
   formation: {time: number; name: string; map: boolean[][]};
-  activeIds: string[];
+  activeIds: number[];
   scoreChanges: number[];
 
   hasMoved: boolean;

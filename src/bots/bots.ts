@@ -1,7 +1,7 @@
 import * as WebSocket from 'ws';
 
 import {Direction} from '../client/directions';
-import {clientSend, clientListen} from '../protocol';
+import {clientSend, clientListen, MessageType} from '../protocol';
 
 const [, , countS, websocketURL] = process.argv;
 
@@ -34,7 +34,7 @@ function createBot() {
 
     clientListen(ws, (message) => {
       switch (message.type) {
-        case 'position':
+        case MessageType.Position:
           movingAverageLag = (movingAverageLag * 29 + (Date.now() - message.time)) / 30;
           if (Date.now() - lastLog > 1000) {
             console.log('lag', movingAverageLag);
@@ -63,10 +63,10 @@ function createBot() {
         ])
       ) {
         case 'move': {
-          const direction = pick(['up', 'down', 'left', 'right'] as Direction[]);
+          const direction = pick([Direction.Up, Direction.Down, Direction.Left, Direction.Right]);
           // console.log(`[${id}] Moving ${direction}`);
           clientSend(ws, {
-            type: 'move',
+            type: MessageType.Move,
             direction,
             time: Date.now(),
           });
@@ -74,13 +74,13 @@ function createBot() {
         }
         case 'flash': {
           // console.log(`[${id}] Flashing ${flashing ? 'off' : 'on'}`);
-          clientSend(ws, {type: 'flash', stop: flashing || undefined});
+          clientSend(ws, {type: MessageType.Flash, stop: flashing || undefined});
           flashing = !flashing;
           break;
         }
         case 'lockIn': {
           // console.log(`[${id}] Locking in`);
-          clientSend(ws, {type: 'lockIn'});
+          clientSend(ws, {type: MessageType.LockIn});
           break;
         }
       }

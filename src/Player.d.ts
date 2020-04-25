@@ -1,5 +1,5 @@
-export type Player = {
-  id: string;
+type Player = {
+  id: number;
   active: boolean;
   lockedIn: boolean;
   flashing: boolean;

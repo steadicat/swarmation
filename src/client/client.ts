@@ -2,8 +2,7 @@ import 'core-js/es/array/find';
 import 'core-js/es/array/find-index';
 
 import * as map from '../map';
-import {Player} from '../player';
-import {clientSend, clientListen} from '../protocol';
+import {clientSend, clientListen, MessageType} from '../protocol';
 import {initializeControls} from './controls';
 import {directions} from './directions';
 
@@ -11,17 +10,17 @@ import Game from './Game.svelte';
 import type {GameProps} from './Game.svelte';
 
 const state: GameProps = {
-  players: [] as Player[],
-  self: null as Player | null,
+  players: [],
+  self: null,
 
-  formation: {time: 0, name: 'wait', map: [] as boolean[][]},
-  activeIds: [] as string[],
-  scoreChanges: [] as number[],
+  formation: {time: 0, name: '\xa0', map: []},
+  activeIds: [],
+  scoreChanges: [],
 
   hasMoved: false,
   connected: false,
   kickedOut: false,
-  message: null as string | null,
+  message: null,
 };
 
 const websocketURL = `${location.protocol.replace('http', 'ws')}//${location.host}`;
@@ -62,7 +61,7 @@ ws.addEventListener('open', () => {
     console.log('Error reading from localStorage');
   }
   if (saveData) {
-    clientSend(ws, {type: 'restore', data: saveData});
+    clientSend(ws, {type: MessageType.Restore, data: saveData});
   }
 
   let latestTimestamp = 0;
@@ -70,7 +69,7 @@ ws.addEventListener('open', () => {
   clientListen(ws, (message) => {
     // console.debug(message);
     switch (message.type) {
-      case 'welcome': {
+      case MessageType.Welcome: {
         state.players = message.players;
         for (const player of message.players) {
           map.set(player.left, player.top, player);
@@ -87,26 +86,26 @@ ws.addEventListener('open', () => {
             latestTimestamp = Date.now();
             state.hasMoved = true;
             const time = (latestTimestamp = Date.now());
-            clientSend(ws, {type: 'move', direction, time});
+            clientSend(ws, {type: MessageType.Move, direction, time});
           },
           startFlash() {
             self.flashing = true;
-            clientSend(ws, {type: 'flash'});
+            clientSend(ws, {type: MessageType.Flash});
           },
           stopFlash() {
             self.flashing = false;
-            clientSend(ws, {type: 'flash', stop: true});
+            clientSend(ws, {type: MessageType.Flash, stop: true});
           },
           lockIn() {
             if (self.lockedIn) return;
             self.lockedIn = true;
-            clientSend(ws, {type: 'lockIn'});
+            clientSend(ws, {type: MessageType.LockIn});
           },
         });
         break;
       }
 
-      case 'player': {
+      case MessageType.Player: {
         let player = state.players.find(({id}) => id == message.player.id);
         if (!player) {
           player = message.player;
@@ -119,7 +118,7 @@ ws.addEventListener('open', () => {
         break;
       }
 
-      case 'position': {
+      case MessageType.Position: {
         const player = state.players.find(({id}) => id == message.id);
         if (!player) throw new Error('Player not found');
         if (player === state.self && message.time !== latestTimestamp) {
@@ -131,14 +130,14 @@ ws.addEventListener('open', () => {
         break;
       }
 
-      case 'flash': {
+      case MessageType.Flash: {
         const player = state.players.find(({id}) => id == message.id);
         if (!player) throw new Error('Player not found');
         player.flashing = !message.stop;
         break;
       }
 
-      case 'lockIn': {
+      case MessageType.LockIn: {
         const player = state.players.find(({id}) => id == message.id);
         if (!player) throw new Error('Player not found');
         if (player.lockedIn) break;
@@ -146,14 +145,14 @@ ws.addEventListener('open', () => {
         break;
       }
 
-      case 'idle': {
+      case MessageType.Idle: {
         const player = state.players.find(({id}) => id == message.id);
         if (!player) throw new Error('Player not found');
         player.active = false;
         break;
       }
 
-      case 'disconnected': {
+      case MessageType.Disconnected: {
         const index = state.players.findIndex(({id}) => id == message.id);
         const player = state.players[index];
         map.unset(player.left, player.top);
@@ -161,7 +160,7 @@ ws.addEventListener('open', () => {
         break;
       }
 
-      case 'formation': {
+      case MessageType.Formation: {
         const {gain, loss, ids} = message;
         for (const player of state.players) {
           const success = ids.indexOf(player.id) >= 0;
@@ -194,20 +193,20 @@ ws.addEventListener('open', () => {
         break;
       }
 
-      case 'nextFormation': {
+      case MessageType.NextFormation: {
         const {time, formation, map} = message;
         state.formation = {time, name: formation, map};
         break;
       }
 
-      case 'restart': {
+      case MessageType.Restart: {
         state.kickedOut = true;
         ws.close();
         state.message = 'Swarmation needs to restart for an update. Please reload the page.';
         break;
       }
 
-      case 'kick': {
+      case MessageType.Kick: {
         state.kickedOut = true;
         ws.close();
         state.message =

@@ -1,6 +1,6 @@
 import type * as ServerWebSocket from 'ws';
 
-import {Player} from './player';
+import {Direction} from './client/directions';
 
 export type SaveData = {
   score: number;
@@ -9,28 +9,44 @@ export type SaveData = {
   name: string;
 };
 
-export type PlayerMessage = {type: 'player'; player: Player};
-export type RestoreMessage = {type: 'restore'; data: string};
+export enum MessageType {
+  Welcome,
+  Restore,
+  Player,
+  Move,
+  Flash,
+  LockIn,
+  Position,
+  Formation,
+  NextFormation,
+  Restart,
+  Idle,
+  Disconnected,
+  Kick,
+}
 
-export type FlashMessage = {type: 'flash'; stop?: true};
-export type LockInMessage = {type: 'lockIn'};
+export type PlayerMessage = {type: MessageType.Player; player: Player};
+export type RestoreMessage = {type: MessageType.Restore; data: string};
+
+export type FlashMessage = {type: MessageType.Flash; stop?: true};
+export type LockInMessage = {type: MessageType.LockIn};
 
 export type MoveMessage = {
-  type: 'move';
-  direction: 'up' | 'down' | 'left' | 'right';
+  type: MessageType.Move;
+  direction: Direction;
   time: number;
 };
 
 export type PositionMessage = {
-  type: 'position';
-  id: string;
+  type: MessageType.Position;
+  id: number;
   left: number;
   top: number;
   time: number;
 };
 
 export type NextFormationMessage = {
-  type: 'nextFormation';
+  type: MessageType.NextFormation;
   formation: string;
   time: number;
   map: boolean[][];
@@ -38,33 +54,31 @@ export type NextFormationMessage = {
 };
 
 export type FormationMessage = {
-  type: 'formation';
+  type: MessageType.Formation;
   formation: string;
   difficulty: number;
   gain: number;
   loss: number;
-  ids: string[];
+  ids: number[];
   save: string;
 };
 
 export type WelcomeMessage = {
-  type: 'welcome';
-  id: string;
+  type: MessageType.Welcome;
+  id: number;
   players: Player[];
 };
 
-export type RestartMessage = {
-  type: 'restart';
-};
+export type RestartMessage = {type: MessageType.Restart};
 
-export type IdleMessage = {type: 'idle'; id: string};
-export type DisconnectedMessage = {type: 'disconnected'; id: string};
-export type KickMessage = {type: 'kick'; reason: 'idle'};
+export type IdleMessage = {type: MessageType.Idle; id: number};
+export type DisconnectedMessage = {type: MessageType.Disconnected; id: number};
+export type KickMessage = {type: MessageType.Kick; reason: 'idle'};
 
 type ClientMessage = FlashMessage | LockInMessage | MoveMessage | RestoreMessage;
 
 type RelayedClientMessage = ClientMessage extends unknown
-  ? Exclude<ClientMessage, MoveMessage | RestoreMessage> & {id: string}
+  ? Exclude<ClientMessage, MoveMessage | RestoreMessage> & {id: number}
   : never;
 
 type ServerMessage =
