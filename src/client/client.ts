@@ -8,6 +8,7 @@ import {initializeControls} from './controls';
 import {directions} from './directions';
 
 import Game from './Game.svelte';
+import type {GameProps} from './Game.svelte';
 
 const state: GameProps = {
   players: [] as Player[],

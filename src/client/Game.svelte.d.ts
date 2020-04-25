@@ -1,4 +1,4 @@
-type GameProps = {
+export type GameProps = {
   players: Player[];
   self: Player | null;
 
@@ -12,11 +12,9 @@ type GameProps = {
   message: string | null;
 };
 
-declare module '*/Game.svelte' {
-  class Game {
-    constructor(params: {target: HTMLElement; props?: GameProps});
-    $set(props: Partial<GameProps>): void;
-  }
-
-  export default Game;
+class Game {
+  constructor(params: {target: HTMLElement; props?: GameProps});
+  $set(props: Partial<GameProps>): void;
 }
+
+export default Game;
