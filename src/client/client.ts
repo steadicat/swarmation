@@ -54,13 +54,13 @@ ws.addEventListener('open', () => {
   state.players = [];
   map.clear();
 
-  let saveData;
+  let saveData = null;
   try {
     saveData = localStorage.getItem('save');
   } catch {
     console.log('Error reading from localStorage');
   }
-  if (saveData) {
+  if (saveData !== null) {
     clientSend(ws, {type: MessageType.Restore, data: saveData});
   }
 

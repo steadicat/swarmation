@@ -334,6 +334,7 @@ setInterval(() => {
 }, 1000);
 
 // Only listen on $ node server.js
-const port = parseInt(process.env.PORT || '0', 10) || parseInt(process.argv[2], 10) || 3000;
+const port = parseInt(process.argv[2] ?? '3000', 10);
+
 if (!module.parent) server.listen(port);
 console.log(`Server now listening on port ${port}...`);

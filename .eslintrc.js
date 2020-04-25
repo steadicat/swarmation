@@ -10,6 +10,9 @@ module.exports = {
     'plugin:import/warnings',
     'prettier/@typescript-eslint',
   ],
+  parserOptions: {
+    project: './tsconfig.json',
+  },
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
     'import/no-unresolved': 'off',
@@ -34,6 +37,11 @@ module.exports = {
           caseInsensitive: true,
         },
       },
+    ],
+
+    '@typescript-eslint/strict-boolean-expressions': [
+      'error',
+      {allowNullable: true, allowSafe: true, ignoreRhs: true},
     ],
   },
 };

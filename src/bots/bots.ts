@@ -5,7 +5,7 @@ import {clientSend, clientListen, MessageType} from '../protocol';
 
 const [, , countS, websocketURL] = process.argv;
 
-if (!countS || !websocketURL) {
+if (countS === undefined || websocketURL === undefined) {
   console.log('Usage: bots.ts [count] [websocket]');
   process.exit(1);
 }
@@ -74,7 +74,7 @@ function createBot() {
         }
         case 'flash': {
           // console.log(`[${id}] Flashing ${flashing ? 'off' : 'on'}`);
-          clientSend(ws, {type: MessageType.Flash, stop: flashing || undefined});
+          clientSend(ws, {type: MessageType.Flash, stop: flashing ? true : undefined});
           flashing = !flashing;
           break;
         }
