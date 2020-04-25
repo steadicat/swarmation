@@ -1,4 +1,4 @@
-import {Canvas,Image} from 'canvas';
+import {Canvas, Image} from 'canvas';
 import * as fs from 'fs';
 
 import * as Formations from '../formations';
@@ -29,10 +29,10 @@ function getImage(formation: Formation, cb: (err: Error | null, buffer: Buffer) 
 }
 
 const formations = Formations.getFormations();
-for (const name in formations) {
-  getImage(formations[name], (err: Error | null, buffer: Buffer) => {
+for (const formation of formations) {
+  getImage(formation, (err: Error | null, buffer: Buffer) => {
     if (err) throw err;
-    fs.writeFile(`public/formation/${name}.png`, buffer, (err2) => {
+    fs.writeFile(`public/formation/${formation.name}.png`, buffer, (err2) => {
       if (err2) console.log(err2);
     });
   });
