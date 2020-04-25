@@ -19,12 +19,12 @@
 
   $: unseenScoreChanges = scoreChanges.slice(scoreChangesSeen);
 
-  let width;
-  let height;
+  let width = 0;
+  let height = 0;
   let last = {x: 0, y: 0};
 
   $: centerX = (() => {
-    if (!self) return width / 2;
+    if (!self) return Math.round(width / 2 / unit);
     let cx = last.x ? last.x : Math.floor(width / 2 / unit);
     let minLeft = Math.floor(width / 4 / unit);
     let maxRight = Math.ceil(width * 3 / 4 / unit);
@@ -33,7 +33,7 @@
     return cx;
   })();
   $: centerY = (() => {
-    if (!self) return height / 2;
+    if (!self) return Math.round(height / 2 / unit);
     let cy = last.y ? last.y : Math.floor(height / 2 / unit);
     let minTop = Math.floor(height / 4 / unit);
     let maxBottom = Math.ceil(height * 3 / 4 / unit);
