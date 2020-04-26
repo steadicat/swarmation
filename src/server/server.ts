@@ -58,7 +58,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const server = http.createServer(app);
-const wss = new WebSocket.Server({server});
+const wss = new WebSocket.Server({server, path: '/ws'});
 
 app.use('/', express.static('public'));
 

@@ -12,7 +12,6 @@
 
   let timeout;
   afterUpdate(() => {
-    console.log(hasMoved, timeout);
     if (hasMoved && !timeout) {
       timeout = setTimeout(() => show = false, 3000);
     }

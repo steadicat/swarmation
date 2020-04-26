@@ -58,7 +58,7 @@ dev: public/formation/*.png
 # Debug
 
 bots: node_modules
-	$(NODE) src/bots/bots.ts 100 ws://localhost:3000
+	$(NODE) src/bots/bots.ts 100 ws://localhost:3000/ws
 .PHONY: bots
 
 profileserver: buildserver

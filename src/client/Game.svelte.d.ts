@@ -7,7 +7,6 @@ export type GameProps = {
   scoreChanges: number[];
 
   hasMoved: boolean;
-  connected: boolean;
   kickedOut: boolean;
   message: string | null;
 };
