@@ -43,6 +43,7 @@ const MAX_IDLE = 120;
 const IDLE_AFTER_TURNS = 2;
 
 const CLIENTS: {[id: string]: WebSocket | undefined} = {};
+const PLAYERS: {[id: number]: Player | undefined} = {};
 
 const formations = Object.values(getFormations());
 
@@ -63,6 +64,9 @@ const wss = new WebSocket.Server({server, path: '/ws'});
 app.use('/', express.static('public'));
 
 // Routes
+app.use('/status', (_, res) => {
+  res.status(200).send({capacity: Object.keys(PLAYERS).length / 100});
+});
 
 // Error Handling
 
@@ -86,8 +90,6 @@ function shutdown() {
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 process.on('SIGHUP', shutdown);
-
-export const PLAYERS: {[id: number]: Player | undefined} = {};
 
 function getActivePlayers(): number {
   let n = 0;

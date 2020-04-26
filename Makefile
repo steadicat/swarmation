@@ -159,7 +159,7 @@ deploy: configure build
 	$(REMOTE_EXEC) systemctl restart swarmation
 
 ssl:
-	$(REMOTE_EXEC) certbot certonly --dns-cloudflare
+	$(REMOTE_EXEC) certbot certonly
 
 ssl-backup:
 	$(REMOTE_COPY) $(DEPLOY_SERVER):/etc/letsencrypt etc
