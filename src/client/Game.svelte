@@ -37,7 +37,7 @@
     --light-blue: #bdd0da;
     --medium-blue: #8ca2ad;
 
-    --light-gray: #d3e4ec;
+    --light-gray: #dbe5eb;
     --grid-gray: #bdd0da;
     --gray: #9badb8;
     --dark-gray: #444444;
