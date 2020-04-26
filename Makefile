@@ -19,6 +19,7 @@ include Secrets
 
 clean:
 	rm public/main.js &
+	rm public/main.*.js &
 	rm -rf public/formation &
 	rm -rf server
 .PHONY: clean
@@ -47,6 +48,7 @@ devjs: node_modules
 		--file public/main.js \
 		--format iife \
 		./src/client/client.ts
+	cp src/index.html public/index.html
 .PHONY: devjs
 
 dev: public/formation/*.png
@@ -65,7 +67,7 @@ profileserver: buildserver
 
 # Build
 
-buildjs: node_modules
+buildjs: node_modules | buildserver
 	-NODE_ENV=production \
 		yarn run rollup \
 		--plugin commonjs \
@@ -73,9 +75,12 @@ buildjs: node_modules
 		--plugin typescript \
 		--plugin svelte \
 		--plugin terser \
-		--file public/main.js \
+		--file public/main.prod.js \
 		--format iife \
 		./src/client/client.ts
+	$(eval HASH=$(shell shasum public/main.js | awk '{ print $$1; }' | cut -c37-40))
+	mv public/main.prod.js public/main.$(HASH).js
+	cat src/index.html | sed 's/main.js/main.$(HASH).js/g' > public/index.html
 .PHONY: buildjs
 
 buildserver: node_modules
