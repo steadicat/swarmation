@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Board from './Board.svelte';
   import Formation from './Formation.svelte';
   import Countdown from './Countdown.svelte';
@@ -17,106 +17,111 @@
   export let scoreChanges = [];
 
   let showAbout = false;
+  let width = 800;
 
   $: score = self ? self.score : 0;
 </script>
 
 <style>
-:global(:root) {
-  --light-text: #fff;
-  --dark-text: #024;
 
-  --shadow: rgba(0, 36, 62, 0.2);
-  --dark-shadow: #000000;
-  --light-highlight: rgba(255, 255, 255, 0.25);
-  --highlight: rgba(255, 255, 255, 0.3);
-  --dark-highlight: rgba(255, 255, 255, 0.4);
+  :global(:root) {
+    --light-text: #fff;
+    --dark-text: #024;
 
-  --light-blue: #abbdd1;
-  --medium-blue: #798796;
+    --shadow: rgba(0, 36, 62, 0.2);
+    --dark-shadow: #000000;
+    --light-highlight: rgba(255, 255, 255, 0.25);
+    --highlight: rgba(255, 255, 255, 0.3);
+    --dark-highlight: rgba(255, 255, 255, 0.4);
 
-  --light-gray: #eeeeee;
-  --gray: #aaaaaa;
-  --dark-gray: #444444;
+    --light-blue: #abbdd1;
+    --medium-blue: #798796;
 
-  --teal: #66dddd;
-  --orange: #ff8855;
-  --yellow: #ffbb33;
-}
+    --light-gray: #eeeeee;
+    --gray: #aaaaaa;
+    --dark-gray: #444444;
 
-:global(html, body, h1, h2, h3, h4, p) {
-  margin: 0;
-  padding: 0;
-}
+    --teal: #66dddd;
+    --orange: #ff8855;
+    --yellow: #ffbb33;
+  }
 
-:global(html) {
-  min-height: 100%;
-}
+  :global(html, body, h1, h2, h3, h4, p) {
+    margin: 0;
+    padding: 0;
+  }
 
-:global(body) {
-  overflow: hidden;
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  flex: 1;
-  font: 14px/20px 'Source Sans Pro', sans-serif;
-  color: var(--dark-text);
-  background: var(--light-blue);
-}
+  :global(html) {
+    min-height: 100%;
+  }
 
-:global(#game) {
-  position: relative;
-  flex: 1;
-  background: var(--light-gray);
-  display: flex;
-  user-select: none;
-}
+  :global(body) {
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex: 1;
+    font: 14px/20px 'Source Sans Pro', sans-serif;
+    color: var(--dark-text);
+    background: var(--light-blue);
+  }
 
-h1 {
-  font-family: 'Lobster';
-  position: absolute;
-  top: 25px;
-  left: 0;
-  right: 0;
-  font-size: 40px;
-  color: var(--light-text);
-  text-shadow: var(--light-blue) 1px 1px 0px;
-  text-align: center;
-  cursor: pointer;
-}
+  :global(#game) {
+    position: relative;
+    flex: 1;
+    background: var(--light-gray);
+    display: flex;
+    user-select: none;
+  }
 
-.message {
-  padding: 20px;
-  box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background-color: var(--shadow);
-  font-weight: bold;
-  position: absolute;
-  color: var(--light-text);
-  font-size: 36px;
-  line-height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding-bottom: 40px;
-}
+  h1 {
+    font-family: 'Lobster';
+    position: absolute;
+    left: 50%;
+    top: 25px;
+    transform: translateX(-50%);
+    font-size: 40px;
+    line-height: 1;
+    color: var(--light-text);
+    text-shadow: var(--light-blue) 1px 1px 0px;
+    text-align: center;
+    cursor: pointer;
+  }
 
-.inner {
-  max-width: 16em;
-}
+  .message {
+    padding: 20px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: var(--shadow);
+    font-weight: bold;
+    position: absolute;
+    color: var(--light-text);
+    font-size: 36px;
+    line-height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-bottom: 40px;
+  }
+
+  .inner {
+    max-width: 16em;
+  }
 
 </style>
 
+<svelte:window bind:innerWidth={width} />
+
 <Board {players} {self} {activeIds} {hasMoved} {scoreChanges} />
 
-<h1 on:click={() => showAbout = true}>Swarmation</h1>
+<h1 style="font-size: {20 + width / 40}px" on:click={() => showAbout = true}>Swarmation</h1>
 
 <Formation {formation} />
 <Countdown {formation} />
