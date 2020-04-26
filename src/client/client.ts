@@ -203,6 +203,7 @@ function connect() {
 
           const roundedTime = Math.floor(time);
           state.activeIds = ids;
+          state.formation = {time: roundedTime + 1, name, map};
           setTimeout(() => {
             state.activeIds = [];
             state.formation = {time: roundedTime, name, map};
