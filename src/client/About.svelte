@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   let touch = 'ontouchstart' in window;
 </script>
 
@@ -28,7 +28,7 @@
     margin: 40px 20px;
   }
 
-  a {
+  p :global(a) {
     color: var(--light-text);
     font-weight: bold;
     text-decoration: none;
@@ -47,6 +47,8 @@
 
   .arrow-keys {
     height: 32px;
+    margin-left: 4px;
+    margin-right: 4px;
   }
 
   .key {
@@ -55,9 +57,11 @@
     border: 1px solid var(--light-text);
     border-radius: 3px;
     display: inline-block;
-    line-height: 16px;
+    line-height: 18px;
     padding: 0 6px;
     text-align: center;
+    margin-left: 4px;
+    margin-right: 4px;
   }
 
   .wide {
@@ -73,10 +77,11 @@
 
     <p>
       {#if touch}
-      Swipe anywhere to move.
+        Swipe anywhere to move.
       {:else}
-      Use your <img class="arrow-keys" src="/images/arrow-keys.svg" alt="arrow keys" />
-      <span class="text">to move</span>.
+        Use your
+        <img class="arrow-keys" src="/images/arrow-keys.svg" alt="arrow keys" />
+        {@html `<span class="text">to move</span>.`}
       {/if}
     </p>
 
@@ -93,12 +98,29 @@
 
     <h2 style="margin-top: 40px">About</h2>
 
-    <p>A game by <a href="http://twitter.com/steadicat">Stefano J. Attardi</a>, <a href="http://twitter.com/findjoey">Zach Bialecki</a> & <a href="http://twitter.com/ollerac">David Miranda</a>.</p>
-    
-    <p>The original version of the game was built in a weekend in 2010 and won <a href="https://techcrunch.com/2010/09/01/nodejs-knockout/">the first ever Node.js Knockout.</p>
+    <p>
+      {@html `
+      A game by
+      <a href="http://twitter.com/steadicat">Stefano J. Attardi</a>,
+      <a href="http://twitter.com/findjoey">Zach Bialecki</a> &
+      <a href="http://twitter.com/ollerac">David Miranda</a>.`}
+    </p>
 
-    <p>The source code is available on <a href="https://github.com/steadicat/swarmation">GitHub</a>.</p>
+    <p>
+      {@html `
+      The original version of the game was built in a weekend in 2010 and won
+      <a href="https://techcrunch.com/2010/09/01/nodejs-knockout/">
+        the first ever Node.js Knockout
+      </a>.`}
+    </p>
 
-    <p>Follow us on Twitter: <a href="https://twitter.com/swarmation">@swarmation</a>.</p>
+    <p>
+      {@html `The source code is available on
+        <a href="https://github.com/steadicat/swarmation">GitHub</a>.`}
+    </p>
+
+    <p>
+      {@html `Follow us on Twitter: <a href="https://twitter.com/swarmation">@swarmation</a>.`}
+    </p>
   </div>
 </div>

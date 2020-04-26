@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { afterUpdate } from 'svelte';
+  import {afterUpdate} from 'svelte';
 
   import Tooltip from './Tooltip.svelte';
 
@@ -13,7 +13,7 @@
   let timeout;
   afterUpdate(() => {
     if (hasMoved && !timeout) {
-      timeout = setTimeout(() => show = false, 3000);
+      timeout = setTimeout(() => (show = false), 3000);
     }
   });
 </script>
@@ -43,13 +43,18 @@
 <Tooltip
   {left}
   {top}
-  style="width: 240px; padding: 10px; opacity: {show ? 1 : 0}; transition: left 0.1s ease-in-out, top 0.1s ease-in-out, 1s opacity">
+  style="width: 240px; padding: 10px; opacity: {show ? 1 : 0}; transition: left 0.1s ease-in-out,
+  top 0.1s ease-in-out, 1s opacity">
   {#if !hasMoved}
     <h3>Welcome to life as a pixel</h3>
     {#if touch}
       <p>Swipe in any direction to move</p>
     {:else}
-      <p>Use your <span class="arrow">arrow</span> keys to move</p>
+      <p>
+        Use your
+        <span class="arrow">arrow</span>
+        keys to move
+      </p>
     {/if}
   {:else}
     <p>Get into a formation with other players before the countdown expires</p>

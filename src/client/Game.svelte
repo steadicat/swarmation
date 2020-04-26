@@ -23,7 +23,6 @@
 </script>
 
 <style>
-
   :global(:root) {
     --light-text: #fff;
     --dark-text: #024;
@@ -115,14 +114,13 @@
   .inner {
     max-width: 16em;
   }
-
 </style>
 
 <svelte:window bind:innerWidth={width} />
 
 <Board {players} {self} {activeIds} {hasMoved} {scoreChanges} />
 
-<h1 style="font-size: {20 + width / 40}px" on:click={() => showAbout = true}>Swarmation</h1>
+<h1 style="font-size: {20 + width / 40}px" on:click={() => (showAbout = true)}>Swarmation</h1>
 
 <Formation {formation} />
 <Countdown {formation} />
@@ -136,5 +134,5 @@
 {/if}
 
 {#if showAbout}
-  <About on:click={() => showAbout = false} />
+  <About on:click={() => (showAbout = false)} />
 {/if}

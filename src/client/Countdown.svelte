@@ -1,23 +1,23 @@
 <script lang="ts">
-  import { afterUpdate } from 'svelte';
+  import {afterUpdate} from 'svelte';
 
   export let formation;
 
-	let lastFormation = formation;
+  let lastFormation = formation;
   let countdown = formation ? formation.time : -1;
-	let interval = -1;
-	
-	afterUpdate(() => {
-		if (formation !== lastFormation) {
-			countdown = formation.time;
-			clearInterval(interval);
-			interval = setInterval(() => {
+  let interval = -1;
+
+  afterUpdate(() => {
+    if (formation !== lastFormation) {
+      countdown = formation.time;
+      clearInterval(interval);
+      interval = setInterval(() => {
         countdown--;
         if (countdown === 0) clearInterval(interval);
-			}, 1000);
-		}
-		lastFormation = formation;
-	});
+      }, 1000);
+    }
+    lastFormation = formation;
+  });
 </script>
 
 <style>
@@ -35,4 +35,3 @@
 <div class="countdown" style="font-size: {countdown < 0 ? 40 : 80}px">
   {countdown < 0 ? 'wait' : countdown}
 </div>
-

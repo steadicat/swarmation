@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fade } from 'svelte/transition';
+  import {fade} from 'svelte/transition';
 
   export let left;
   export let top;
@@ -22,7 +22,7 @@
 
   .tooltip:after {
     background: url(/images/tip.png) no-repeat center center;
-    content: " ";
+    content: ' ';
     width: 24px;
     height: 10px;
     position: absolute;
@@ -33,5 +33,5 @@
 </style>
 
 <div class="tooltip" style="left: {left + 6}px; top: {top - 14}px; {style}">
-  <slot></slot>
+  <slot />
 </div>

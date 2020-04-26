@@ -30,7 +30,7 @@
   .lockedIn {
     box-shadow: inset -1px -1px 0px var(--dark-shadow), inset 1px 1px 0 var(--light-highlight);
     background: var(--dark-gray);
-    animation: bounceIn .75s cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    animation: bounceIn 0.75s cubic-bezier(0.215, 0.61, 0.355, 1);
   }
   .active {
     box-shadow: inset -1px -1px 0px var(--shadow), inset 1px 1px 0 var(--dark-highlight);
@@ -38,12 +38,24 @@
   }
 
   @keyframes bounceIn {
-    0% { transform: scale3d(.3, .3, .3) }
-    20% { transform: scale3d(1.2, 1.2, 1.2) }
-    40% { transform: scale3d(.85, .85, .85) }
-    60% { transform: scale3d(1.08, 1.08, 1.08) }
-    80% { transform: scale3d(.95, .95, .95) }
-    100% { transform: scale3d(1, 1, 1) }
+    0% {
+      transform: scale3d(0.3, 0.3, 0.3);
+    }
+    20% {
+      transform: scale3d(1.2, 1.2, 1.2);
+    }
+    40% {
+      transform: scale3d(0.85, 0.85, 0.85);
+    }
+    60% {
+      transform: scale3d(1.08, 1.08, 1.08);
+    }
+    80% {
+      transform: scale3d(0.95, 0.95, 0.95);
+    }
+    100% {
+      transform: scale3d(1, 1, 1);
+    }
   }
 </style>
 
@@ -56,5 +68,4 @@
   class:self
   class:active
   on:mouseover
-  on:mouseout
-/>
+  on:mouseout />
