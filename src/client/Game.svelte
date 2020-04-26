@@ -34,11 +34,12 @@
     --highlight: rgba(255, 255, 255, 0.3);
     --dark-highlight: rgba(255, 255, 255, 0.4);
 
-    --light-blue: #abbdd1;
-    --medium-blue: #798796;
+    --light-blue: #bdd0da;
+    --medium-blue: #8ca2ad;
 
-    --light-gray: #eeeeee;
-    --gray: #aaaaaa;
+    --light-gray: #d3e4ec;
+    --grid-gray: #bdd0da;
+    --gray: #9badb8;
     --dark-gray: #444444;
 
     --teal: #66dddd;

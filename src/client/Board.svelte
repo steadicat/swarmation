@@ -95,7 +95,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" class="grid" style="width: {gridWidth * unit}px; height: {gridHeight * unit}px; left: {gridX * unit}px; top: {gridY * unit}px">
   <defs>
     <pattern id="grid" width="{unit}" height="{unit}" patternUnits="userSpaceOnUse">
-      <rect width="{unit}" height="{unit}" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+      <rect width="{unit}" height="{unit}" fill="none" stroke="var(--grid-gray)" stroke-width="1"/>
     </pattern>
   </defs>
   <rect width="100%" height="100%" fill="url(#grid)" />
