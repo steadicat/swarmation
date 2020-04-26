@@ -45,13 +45,12 @@ function setPosition(player: Player, left: number, top: number) {
 
 // sockets
 
-const websocketURL = `${location.protocol.replace('http', 'ws')}//${location.host}/ws`;
+const websocketURL = `${location.protocol.replace('http', 'ws')}//${SERVER}/ws`;
 
 function connect() {
   const ws = new WebSocket(websocketURL);
 
   ws.addEventListener('open', () => {
-    console.log(`Connected`);
     state.players = [];
     map.clear();
 
@@ -246,10 +245,8 @@ function connect() {
   });
 
   function onDisconnect() {
-    console.log(`Disconnected`);
     if (state.kickedOut) return;
     setTimeout(() => {
-      console.log(`Reconnecting...`);
       connect();
     }, 1000);
   }
