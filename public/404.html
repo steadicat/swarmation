@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Not Found :: Swarmation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lobster&family=Source+Sans+Pro:wght@400;700"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <style>
+      html,
+      body,
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        min-height: 100%;
+        font: 14px 'Source Sans Pro', sans-serif;
+        color: #fff;
+      }
+      body {
+        height: 100%;
+        background: #dbe5eb;
+      }
+      .grid {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .content {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-shadow: rgba(0, 36, 62, 0.2) 1px 1px 0;
+        text-align: center;
+        padding: 0 20px;
+        box-sizing: border-box;
+      }
+      h1 {
+        font-family: 'Lobster';
+        font-size: 50px;
+        text-shadow: #8ca2ad 2px 2px 0px;
+        text-align: center;
+        cursor: pointer;
+        margin: 40px 20px;
+      }
+      h1 a {
+        color: inherit;
+        text-decoration: inherit;
+      }
+      h2 {
+        font-size: 50px;
+        color: #024;
+        margin-bottom: 20px;
+      }
+      h3 {
+        font-size: 20px;
+        margin-bottom: 20vh;
+      }
+    </style>
+  </head>
+  <body>
+    <svg xmlns="http://www.w3.org/2000/svg" class="grid">
+      <defs>
+        <pattern id="grid" width="12" height="12" patternUnits="userSpaceOnUse">
+          <rect width="12" height="12" fill="none" stroke="#bdd0da" stroke-width="1" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)" />
+    </svg>
+    <div class="content">
+      <h1><a href="/">Swarmation</a></h1>
+      <h2>Are you lost?</h2>
+      <h3>There are no pixels here.</h3>
+    </div>
+  </body>
+</html>
