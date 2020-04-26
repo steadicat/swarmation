@@ -109,7 +109,7 @@ export function initializeControls(
     const dx2 = Math.pow(endX - startX, 2);
     const dy2 = Math.pow(endY - startY, 2);
     const distance = Math.sqrt(dx2 + dy2);
-    if (distance < 10) return;
+    if (distance < 20) return;
 
     if (dx2 >= dy2) {
       // horizontal
@@ -126,6 +126,12 @@ export function initializeControls(
         moveHandler(Direction.Up);
       }
     }
+
+    startX = endX;
+    startY = endY;
+  });
+
+  document.addEventListener('touchend', () => {
     startX = 0;
     startY = 0;
   });
