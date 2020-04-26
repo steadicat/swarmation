@@ -4,7 +4,6 @@
   export let left;
   export let top;
   export let style;
-  export let fadeDuration = 0;
 </script>
 
 <style>
@@ -33,6 +32,6 @@
   }
 </style>
 
-<div class="tooltip" style="left: {left + 6}px; top: {top - 14}px; {style}" transition:fade={{duration: fadeDuration}}>
+<div class="tooltip" style="left: {left + 6}px; top: {top - 14}px; {style}">
   <slot></slot>
 </div>

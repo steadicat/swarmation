@@ -39,6 +39,7 @@ devserver: node_modules
 .PHONY: devserver
 
 devjs: node_modules
+	cp src/index.html public/index.html
 	yarn run rollup \
 		--watch \
 		--plugin commonjs \
@@ -48,7 +49,6 @@ devjs: node_modules
 		--file public/main.js \
 		--format iife \
 		./src/client/client.ts
-	cp src/index.html public/index.html
 .PHONY: devjs
 
 dev: public/formation/*.png

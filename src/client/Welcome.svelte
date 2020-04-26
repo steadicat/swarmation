@@ -6,14 +6,15 @@
   export let left;
   export let top;
   export let hasMoved = false;
-  export let hidden = false;
 
+  let show = true;
   let touch = 'ontouchstart' in window;
 
   let timeout;
   afterUpdate(() => {
+    console.log(hasMoved, timeout);
     if (hasMoved && !timeout) {
-      timeout = setTimeout(() => hidden = true, 6000);
+      timeout = setTimeout(() => show = false, 3000);
     }
   });
 </script>
@@ -40,17 +41,18 @@
   }
 </style>
 
-{#if !hidden}
-  <Tooltip {left} {top} style="width: 240px; padding: 10px;" fadeDuration={1000}>
-    {#if !hasMoved}
-      <h3>Welcome to life as a pixel</h3>
-      {#if touch}
-        <p>Swipe in any direction to move</p>
-      {:else}
-        <p>Use your <span class="arrow">arrow</span> keys to move</p>
-      {/if}
+<Tooltip
+  {left}
+  {top}
+  style="width: 240px; padding: 10px; opacity: {show ? 1 : 0}; transition: left 0.1s ease-in-out, top 0.1s ease-in-out, 1s opacity">
+  {#if !hasMoved}
+    <h3>Welcome to life as a pixel</h3>
+    {#if touch}
+      <p>Swipe in any direction to move</p>
     {:else}
-      <p>Get into a formation with other players before the countdown expires</p>
+      <p>Use your <span class="arrow">arrow</span> keys to move</p>
     {/if}
-  </Tooltip>
-{/if}
+  {:else}
+    <p>Get into a formation with other players before the countdown expires</p>
+  {/if}
+</Tooltip>
