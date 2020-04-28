@@ -24,7 +24,7 @@ const state: GameProps = {
 
 const target = document.getElementById('game');
 if (!target) throw new Error('Element #game not found');
-const game = new Game({target});
+const game = new Game({target, props: state});
 
 function updateGame() {
   game.$set(state);
@@ -67,15 +67,24 @@ function connect() {
     let latestTimestamp = 0;
 
     clientListen(ws, (message) => {
+      // console.log(MessageType[message[0]], ...message.slice(1));
       switch (message[0]) {
         case MessageType.Welcome: {
-          const [, id, players] = message;
+          const [, id, players, formationName, formationTime, formationMap] = message;
           state.players = players;
           for (const player of players) {
             map.set(player.left, player.top, player);
           }
           const self = (state.self = state.players.find((player) => player.id === id) || null);
           if (!self) throw new Error(`Local player object not found`);
+
+          // Set the time immediately to the rounded-up time
+          const roundedTime = Math.ceil(formationTime);
+          state.formation = {name: formationName, time: roundedTime, map: formationMap};
+          // Then schedule an update to align with the seconds tick
+          setTimeout(() => {
+            state.formation = {name: formationName, time: roundedTime - 1, map: formationMap};
+          }, formationTime - (roundedTime - 1));
 
           initializeControls(self, {
             move(direction) {
@@ -200,20 +209,17 @@ function connect() {
             }
           }
 
-          const roundedTime = Math.floor(time);
+          // Flash active players for 1s, then show the next formation
           state.activeIds = ids;
-          state.formation = {time: roundedTime + 1, name, map};
           setTimeout(() => {
             state.activeIds = [];
-            state.formation = {time: roundedTime, name, map};
-          }, 1000 + (time - roundedTime));
+            state.formation = {name, time, map};
+          }, 1000);
 
-          if (save !== null) {
-            try {
-              localStorage.setItem('save', save);
-            } catch {
-              console.log(`Error writing to localStorage`);
-            }
+          try {
+            localStorage.setItem('save', save);
+          } catch {
+            console.log(`Error writing to localStorage`);
           }
           break;
         }

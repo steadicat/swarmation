@@ -19,7 +19,6 @@ export enum MessageType {
   LockIn,
   Position,
   Formation,
-  NextFormation,
   Restart,
   Idle,
   Disconnected,
@@ -40,7 +39,14 @@ type ServerMessage =
   | [MessageType.LockIn, number]
 
   // Server-sent messages
-  | [MessageType.Welcome, /* id */ number, /* players */ Player[]]
+  | [
+      MessageType.Welcome,
+      /* id */ number,
+      /* players */ Player[],
+      /* formation */ string,
+      /* time */ number,
+      /* map */ boolean[][]
+    ]
   | [MessageType.Player, Player]
   | [MessageType.Position, /* id */ number, /* left */ number, /* top */ number, /* time */ number]
   | [
@@ -48,7 +54,7 @@ type ServerMessage =
       /* gain */ number,
       /* loss */ number,
       /* ids */ number[],
-      /* save */ string | null,
+      /* save */ string,
       /* name */ string,
       /* time */ number,
       /* map */ boolean[][]

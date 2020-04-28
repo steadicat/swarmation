@@ -150,25 +150,22 @@ wss.on('connection', (client) => {
   CLIENTS[id] = client;
   map.set(left, top, player);
 
-  serverSend([client], [MessageType.Welcome, id, Object.values(PLAYERS) as Player[]]);
-  serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
-    MessageType.Player,
-    player,
-  ]);
-
   serverSend(
     [client],
     [
-      MessageType.Formation,
-      0,
-      0,
-      [],
-      '',
+      MessageType.Welcome,
+      id,
+      Object.values(PLAYERS) as Player[],
       nextFormation.name,
       (nextFormationTimestamp - Date.now()) / 1000,
       nextFormation.map,
     ]
   );
+
+  serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
+    MessageType.Player,
+    player,
+  ]);
 
   client.on('close', () => {
     delete CLIENTS[player.id];
