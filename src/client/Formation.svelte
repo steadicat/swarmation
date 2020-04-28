@@ -20,8 +20,8 @@
     );
   }
 
-  $: name = formation ? formation.name : '\xa0';
-  $: map = formation ? formation.map : [];
+  $: name = formation.name;
+  $: map = formation.map;
   $: width = formationWidth(map);
   $: height = formationHeight(map);
 </script>
