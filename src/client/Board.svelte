@@ -3,7 +3,7 @@
   import PlayerTooltip from './PlayerTooltip.svelte';
   import Welcome from './Welcome.svelte';
 
-  import {beforeUpdate, afterUpdate} from 'svelte';
+  import {afterUpdate} from 'svelte';
   import {quintOut} from 'svelte/easing';
 
   let unit = 12;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {afterUpdate} from 'svelte';
+  import {onDestroy} from 'svelte';
 
   import Tooltip from './Tooltip.svelte';
 
@@ -10,12 +10,8 @@
   let show = true;
   let touch = 'ontouchstart' in window;
 
-  let timeout;
-  afterUpdate(() => {
-    if (hasMoved && !timeout) {
-      timeout = setTimeout(() => (show = false), 3000);
-    }
-  });
+  $: timeout = hasMoved ? window.setTimeout(() => (show = false), 3000) : -1;
+  onDestroy(() => window.clearTimeout(timeout));
 </script>
 
 <style>
