@@ -59,6 +59,8 @@
   }
 </style>
 
+<svelte:options immutable={true} />
+
 <div
   class="player"
   style="left: {left}px; top: {top}px"

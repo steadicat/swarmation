@@ -36,6 +36,8 @@
   }
 </style>
 
+<svelte:options immutable={true} />
+
 <Tooltip
   {left}
   {top}

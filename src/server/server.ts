@@ -219,6 +219,7 @@ wss.on('connection', (client) => {
       }
 
       case MessageType.StartFlash: {
+        player.active = true;
         serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
           MessageType.StartFlash,
           player.id,
@@ -227,6 +228,7 @@ wss.on('connection', (client) => {
       }
 
       case MessageType.StopFlash: {
+        player.active = true;
         serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
           MessageType.StopFlash,
           player.id,
@@ -235,6 +237,7 @@ wss.on('connection', (client) => {
       }
 
       case MessageType.LockIn: {
+        player.active = true;
         player.lockedIn = true;
         serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
           MessageType.LockIn,

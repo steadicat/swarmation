@@ -1,13 +1,12 @@
 export type GameProps = {
-  players: Player[];
-  self: Player | null;
+  players: readonly Readonly<Player>[];
+  selfID: number | null;
 
-  formation: {time: number; name: string; map: boolean[][]};
-  activeIds: number[];
-  scoreChanges: number[];
+  formation: Readonly<{time: number; name: string; map: boolean[][]}>;
+  activeIds: readonly number[];
+  scoreChanges: readonly number[];
 
   hasMoved: boolean;
-  kickedOut: boolean;
   message: string | null;
 };
 

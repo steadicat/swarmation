@@ -9,7 +9,7 @@
   export let message = null;
 
   export let players = [];
-  export let self = null;
+  export let selfID = null;
   export let activeIds = [];
   export let hasMoved = false;
   export let formation;
@@ -19,6 +19,7 @@
   let showAbout = false;
   let width = 800;
 
+  $: self = players.find(player => player.id === selfID);
   $: score = self ? self.score : 0;
 </script>
 
@@ -116,6 +117,7 @@
   }
 </style>
 
+<svelte:options immutable={true} />
 <svelte:window bind:innerWidth={width} />
 
 <Board {players} {self} {activeIds} {hasMoved} {scoreChanges} />

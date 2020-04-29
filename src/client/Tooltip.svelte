@@ -32,6 +32,8 @@
   }
 </style>
 
+<svelte:options immutable={true} />
+
 <div class="tooltip" style="left: {left + 6}px; top: {top - 14}px; {style}">
   <slot />
 </div>

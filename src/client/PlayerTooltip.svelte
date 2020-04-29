@@ -35,6 +35,8 @@
   }
 </style>
 
+<svelte:options immutable={true} />
+
 <Tooltip {left} {top}>
   <h3 class="name">{player.name}</h3>
   <div class="flex">

@@ -20,6 +20,8 @@
   }
 </style>
 
+<svelte:options immutable={true} />
+
 <div class="box">
   <span class="text">{score}</span>
   points

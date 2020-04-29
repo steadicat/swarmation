@@ -69,6 +69,7 @@
   }
 </style>
 
+<svelte:options immutable={true} />
 <div class="about">
   <h1 on:click>Swarmation</h1>
   <div class="inner">

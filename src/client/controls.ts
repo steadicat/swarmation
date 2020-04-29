@@ -2,32 +2,24 @@ import {Direction} from './directions';
 
 const MOVEMENT_RATE = 140;
 
-export function initializeControls(
-  self: Player,
-  {
-    move,
-    startFlash,
-    stopFlash,
-    lockIn,
-  }: {
-    move(direction: Direction): void;
-    startFlash(): void;
-    stopFlash(): void;
-    lockIn(): void;
-  }
-) {
+export function initializeControls({
+  move,
+  startFlash,
+  stopFlash,
+  lockIn,
+}: {
+  move(direction: Direction): void;
+  startFlash(): void;
+  stopFlash(): void;
+  lockIn(): void;
+}) {
   const moveIntervals: {[key in Direction]?: number} = {};
-
-  function moveHandler(direction: Direction) {
-    if (self.lockedIn) return;
-    move(direction);
-  }
 
   function startMove(direction: Direction) {
     if (moveIntervals[direction] !== undefined) return;
-    moveHandler(direction);
+    move(direction);
     moveIntervals[direction] = window.setInterval(() => {
-      moveHandler(direction);
+      move(direction);
     }, MOVEMENT_RATE);
   }
 
@@ -36,6 +28,12 @@ export function initializeControls(
       clearInterval(moveIntervals[direction]);
       moveIntervals[direction] = undefined;
     }
+  }
+  function stopAllMoves() {
+    stopMove(Direction.Up);
+    stopMove(Direction.Down);
+    stopMove(Direction.Left);
+    stopMove(Direction.Right);
   }
 
   document.addEventListener('keydown', (event: KeyboardEvent) => {
@@ -92,6 +90,10 @@ export function initializeControls(
     }
   });
 
+  window.addEventListener('blur', () => {
+    stopAllMoves();
+  });
+
   let startX = 0;
   let startY = 0;
 
@@ -114,16 +116,16 @@ export function initializeControls(
     if (dx2 >= dy2) {
       // horizontal
       if (endX > startX) {
-        moveHandler(Direction.Right);
+        move(Direction.Right);
       } else {
-        moveHandler(Direction.Left);
+        move(Direction.Left);
       }
     } else {
       // vertical
       if (endY > startY) {
-        moveHandler(Direction.Down);
+        move(Direction.Down);
       } else {
-        moveHandler(Direction.Up);
+        move(Direction.Up);
       }
     }
 

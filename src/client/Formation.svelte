@@ -60,6 +60,7 @@
   }
 </style>
 
+<svelte:options immutable={true} />
 <div class="box">
   <div class="image" style="width: {width}px; height: {height}px">
     {#each map as row, y (y)}

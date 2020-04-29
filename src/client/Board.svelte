@@ -90,6 +90,7 @@
   }
 </style>
 
+<svelte:options immutable={true} />
 <svelte:window bind:innerWidth={width} bind:innerHeight={height} />
 
 <svg
