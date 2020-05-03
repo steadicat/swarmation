@@ -10,6 +10,7 @@ Environment=NODE_ENV=production
 Environment=SECRET=secret
 Environment=AIRTABLE_KEY=airtable_key
 Environment=AIRTABLE_BASE=airtable_base
+Environment=POSTMARK=postmark
 
 Restart=on-failure
 RestartSec=4

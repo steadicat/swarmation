@@ -1,3 +1,4 @@
+import Bugsnag from '@bugsnag/js';
 import * as crypto from 'crypto';
 
 import {SaveData} from '../protocol';
@@ -8,8 +9,7 @@ export function sign(value: SaveData) {
   return `${serializedValue}.${crypto
     .createHmac('sha256', process.env.SECRET)
     .update(serializedValue)
-    .digest('base64')
-    .replace(/=+$/, '')}`;
+    .digest('base64')}`.replace(/=+/g, '');
 }
 
 export function validate(signedValue: string) {
@@ -19,6 +19,7 @@ export function validate(signedValue: string) {
   try {
     parsedValue = JSON.parse(json) as SaveData;
   } catch (err) {
+    Bugsnag.notify(err);
     console.error(err, json);
     return null;
   }

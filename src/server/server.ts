@@ -2,13 +2,19 @@ import Bugsnag from '@bugsnag/js';
 import BugsnagPluginExpress from '@bugsnag/plugin-express';
 import * as express from 'express';
 import * as http from 'http';
-import fetch from 'node-fetch';
 import * as WebSocket from 'ws';
 
 import {directions} from '../client/directions';
 import {getFormations} from '../formations';
 import * as map from '../map';
 import {serverListen, serverSend, MessageType} from '../protocol';
+import {
+  addSubscriber,
+  removeSubscriber,
+  sendNotification,
+  getSubscribers,
+  updateSubscriber,
+} from './notifications';
 import {validate, sign} from './signing';
 
 if (process.env.NODE_ENV === 'production') {
@@ -71,51 +77,34 @@ app.get('/status', (_, res) => {
 });
 
 app.post('/subscribe', async (req, res) => {
-  console.log(
-    JSON.stringify({
-      records: [{fields: {Email: req.body.email}}],
-    })
-  );
-  let apiRes;
-  try {
-    apiRes = await fetch(`https://api.airtable.com/v0/${process.env.AIRTABLE_BASE}/Subscribers`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.AIRTABLE_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        records: [{fields: {Email: req.body.email}}],
-      }),
-    });
-  } catch (err) {
-    res.status(500).send({error: 'unknown_error', message: 'Could not subscribe'});
-    console.log(await apiRes?.json());
-    return;
-  }
-  console.log(await apiRes.json());
+  await addSubscriber(req.body.email);
   res.send({ok: true});
 });
 
 app.get('/unsubscribe/:id', async (req, res) => {
-  let apiRes;
-  try {
-    apiRes = await fetch(
-      `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE}/Subscribers/${req.params.id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${process.env.AIRTABLE_KEY}`,
-        },
-      }
-    );
-  } catch (err) {
-    res.status(500).send({error: 'unknown_error', message: 'Could not unsubscribe'});
-    console.log(await apiRes?.json());
-    return;
-  }
-  console.log(await apiRes.json());
+  await removeSubscriber(req.params.id);
   res.redirect('/unsubscribed.html');
+});
+
+app.post('/notify', async (req, res) => {
+  const isValid = req.body.signature !== undefined && validate(req.body.signature);
+  if (!isValid) return res.status(403).send({error: 'forbidden', message: 'Forbidden'});
+
+  const subscribers = await getSubscribers();
+
+  for (const {id, email, lastNotified} of subscribers) {
+    if (new Date(lastNotified).valueOf() > Date.now() - 60 * 60 * 1000) continue;
+    try {
+      await sendNotification(id, email);
+      await updateSubscriber(id);
+    } catch (err) {
+      Bugsnag.notify(err);
+      console.error(err);
+      continue;
+    }
+  }
+
+  res.send({ok: true});
 });
 
 // Error Handling
