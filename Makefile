@@ -35,7 +35,7 @@ public/formation/*.png: node_modules formations.txt src/server/images.ts
 # Development
 
 devserver: node_modules
-	SECRET=$(SECRET) $(NODE) src/server/server.ts
+	SECRET=$(SECRET) AIRTABLE_KEY=$(AIRTABLE_KEY) AIRTABLE_BASE=$(AIRTABLE_BASE) $(NODE) src/server/server.ts
 .PHONY: devserver
 
 devjs: node_modules
@@ -62,7 +62,7 @@ bots: node_modules
 .PHONY: bots
 
 profileserver: buildserver
-	SECRET=$(SECRET) node --inspect server/server/server.js
+	SECRET=$(SECRET) AIRTABLE_KEY=$(AIRTABLE_KEY) AIRTABLE_BASE=$(AIRTABLE_BASE) node --inspect server/server/server.js
 .PHONY: profileserver
 
 # Build
@@ -132,7 +132,11 @@ nginx-done: etc/nginx.conf
 remote-nginx: nginx-done
 
 systemd-done: etc/swarmation.service
-	cat etc/swarmation.service | sed 's/secret/$(SECRET)/g' > /lib/systemd/system/swarmation.service
+	cat etc/swarmation.service \
+		| sed 's/secret/$(SECRET)/g' \
+		| sed 's/airtable_key/$(AIRTABLE_KEY)/g' \
+		| sed 's/airtable_base/$(AIRTABLE_BASE)/g' \
+		> /lib/systemd/system/swarmation.service
 	touch systemd-done
 remote-systemd: systemd-done
 

@@ -2,6 +2,7 @@ import Bugsnag from '@bugsnag/js';
 import BugsnagPluginExpress from '@bugsnag/plugin-express';
 import * as express from 'express';
 import * as http from 'http';
+import fetch from 'node-fetch';
 import * as WebSocket from 'ws';
 
 import {directions} from '../client/directions';
@@ -62,10 +63,59 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({server, path: '/ws'});
 
 app.use('/', express.static('public'));
+app.use(express.urlencoded({extended: true}));
 
 // Routes
-app.use('/status', (_, res) => {
-  res.status(200).send({capacity: Object.keys(PLAYERS).length / 100});
+app.get('/status', (_, res) => {
+  res.send({capacity: Object.keys(PLAYERS).length / 100});
+});
+
+app.post('/subscribe', async (req, res) => {
+  console.log(
+    JSON.stringify({
+      records: [{fields: {Email: req.body.email}}],
+    })
+  );
+  let apiRes;
+  try {
+    apiRes = await fetch(`https://api.airtable.com/v0/${process.env.AIRTABLE_BASE}/Subscribers`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.AIRTABLE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        records: [{fields: {Email: req.body.email}}],
+      }),
+    });
+  } catch (err) {
+    res.status(500).send({error: 'unknown_error', message: 'Could not subscribe'});
+    console.log(await apiRes?.json());
+    return;
+  }
+  console.log(await apiRes.json());
+  res.send({ok: true});
+});
+
+app.get('/unsubscribe/:id', async (req, res) => {
+  let apiRes;
+  try {
+    apiRes = await fetch(
+      `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE}/Subscribers/${req.params.id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${process.env.AIRTABLE_KEY}`,
+        },
+      }
+    );
+  } catch (err) {
+    res.status(500).send({error: 'unknown_error', message: 'Could not unsubscribe'});
+    console.log(await apiRes?.json());
+    return;
+  }
+  console.log(await apiRes.json());
+  res.redirect('/unsubscribed.html');
 });
 
 // Error Handling

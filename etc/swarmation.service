@@ -8,6 +8,8 @@ Environment=PATH=/usr/local/bin:/usr/bin:/bin
 Environment=HOME=/root
 Environment=NODE_ENV=production
 Environment=SECRET=secret
+Environment=AIRTABLE_KEY=airtable_key
+Environment=AIRTABLE_BASE=airtable_base
 
 Restart=on-failure
 RestartSec=4
