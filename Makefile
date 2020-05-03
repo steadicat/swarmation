@@ -99,6 +99,7 @@ new:
 		--image $(IMAGE) \
 		--ssh-keys $(SSH_KEY) \
 		--enable-ipv6 \
+		--enable-monitoring \
 		--wait
 
 bootstrap:
@@ -119,6 +120,9 @@ ssh:
 
 setup-done: etc/setup.sh
 	sh ./etc/setup.sh
+	mkdir -p /etc/letsencrypt
+	echo "dns_cloudflare_api_token = $(CERTBOT)" > /etc/letsencrypt/cloudflare.ini
+	chmod 600 /etc/letsencrypt/cloudflare.ini
 	touch setup-done
 remote-setup: setup-done	
 	
