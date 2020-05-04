@@ -5,6 +5,8 @@
   import Score from './Score.svelte';
   import SuccessRate from './SuccessRate.svelte';
   import About from './About.svelte';
+  import Subscribe from './Subscribe.svelte';
+  import {createEventDispatcher} from 'svelte';
 
   export let message = null;
 
@@ -17,10 +19,23 @@
   export let scoreChanges = [];
 
   let showAbout = false;
+  let showSubscribe = false;
+  let subscribeShown = false;
   let width = 800;
 
   $: self = players.find(player => player.id === selfID);
   $: score = self ? self.score : 0;
+
+  $: {
+    if (!subscribeShown && players.length > 0 && players.length < 3) {
+      subscribeShown = true;
+      setTimeout(() => {
+        showSubscribe = true;
+      }, 2000);
+    }
+  }
+
+  const dispatch = createEventDispatcher();
 </script>
 
 <style>
@@ -87,7 +102,7 @@
     font-size: 40px;
     line-height: 1;
     color: var(--light-text);
-    text-shadow: var(--light-blue) 1px 1px 0px;
+    text-shadow: var(--light-blue) 2px 2px 0px;
     text-align: center;
     cursor: pointer;
   }
@@ -128,6 +143,15 @@
 <Countdown {formation} />
 <Score {score} />
 <SuccessRate {self} />
+
+{#if showSubscribe}
+  <Subscribe
+    on:hide={() => (showSubscribe = false)}
+    on:subscribe={event => {
+      showSubscribe = false;
+      dispatch('subscribe', event.detail);
+    }} />
+{/if}
 
 {#if message}
   <div class="message">

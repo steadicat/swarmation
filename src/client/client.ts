@@ -243,7 +243,12 @@ function connect() {
     });
   });
 
+  const unsubscribe = game.$on('subscribe', (event) => {
+    clientSend(ws, [MessageType.Subscribe, event.detail]);
+  });
+
   function onDisconnect() {
+    unsubscribe();
     if (kickedOut) return;
     setTimeout(() => {
       connect();

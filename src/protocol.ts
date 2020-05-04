@@ -23,6 +23,7 @@ export enum MessageType {
   Idle,
   Disconnected,
   Kick,
+  Subscribe,
 }
 
 type ClientMessage =
@@ -30,7 +31,8 @@ type ClientMessage =
   | [MessageType.StopFlash]
   | [MessageType.LockIn]
   | [MessageType.Move, Direction, /* time */ number]
-  | [MessageType.Restore, string];
+  | [MessageType.Restore, string]
+  | [MessageType.Subscribe, string];
 
 type ServerMessage =
   // Relayed client messages

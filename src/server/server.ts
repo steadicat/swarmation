@@ -285,8 +285,14 @@ wss.on('connection', (client) => {
         break;
       }
 
+      case MessageType.Subscribe: {
+        const [, email] = message;
+        addSubscriber(email);
+        break;
+      }
+
       default:
-        throw new Error(
+        Bugsnag.notify(
           `Message type ${
             // @ts-expect-error
             message.type

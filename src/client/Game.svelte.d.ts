@@ -13,6 +13,7 @@ export type GameProps = {
 class Game {
   constructor(params: {target: HTMLElement; props?: GameProps});
   $set(props: Partial<GameProps>): void;
+  $on(event: 'subscribe', handler: (event: {detail: string}) => void): () => void;
 }
 
 export default Game;
