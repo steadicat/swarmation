@@ -78,7 +78,7 @@ buildjs: node_modules | buildserver
 		--file public/main.prod.js \
 		--format iife \
 		./src/client/client.ts
-	$(eval HASH=$(shell shasum public/main.js | awk '{ print $$1; }' | cut -c37-40))
+	$(eval HASH=$(shell shasum public/main.prod.js | awk '{ print $$1; }' | cut -c37-40))
 	mv public/main.prod.js public/main.$(HASH).js
 	cat src/index.html | sed 's/main.js/main.$(HASH).js/g' > public/index.html
 .PHONY: buildjs
