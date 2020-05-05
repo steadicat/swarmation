@@ -31,7 +31,7 @@
       subscribeShown = true;
       setTimeout(() => {
         showSubscribe = true;
-      }, 2000);
+      }, 1000);
     }
   }
 
@@ -93,18 +93,26 @@
     user-select: none;
   }
 
+  .header {
+    position: fixed;
+    top: 25px;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   h1 {
     font-family: 'Lobster';
-    position: absolute;
-    left: 50%;
-    top: 25px;
-    transform: translateX(-50%);
     font-size: 40px;
     line-height: 1;
     color: var(--light-text);
     text-shadow: var(--light-blue) 2px 2px 0px;
     text-align: center;
     cursor: pointer;
+    pointer-events: auto;
   }
 
   .message {
@@ -137,21 +145,23 @@
 
 <Board {players} {self} {activeIds} {hasMoved} {scoreChanges} />
 
-<h1 style="font-size: {20 + width / 40}px" on:click={() => (showAbout = true)}>Swarmation</h1>
+<div class="header">
+  <h1 style="font-size: {20 + width / 40}px" on:click={() => (showAbout = true)}>Swarmation</h1>
+  {#if showSubscribe}
+    <Subscribe
+      on:hide={() => (showSubscribe = false)}
+      on:subscribe={event => {
+        showSubscribe = false;
+        dispatch('subscribe', event.detail);
+      }} />
+  {/if}
+
+</div>
 
 <Formation {formation} />
 <Countdown {formation} />
 <Score {score} />
 <SuccessRate {self} />
-
-{#if showSubscribe}
-  <Subscribe
-    on:hide={() => (showSubscribe = false)}
-    on:subscribe={event => {
-      showSubscribe = false;
-      dispatch('subscribe', event.detail);
-    }} />
-{/if}
 
 {#if message}
   <div class="message">

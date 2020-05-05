@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {fade} from 'svelte/transition';
+  import {fly} from 'svelte/transition';
   import {createEventDispatcher} from 'svelte';
 
   function getNextGame() {
@@ -15,16 +15,26 @@
       return new Date(nextGame.valueOf() + 24 * 60 * 60 * 1000);
     }
   }
+
+  function formatTime(t) {
+    const h = t.getHours();
+    return `${h % 12}${h >= 12 ? 'pm' : 'am'}`;
+  }
+
   const nextGame = getNextGame();
-  $: hoursLeft = Math.floor((nextGame - Date.now()) / (60 * 60 * 1000));
-  $: minutesLeft = Math.floor((nextGame - Date.now() - hoursLeft * 60 * 60 * 1000) / (60 * 1000));
 
   let showEmail = false;
+  let hasError = false;
   let email = '';
 
   const dispatch = createEventDispatcher();
 
   function onSubmit() {
+    if (/^\s*$/.test(email)) {
+      hasError = true;
+      setTimeout(() => (hasError = false), 600);
+      return;
+    }
     dispatch('subscribe', email);
   }
 
@@ -34,11 +44,7 @@
 </script>
 
 <style>
-  div {
-    position: fixed;
-    top: 90px;
-    left: 50%;
-    transform: translateX(-50%);
+  form {
     background: var(--yellow);
     border: 1px solid #ad7f28;
     border-radius: 3px;
@@ -46,17 +52,16 @@
     display: flex;
     align-items: center;
     min-width: 260px;
-    padding: 4px 0;
+    padding: 2px 12px;
+    margin-top: 12px;
+    pointer-events: auto;
+    position: relative;
   }
+
   @media (max-width: 460px) {
-    div {
+    form {
       flex-direction: column;
       text-align: center;
-      align-items: stretch;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
       align-items: stretch;
     }
     input {
@@ -64,10 +69,6 @@
     }
   }
 
-  span {
-    margin-left: 12px;
-    margin-right: 12px;
-  }
   button {
     background: transparent;
     border: none;
@@ -76,11 +77,10 @@
     outline: none;
     flex-shrink: 0;
   }
-  .remind,
-  .subscribe {
+  .button {
     color: var(--light-text);
     text-shadow: #ad7f28 1px 1px 0px;
-    padding: 6px 24px 6px 12px;
+    padding: 6px 12px;
     font-weight: bold;
   }
   .close {
@@ -88,9 +88,9 @@
     color: #ad7f28;
     padding: 6px;
     position: absolute;
-    top: 50%;
     right: 0px;
-    transform: translateY(-50%);
+    margin-top: auto;
+    margin-bottom: auto;
   }
   input {
     outline: none;
@@ -98,29 +98,57 @@
     border: none;
     font: inherit;
     padding: 6px 12px;
+    margin-left: -12px;
+    flex-grow: 1;
+    font-weight: bold;
+  }
+  .shake {
+    animation: shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
   }
 </style>
 
 <svelte:options immutable={true} />
 
-<div transition:fade>
+<form transition:fly={{y: -100}} on:submit|preventDefault={onSubmit} class:shake={hasError}>
   {#if showEmail}
-    <form on:submit|preventDefault={onSubmit}>
-      <input
-        type="text"
-        autofocus
-        placeholder="Email address"
-        bind:value={email}
-        on:keydown|stopPropagation
-        on:keyup|stopPropagation />
-      <button class="subscribe" on:click={() => (showEmail = true)}>Remind me</button>
-    </form>
+    <input
+      type="text"
+      autofocus
+      placeholder="Email address"
+      bind:value={email}
+      on:keydown|stopPropagation
+      on:keyup|stopPropagation />
+    <button class="button" on:click={() => (showEmail = true)}>Subscribe</button>
   {:else}
     <span>
-      It’s a bit lonely right now. Join us for a game in
-      <strong>{hoursLeft} hours and {minutesLeft} minutes.</strong>
+      Play with us every day at
+      <strong>{formatTime(nextGame)}</strong>
+      your time.
     </span>
-    <button class="remind" on:click={() => (showEmail = true)}>Remind me</button>
+    <button class="button" on:click={() => (showEmail = true)}>Remind me</button>
   {/if}
-  <button class="close" on:click={() => dispatch('hide')}>×</button>
-</div>
+  <button class="close" on:click|stopPropagation={() => dispatch('hide')}>×</button>
+</form>
