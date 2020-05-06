@@ -1,17 +1,10 @@
 NODE=ts-node -T -O '{"module": "commonjs"}'
 
 PORT=243
+USER=root
 DEPLOY_FILES=etc public server Makefile Secrets package.json formations.txt
 DEPLOY_TARGET=/opt/swarmation
-DEPLOY_SERVER=root@159.203.109.43
-REMOTE_EXEC=ssh $(DEPLOY_SERVER) -p $(PORT)
 REMOTE_COPY=rsync -e "ssh -p $(PORT)" -a --delete
-
-NAME=swarmation-1
-REGION=nyc3
-SIZE=s-1vcpu-1gb
-IMAGE=ubuntu-18-04-x64
-SSH_KEY=16:35:1f:58:21:aa:11:e6:f3:72:33:67:fa:82:ad:4c
 
 include Secrets
 
@@ -67,9 +60,9 @@ profileserver: buildserver
 
 # Build
 
-buildjs: node_modules | buildserver
-	-NODE_ENV=production \
-		yarn run rollup \
+public/main.prod.js: export NODE_ENV=production
+public/main.prod.js: node_modules
+	yarn run rollup \
 		--plugin commonjs \
 		--plugin node-resolve \
 		--plugin typescript \
@@ -78,9 +71,14 @@ buildjs: node_modules | buildserver
 		--file public/main.prod.js \
 		--format iife \
 		./src/client/client.ts
-	$(eval HASH=$(shell shasum public/main.prod.js | awk '{ print $$1; }' | cut -c37-40))
-	mv public/main.prod.js public/main.$(HASH).js
-	cat src/index.html | sed 's/main.js/main.$(HASH).js/g' > public/index.html
+
+buildjs: public/main.prod.js | buildserver
+	@set -e ;\
+		HASH=$$(shasum public/main.prod.js | awk '{ print $$1; }' | cut -c37-40) ;\
+		test -n "$$HASH" || (echo "Hash of public/main.prod.js empty. Aborting."; rm public/main.prod.js ; exit 1) ;\
+		echo "public/main.prod.js → public/main.$$HASH.js..." ;\
+		mv public/main.prod.js public/main.$$HASH.js ;\
+		cat src/index.html | sed "s/main.js/main.$$HASH.js/g" > public/index.html 
 .PHONY: buildjs
 
 buildserver: node_modules
@@ -92,8 +90,15 @@ build: buildserver buildjs public/formation/*.png
 
 # Deploy
 
-new:
-	doctl compute droplet create $(NAME) \
+REGION=nyc3
+SIZE=s-1vcpu-1gb
+#IMAGE=ubuntu-20-04-x64
+IMAGE=63194980
+SSH_KEY=16:35:1f:58:21:aa:11:e6:f3:72:33:67:fa:82:ad:4c
+
+create:
+	@test -n "$(server)" || (echo "Usage: make new server=[id]"; exit 1)
+	doctl compute droplet create swarmation-$(server) \
 		--region $(REGION) \
 		--size $(SIZE) \
 		--image $(IMAGE) \
@@ -101,21 +106,27 @@ new:
 		--enable-ipv6 \
 		--enable-monitoring \
 		--wait
+.PHONY: new
 
-bootstrap:
-	scp etc/setup.sh $(DEPLOY_SERVER):setup.sh
-	ssh $(DEPLOY_SERVER) sh setup.sh
-	-ssh $(DEPLOY_SERVER) reboot
+delete: get-server
+	doctl compute droplet delete swarmation-$(server)
+.PHONY: delete
+
+get-server:
+	@test -n "$(server)" || (echo "Usage: make [task] server=[id]"; exit 1)
+	$(eval IP=$(shell doctl compute droplet list | grep swarmation-$(server) | awk '{print $$3}'))
+	$(eval HOST=$(USER)@$(IP))
+	$(eval REMOTE=ssh $(USER)@$(IP) -p $(PORT))
+.PHONY: get-server
+
+bootstrap: get-server ssl-upload
+	scp -P $(PORT) etc/setup.sh $(HOST):setup.sh
+	$(REMOTE) sh setup.sh
+	#-$(REMOTE) reboot
 .PHONY: bootstrap
 
-rebootstrap:
-	scp -P 243 etc/setup.sh $(DEPLOY_SERVER):setup.sh
-	ssh $(DEPLOY_SERVER) -p 243 sh setup.sh
-	#-ssh $(DEPLOY_SERVER) -p 243 reboot
-.PHONY: rebootstrap
-
-ssh:
-	$(REMOTE_EXEC)
+ssh: get-server
+	$(REMOTE)
 .PHONY: ssh
 
 setup-done: etc/setup.sh
@@ -124,8 +135,8 @@ setup-done: etc/setup.sh
 	echo "dns_cloudflare_api_token = $(CERTBOT)" > /etc/letsencrypt/cloudflare.ini
 	chmod 600 /etc/letsencrypt/cloudflare.ini
 	touch setup-done
-remote-setup: setup-done	
-	
+remote-setup: setup-done
+
 nginx-done: etc/nginx.conf
 	cp etc/nginx.conf /etc/nginx/sites-available/swarmation.conf
 	ln -sf /etc/nginx/sites-available/swarmation.conf /etc/nginx/sites-enabled/swarmation.conf
@@ -156,26 +167,21 @@ remote-dependencies: dependencies-done
 
 remote-configure: remote-cache remote-setup remote-nginx remote-systemd remote-dependencies
 
-configure: upload
-	$(REMOTE_EXEC) "cd $(DEPLOY_TARGET); make remote-configure"		
+configure: get-server upload ssl-upload
+	$(REMOTE) "cd $(DEPLOY_TARGET); make remote-configure"		
 
-upload: build
-	$(REMOTE_EXEC) mkdir -p $(DEPLOY_TARGET)
-	$(REMOTE_COPY) $(DEPLOY_FILES) $(DEPLOY_SERVER):$(DEPLOY_TARGET)
+upload: get-server | build
+	$(REMOTE) mkdir -p $(DEPLOY_TARGET)
+	$(REMOTE_COPY) $(DEPLOY_FILES) $(HOST):$(DEPLOY_TARGET)
 
-deploy: configure build	
-	$(REMOTE_EXEC) systemctl daemon-reload
-	$(REMOTE_EXEC) systemctl restart swarmation
+deploy: get-server configure build upload
+	$(REMOTE) systemctl daemon-reload
+	$(REMOTE) systemctl restart swarmation
 
-ssl:
-	$(REMOTE_EXEC) certbot certonly
+ssl-download: get-server
+	$(REMOTE_COPY) $(HOST):/etc/letsencrypt etc
 
-ssl-backup:
-	$(REMOTE_COPY) $(DEPLOY_SERVER):/etc/letsencrypt etc
-
-ssl-upload:
-	$(REMOTE_COPY) etc/letsencrypt/ $(DEPLOY_SERVER):/etc/letsencrypt/
+ssl-upload: get-server
+	$(REMOTE_COPY) etc/letsencrypt/ $(HOST):/etc/letsencrypt/
 
 # 14 5 * * * /usr/bin/certbot renew --quiet --post-hook "/usr/sbin/service nginx reload" > /dev/null 2>&1
-renew:
-	$(REMOTE_EXEC) certbot renew

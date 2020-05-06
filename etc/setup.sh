@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export DEBIAN_FRONTEND=noninteractive
+
 replace() {
   cat $1 | sed "$2" > ~/tmp
   chmod 0644 ~/tmp
@@ -17,7 +19,6 @@ apt-get autoremove -y
 apt-get autoclean -y
 which make || apt-get install -y make
 
-#apt-get install -y build-essential
 which unattended-upgrades || apt-get install -y unattended-upgrades
 
 unattended-upgrades
@@ -31,8 +32,7 @@ which nginx || apt-get install -y nginx
 which node || apt-get install -y nodejs
 apt-get install -y yarn
 which fail2ban || apt-get install -y fail2ban
-which certbot || apt-get install -y certbot && apt-get install -y python-certbot-nginx
-
+which certbot || apt-get install -y certbot && apt-get install -y python3-certbot-dns-cloudflare
 
 ufw default deny incoming
 ufw default allow outgoing
