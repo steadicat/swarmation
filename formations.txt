@@ -1,9 +1,9 @@
-== eyes (4) ==
+== eyes (5) ==
 x x
-== triangle (5) ==
+== triangle (6) ==
  x
 x x
-== easy (4) ==
+== easy (5) ==
 xxx
 == clover (10) ==
 x x
@@ -35,7 +35,7 @@ x      x
 x      x
  x    x
   xxxx
-== delta (8) ==
+== delta (10) ==
   x
  x x
 x   x
@@ -54,7 +54,7 @@ x   x
 x x x
 x   x
 xxxxx
-== snake (12) ==
+== snake (14) ==
   x
  x
   x
@@ -94,11 +94,11 @@ xxxxx
 x x x
 x   x
  xxx
-== glider (10) ==
+== glider (12) ==
  x
   x
 xxx
-== giraffe (24) ==
+== giraffe (36) ==
 xx
  x
  x
@@ -108,10 +108,93 @@ xx
  xxxxx
  x   x
  x   x
-== wave (30) ==
+== wave (32) ==
  xx
 x  x  x
     xx
  xx
 x  x  x
     xx
+== bucket (10) ==
+x x
+xxx
+== infinity (30) ==
+xxx
+x x
+xxxxxx
+   x x
+   xxx
+== house (14) ==
+ x
+x x
+xxx
+== zigzag (14) ==
+x x x
+ x x x
+== chair (14) ==
+  x
+xxx
+x x
+== turtle (30) ==
+  x
+xxxxx
+ xxx
+xxxxx
+== tree (24) ==
+  x
+ xxx
+xxxxx
+  x
+  x
+== dragonfly (24) ==
+  x
+xxxxx
+ xxx
+  x
+  x
+== longcat (16) ==
+xxxxx
+x  x
+== robot (38) ==
+ xxxx
+ x  x
+xxxxxx
+ xxxx
+ xxxx
+ x  x
+== stairs (8) ==
+  x
+ x
+x
+== surprise (8) ==
+x x
+
+ x
+== hunched (7) ==
+x
+ x
+ x
+== hut (9) ==
+ xx
+x  x
+== glance (8) ==
+  x
+
+x
+== stare (6) ==
+x
+ x
+== rotate (6) ==
+  x
+x
+== far (8) ==
+x
+
+
+ x
+== stand (8) ==
+ x
+
+x x
+== spaced (9) ==
+x x x
