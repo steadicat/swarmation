@@ -43,6 +43,8 @@
     display: inline-block;
     vertical-align: top;
     position: relative;
+    background: var(--light-gray);
+    box-shadow: var(--light-gray) 0 0 30px 30px;
   }
   .pixel {
     position: absolute;
@@ -57,6 +59,7 @@
     font-weight: bold;
     padding-top: 10px;
     padding-bottom: 20px;
+    position: relative;
   }
 </style>
 
