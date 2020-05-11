@@ -53,12 +53,19 @@ export async function getSubscribers() {
   )) as {
     records: {id: string; fields: {Email: string; Created: string; 'Last Notified': string}}[];
   };
-  return records.map(({id, fields: {Email, Created, 'Last Notified': lastNotified}}) => ({
-    id,
-    email: Email,
-    created: Created,
-    lastNotified,
-  }));
+  const seen: Record<string, true | undefined> = {};
+  return records
+    .map(({id, fields: {Email, Created, 'Last Notified': lastNotified}}) => {
+      if (seen[Email]) return null;
+      seen[Email] = true;
+      return {
+        id,
+        email: Email,
+        created: Created,
+        lastNotified,
+      };
+    })
+    .filter(Boolean) as {id: string; email: string; created: string; lastNotified: string}[];
 }
 
 export async function sendNotification(id: string, email: string) {
