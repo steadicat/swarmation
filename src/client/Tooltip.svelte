@@ -8,7 +8,7 @@
 
 <style>
   .tooltip {
-    position: absolute;
+    position: fixed;
     transform: translate(-50%, -100%);
     transition: left 0.1s ease-in-out, top 0.1s ease-in-out;
     border: 1px solid var(--medium-blue);

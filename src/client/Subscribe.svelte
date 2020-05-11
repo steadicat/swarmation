@@ -1,6 +1,7 @@
 <script lang="ts">
   import {fly} from 'svelte/transition';
   import {createEventDispatcher} from 'svelte';
+  import Close from './Close.svelte';
 
   function getNextGame() {
     const nextGame = new Date();
@@ -52,7 +53,7 @@
     display: flex;
     align-items: center;
     min-width: 260px;
-    padding: 2px 12px;
+    padding: 2px 0 2px 12px;
     margin-top: 12px;
     pointer-events: auto;
     position: relative;
@@ -63,6 +64,7 @@
       flex-direction: column;
       text-align: center;
       align-items: stretch;
+      padding: 2px 12px;
     }
     input {
       text-align: center;
@@ -82,15 +84,6 @@
     text-shadow: #ad7f28 1px 1px 0px;
     padding: 6px 12px;
     font-weight: bold;
-  }
-  .close {
-    font-size: 16px;
-    color: #ad7f28;
-    padding: 6px;
-    position: absolute;
-    right: 0px;
-    margin-top: auto;
-    margin-bottom: auto;
   }
   input {
     outline: none;
@@ -150,5 +143,5 @@
     </span>
     <button class="button" on:click={() => (showEmail = true)}>Remind me</button>
   {/if}
-  <button class="close" on:click|stopPropagation={() => dispatch('hide')}>×</button>
+  <Close on:click={() => dispatch('hide')} backgroundColor="var(--yellow)" color="#ad7f28" />
 </form>

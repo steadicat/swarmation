@@ -1,7 +1,6 @@
 <script lang="ts">
   import Player from './Player.svelte';
   import PlayerTooltip from './PlayerTooltip.svelte';
-  import Welcome from './Welcome.svelte';
 
   import {afterUpdate} from 'svelte';
   import {quintOut} from 'svelte/easing';
@@ -11,7 +10,6 @@
   export let players;
   export let self;
   export let activeIds;
-  export let hasMoved;
   export let scoreChanges;
 
   let showTooltipForPlayer = null;
@@ -56,10 +54,10 @@
     return {
       duration,
       easing: quintOut,
-      css: t => `
+      css: (t) => `
         transform: scale(${0.1 + 0.9 * t}, ${0.1 + 0.9 * t});
         opacity: ${1 - t};
-      `
+      `,
     };
   }
 </script>
@@ -113,14 +111,10 @@
     idle={!player.active}
     lockedIn={player.lockedIn}
     self={player === self}
-    active={activeIds.findIndex(id => id === player.id) >= 0}
+    active={activeIds.findIndex((id) => id === player.id) >= 0}
     on:mouseover={() => (showTooltipForPlayer = player)}
     on:mouseout={() => (showTooltipForPlayer = null)} />
 {/each}
-
-{#if self}
-  <Welcome {hasMoved} left={(centerX + self.left) * unit} top={(centerY + self.top) * unit} />
-{/if}
 
 {#if showTooltipForPlayer}
   <PlayerTooltip

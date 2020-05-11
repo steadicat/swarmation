@@ -1,60 +1,72 @@
 <script lang="ts">
-  import {onDestroy} from 'svelte';
+  import {onDestroy, createEventDispatcher} from 'svelte';
+  import {fly} from 'svelte/transition';
+  import Close from './Close.svelte';
 
-  import Tooltip from './Tooltip.svelte';
-
-  export let left;
-  export let top;
-  export let hasMoved = false;
-
-  let show = true;
-  let touch = 'ontouchstart' in window;
-
-  $: timeout = hasMoved ? window.setTimeout(() => (show = false), 3000) : -1;
-  onDestroy(() => window.clearTimeout(timeout));
+  const touch = 'ontouchstart' in window;
+  const dispatch = createEventDispatcher();
 </script>
 
 <style>
-  h3 {
-    margin: 0;
-    padding: 0;
-    font-size: 16px;
-    line-height: 20px;
-    font-weight: bold;
-    margin-bottom: 10px;
+  .wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
   }
 
-  .arrow {
-    background: url(../images/arrow-keys-dark.svg) no-repeat center center;
-    display: inline-block;
-    width: 37px;
-    height: 24px;
+  .banner {
+    align-items: center;
+    background: var(--light-text);
+    border-radius: 3px;
+    border: 1px solid var(--medium-blue);
+    bottom: 0;
+    box-shadow: var(--shadow) 2px 2px 0px;
+    display: flex;
+    left: 0;
+    min-width: 260px;
+    padding: 2px 0 2px 12px;
+    pointer-events: auto;
     position: relative;
-    top: 2px;
-    text-indent: -10000px;
-    overflow: hidden;
+  }
+
+  @media (max-width: 460px) {
+    .banner {
+      flex-direction: column;
+      text-align: center;
+      align-items: stretch;
+      padding: 2px 12px;
+    }
+  }
+
+  button {
+    background: transparent;
+    border: none;
+    font: inherit;
+    cursor: pointer;
+    outline: none;
+    flex-shrink: 0;
+  }
+  .button {
+    color: var(--light-blue);
+    text-shadow: var(--dark-gray) 1px 1px 0px;
+    padding: 6px 12px;
+    font-weight: bold;
   }
 </style>
 
 <svelte:options immutable={true} />
 
-<Tooltip
-  {left}
-  {top}
-  style="width: 240px; padding: 10px; opacity: {show ? 1 : 0}; transition: left 0.1s ease-in-out,
-  top 0.1s ease-in-out, 1s opacity">
-  {#if !hasMoved}
-    <h3>Welcome to life as a pixel</h3>
-    {#if touch}
-      <p>Swipe in any direction to move</p>
-    {:else}
-      <p>
-        Use your
-        <span class="arrow">arrow</span>
-        keys to move
-      </p>
-    {/if}
-  {:else}
-    <p>Get into a formation with other players before the countdown expires</p>
-  {/if}
-</Tooltip>
+<div class="wrapper" transition:fly={{y: 100}}>
+  <div class="banner">
+    Get into formation before the time runs out –
+    {#if touch}swipe in any direction to move!{:else}use your arrow keys to move!{/if}
+    <button class="button" on:click={() => dispatch('showAbout')}>Learn more</button>
+    <Close on:click={() => dispatch('hide')} />
+  </div>
+</div>

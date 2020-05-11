@@ -6,6 +6,8 @@
   import SuccessRate from './SuccessRate.svelte';
   import About from './About.svelte';
   import Subscribe from './Subscribe.svelte';
+  import Message from './Message.svelte';
+  import Welcome from './Welcome.svelte';
   import {createEventDispatcher} from 'svelte';
 
   export let message = null;
@@ -19,11 +21,12 @@
   export let scoreChanges = [];
 
   let showAbout = false;
+  let showWelcome = true;
   let showSubscribe = false;
   let subscribeShown = false;
   let width = 800;
 
-  $: self = players.find(player => player.id === selfID);
+  $: self = players.find((player) => player.id === selfID);
   $: score = self ? self.score : 0;
 
   $: {
@@ -95,9 +98,10 @@
 
   .header {
     position: fixed;
-    top: 25px;
+    top: 0;
     left: 0;
     right: 0;
+    padding: 24px;
     pointer-events: none;
     display: flex;
     flex-direction: column;
@@ -114,30 +118,6 @@
     cursor: pointer;
     pointer-events: auto;
   }
-
-  .message {
-    padding: 20px;
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background-color: var(--shadow);
-    font-weight: bold;
-    position: absolute;
-    color: var(--light-text);
-    font-size: 36px;
-    line-height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding-bottom: 40px;
-  }
-
-  .inner {
-    max-width: 16em;
-  }
 </style>
 
 <svelte:options immutable={true} />
@@ -145,28 +125,29 @@
 
 <Board {players} {self} {activeIds} {hasMoved} {scoreChanges} />
 
-<div class="header">
-  <h1 style="font-size: {20 + width / 40}px" on:click={() => (showAbout = true)}>Swarmation</h1>
-  {#if showSubscribe}
-    <Subscribe
-      on:hide={() => (showSubscribe = false)}
-      on:subscribe={event => {
-        showSubscribe = false;
-        dispatch('subscribe', event.detail);
-      }} />
-  {/if}
-
-</div>
-
 <Formation {formation} />
 <Countdown {formation} />
 <Score {score} />
 <SuccessRate {self} />
 
+<div class="header">
+  <h1 style="font-size: {20 + width / 40}px" on:click={() => (showAbout = true)}>Swarmation</h1>
+  {#if showSubscribe}
+    <Subscribe
+      on:hide={() => (showSubscribe = false)}
+      on:subscribe={(event) => {
+        showSubscribe = false;
+        dispatch('subscribe', event.detail);
+      }} />
+  {/if}
+</div>
+
+{#if showWelcome}
+  <Welcome on:hide={() => (showWelcome = false)} on:showAbout={() => (showAbout = true)} />
+{/if}
+
 {#if message}
-  <div class="message">
-    <div class="inner">{message}</div>
-  </div>
+  <Message {message} />
 {/if}
 
 {#if showAbout}
