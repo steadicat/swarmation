@@ -70,4 +70,5 @@
   class:self
   class:active
   on:mouseover
-  on:mouseout />
+  on:mouseout
+  on:click />

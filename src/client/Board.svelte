@@ -5,7 +5,8 @@
   import {afterUpdate} from 'svelte';
   import {quintOut} from 'svelte/easing';
 
-  let unit = 12;
+  const touch = 'ontouchstart' in window;
+  const unit = 12;
 
   export let players;
   export let self;
@@ -60,6 +61,19 @@
       `,
     };
   }
+
+  function onPlayerClick(player) {
+    if (!touch) return;
+    showTooltipForPlayer = showTooltipForPlayer ? null : player;
+  }
+  function onPlayerMouseOver(player) {
+    if (touch) return;
+    showTooltipForPlayer = player;
+  }
+  function onPlayerMouseOut(player) {
+    if (touch) return;
+    showTooltipForPlayer = null;
+  }
 </script>
 
 <style>
@@ -94,7 +108,8 @@
 <svg
   xmlns="http://www.w3.org/2000/svg"
   class="grid"
-  style="width: {gridWidth * unit}px; height: {gridHeight * unit}px; left: {gridX * unit}px; top: {gridY * unit}px">
+  style="width: {gridWidth * unit}px; height: {gridHeight * unit}px; left: {gridX * unit}px; top: {gridY * unit}px"
+  on:click={() => (showTooltipForPlayer = null)}>
   <defs>
     <pattern id="grid" width={unit} height={unit} patternUnits="userSpaceOnUse">
       <rect width={unit} height={unit} fill="none" stroke="var(--grid-gray)" stroke-width="1" />
@@ -112,8 +127,9 @@
     lockedIn={player.lockedIn}
     self={player === self}
     active={activeIds.findIndex((id) => id === player.id) >= 0}
-    on:mouseover={() => (showTooltipForPlayer = player)}
-    on:mouseout={() => (showTooltipForPlayer = null)} />
+    on:click={() => onPlayerClick(player)}
+    on:mouseover={() => onPlayerMouseOver(player)}
+    on:mouseout={() => onPlayerMouseOut(player)} />
 {/each}
 
 {#if showTooltipForPlayer}
