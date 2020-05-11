@@ -96,6 +96,14 @@ export function initializeControls({
 
   let startX = 0;
   let startY = 0;
+  let tick = 0;
+
+  // TODO: this should probably be time-based
+  const swipeThresholds = [
+    12, // short swipe to start
+    48, // long swipe to trigger continuous movement
+    24, // medium ticks thereafter
+  ];
 
   document.addEventListener('touchstart', (event) => {
     if (event.touches.length !== 1) return;
@@ -111,7 +119,7 @@ export function initializeControls({
     const dx2 = Math.pow(endX - startX, 2);
     const dy2 = Math.pow(endY - startY, 2);
     const distance = Math.sqrt(dx2 + dy2);
-    if (distance < 40) return;
+    if (distance < swipeThresholds[tick]) return;
 
     if (dx2 >= dy2) {
       // horizontal
@@ -131,10 +139,12 @@ export function initializeControls({
 
     startX = endX;
     startY = endY;
+    tick = tick < swipeThresholds.length - 1 ? tick + 1 : tick;
   });
 
   document.addEventListener('touchend', () => {
     startX = 0;
     startY = 0;
+    tick = 0;
   });
 }
