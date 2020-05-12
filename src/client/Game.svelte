@@ -43,6 +43,8 @@
 
 <style>
   :global(:root) {
+    --unit: 14px;
+
     --light-text: #fff;
     --dark-text: #024;
 
