@@ -7,7 +7,7 @@
   import About from './About.svelte';
   import Subscribe from './Subscribe.svelte';
   import Message from './Message.svelte';
-  import Welcome from './Welcome.svelte';
+  import Instructions from './Instructions.svelte';
   import {createEventDispatcher} from 'svelte';
 
   export let message = null;
@@ -21,7 +21,7 @@
   export let scoreChanges = [];
 
   let showAbout = false;
-  let showWelcome = true;
+  let showInstructions = true;
   let showSubscribe = false;
   let subscribeShown = false;
   let width = 800;
@@ -132,7 +132,7 @@
 
 <div class="header">
   <h1 style="font-size: {20 + width / 40}px" on:click={() => (showAbout = true)}>Swarmation</h1>
-  {#if showSubscribe}
+  {#if showSubscribe && hasMoved}
     <Subscribe
       on:hide={() => (showSubscribe = false)}
       on:subscribe={(event) => {
@@ -142,8 +142,10 @@
   {/if}
 </div>
 
-{#if showWelcome}
-  <Welcome on:hide={() => (showWelcome = false)} on:showAbout={() => (showAbout = true)} />
+{#if showInstructions && hasMoved}
+  <Instructions
+    on:hide={() => (showInstructions = false)}
+    on:showAbout={() => (showAbout = true)} />
 {/if}
 
 {#if message}

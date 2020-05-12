@@ -1,6 +1,7 @@
 <script lang="ts">
   import Player from './Player.svelte';
   import PlayerTooltip from './PlayerTooltip.svelte';
+  import Tooltip from './Tooltip.svelte';
 
   import {afterUpdate} from 'svelte';
   import {quintOut} from 'svelte/easing';
@@ -12,6 +13,7 @@
   export let self;
   export let activeIds;
   export let scoreChanges;
+  export let hasMoved = false;
 
   let showTooltipForPlayer = null;
   let scoreChangesSeen = 0;
@@ -131,6 +133,13 @@
     on:mouseover={() => onPlayerMouseOver(player)}
     on:mouseout={() => onPlayerMouseOut(player)} />
 {/each}
+
+{#if self && !hasMoved}
+  <Tooltip left={(centerX + self.left) * unit} top={(centerY + self.top) * unit}>
+    <b>Welcome!</b>
+    {#if touch}Swipe in any direction to move.{:else}Use your arrow keys to move.{/if}
+  </Tooltip>
+{/if}
 
 {#if showTooltipForPlayer}
   <PlayerTooltip

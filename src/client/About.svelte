@@ -73,7 +73,7 @@
 <svelte:options immutable={true} />
 <div class="about">
   <h1 on:click>Swarmation</h1>
-  <Close on:click top={40} right={16} width={32} height={32} />
+  <Close on:click top={40} right={16} width={32} height={32} color="var(--medium-blue)" />
   <div class="inner">
 
     <h2>How to play</h2>

@@ -3,7 +3,6 @@
   import {fly} from 'svelte/transition';
   import Close from './Close.svelte';
 
-  const touch = 'ontouchstart' in window;
   const dispatch = createEventDispatcher();
 </script>
 
@@ -64,8 +63,7 @@
 
 <div class="wrapper" transition:fly={{y: 100}}>
   <div class="banner">
-    Get into formation before the time runs out –
-    {#if touch}swipe in any direction to move!{:else}use your arrow keys to move!{/if}
+    Get into formation before the time runs out.
     <button class="button" on:click={() => dispatch('showAbout')}>Learn more</button>
     <Close on:click={() => dispatch('hide')} />
   </div>

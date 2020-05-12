@@ -17,7 +17,7 @@
     box-shadow: var(--shadow) 2px 2px 0px;
     text-align: center;
     display: inline-block;
-    padding: 5px;
+    padding: 6px 12px;
   }
 
   .tooltip:after {
@@ -34,6 +34,6 @@
 
 <svelte:options immutable={true} />
 
-<div class="tooltip" style="left: {left + 6}px; top: {top - 14}px; {style}">
+<div transition:fade class="tooltip" style="left: {left + 6}px; top: {top - 14}px; {style}">
   <slot />
 </div>
