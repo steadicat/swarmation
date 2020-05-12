@@ -11,8 +11,8 @@
 <style>
   .player {
     position: absolute;
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     transition: left 0.1s ease-in-out, top 0.1s ease-in-out;
     box-shadow: inset -1px -1px 0px var(--shadow), inset 1px 1px 0 var(--highlight);
     background: var(--gray);

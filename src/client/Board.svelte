@@ -7,7 +7,7 @@
   import {quintOut} from 'svelte/easing';
 
   const touch = 'ontouchstart' in window;
-  const unit = 12;
+  const unit = 14;
 
   export let players;
   export let self;
