@@ -50,8 +50,9 @@ dev: public/formation/*.png
 
 # Debug
 
+bots: count=100
 bots: node_modules
-	$(NODE) src/bots/bots.ts 100 ws://localhost:3000/ws
+	$(NODE) src/bots/bots.ts $(count) ws://localhost:3000/ws
 .PHONY: bots
 
 profileserver: buildserver
