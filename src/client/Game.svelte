@@ -56,6 +56,7 @@
 
     --light-blue: #bdd0da;
     --medium-blue: #8ca2ad;
+    --dark-blue: #6e8a98;
 
     --light-gray: #dbe5eb;
     --grid-gray: #bdd0da;

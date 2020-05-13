@@ -21,6 +21,6 @@
   stroke="currentColor"
   on:click|stopPropagation
   style="color: {color}; top: {top}px; right: {right}px;">
-  <line x1="4" y1="4" x2="12" y2="12" />
-  <line x1="4" y1="12" x2="12" y2="4" />
+  <line x1="4" y1="4" x2="12" y2="12" stroke-width="2" />
+  <line x1="4" y1="12" x2="12" y2="4" stroke-width="2" />
 </svg>
