@@ -3,17 +3,18 @@
   import {createEventDispatcher} from 'svelte';
   import Close from './Close.svelte';
 
-  function getNextGame() {
-    const nextGame = new Date();
+  function getNextGame(now) {
+    const nextGame = new Date(now);
+    nextGame.setUTCDate(nextGame.getUTCDate() + 6 - nextGame.getUTCDay());
     nextGame.setUTCHours(1);
     nextGame.setUTCMinutes(0);
     nextGame.setUTCSeconds(0);
     nextGame.setUTCMilliseconds(0);
 
-    if (nextGame.valueOf() >= Date.now()) {
+    if (nextGame.valueOf() >= now.valueOf()) {
       return nextGame;
     } else {
-      return new Date(nextGame.valueOf() + 24 * 60 * 60 * 1000);
+      return new Date(nextGame.valueOf() + 7 * 24 * 60 * 60 * 1000);
     }
   }
 
@@ -22,7 +23,7 @@
     return `${h % 12}${h >= 12 ? 'pm' : 'am'}`;
   }
 
-  const nextGame = getNextGame();
+  const nextGame = getNextGame(new Date());
 
   let showEmail = false;
   let hasError = false;
@@ -137,7 +138,7 @@
     <button class="button" on:click={() => (showEmail = true)}>Subscribe</button>
   {:else}
     <span>
-      Play with us every day at
+      Play with us every Friday day at
       <strong>{formatTime(nextGame)}</strong>
       your time.
     </span>
