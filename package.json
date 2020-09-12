@@ -13,7 +13,7 @@
     "@bugsnag/plugin-express": "^7.0.0",
     "bufferutil": "^4.0.1",
     "express": "^4.17.1",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "utf-8-validate": "^5.0.2",
     "ws": "^7.2.3"
   },
