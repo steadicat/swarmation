@@ -11,7 +11,7 @@
     right: 0;
     bottom: 0;
     min-height: 100%;
-    background: var(--light-blue);
+    background: var(--dark-blue);
     color: var(--light-text);
     text-shadow: var(--shadow) 1px 1px 0;
     overflow: auto;

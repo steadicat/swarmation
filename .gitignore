@@ -6,3 +6,4 @@
 /server
 /Secrets
 /etc/letsencrypt/
+.DS_Store

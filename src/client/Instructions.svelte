@@ -52,8 +52,7 @@
     flex-shrink: 0;
   }
   .button {
-    color: var(--light-blue);
-    text-shadow: var(--dark-gray) 1px 1px 0px;
+    color: var(--dark-blue);
     padding: 6px 12px;
     font-weight: bold;
   }
