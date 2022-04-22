@@ -98,7 +98,7 @@ IMAGE=63194980
 SSH_KEY=16:35:1f:58:21:aa:11:e6:f3:72:33:67:fa:82:ad:4c
 
 create:
-	@test -n "$(server)" || (echo "Usage: make new server=[id]"; exit 1)
+	@test -n "$(server)" || (echo "Usage: make create server=[id]"; exit 1)
 	doctl compute droplet create swarmation-$(server) \
 		--region $(REGION) \
 		--size $(SIZE) \
@@ -178,6 +178,10 @@ upload: get-server | build
 deploy: get-server configure build upload
 	$(REMOTE) systemctl daemon-reload
 	$(REMOTE) systemctl restart swarmation
+
+ssl-renew: get-server
+	$(REMOTE) certbot certonly --manual --preferred-challenges=dns -d *.swarmation.com,swarmation.com
+	$(REMOTE) nginx -s reload
 
 ssl-download: get-server
 	$(REMOTE_COPY) $(HOST):/etc/letsencrypt etc

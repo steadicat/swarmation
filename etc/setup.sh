@@ -32,7 +32,7 @@ which nginx || apt-get install -y nginx
 which node || apt-get install -y nodejs
 apt-get install -y yarn
 which fail2ban || apt-get install -y fail2ban
-which certbot || apt-get install -y certbot && apt-get install -y python3-certbot-dns-cloudflare
+which certbot || apt-get install -y certbot python3-certbot-dns-cloudflare
 
 ufw default deny incoming
 ufw default allow outgoing
