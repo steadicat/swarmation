@@ -5,8 +5,5 @@
 /public/index.html
 /server
 /Secrets
-/etc/letsencrypt/
-/etc/certificates/
-/etc/certbot/
-/etc/cloudflare.ini
 /docker-compose.yml
+/fly.toml
