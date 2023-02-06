@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  node:
+    image: steadicat/swarmation-node
+    container_name: node
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: node
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    environment:
+      - SECRET
+      - AIRTABLE_KEY
+      - AIRTABLE_BASE
+      - POSTMARK
+
+  nginx:
+    image: steadicat/swarmation-nginx
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: nginx
+    depends_on:
+      - node
+      - certbot
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./etc/certificates:/certs
+
+  certbot:
+    image: ghcr.io/jwillmer/certbot-autorenew:latest
+    container_name: certbot
+    restart: unless-stopped
+    volumes:
+      - ./etc/certificates:/certs
+      - ./etc/certbot/logs:/var/log/letsencrypt
+      - ./etc/cloudflare.ini:/root/cloudflare.ini:ro
+    environment:
+      - LOGFILE=/var/log/letsencrypt/certrenewal.log
+      - PLUGIN=dns-cloudflare
+      - PREFERRED_CHALLENGES=dns-01
+      - CUSTOM_ARGS=--no-eff-email --dns-cloudflare-credentials /root/cloudflare.ini
+      - RUN_AT_START=true
+      - DOMAINS=*.swarmation.com
+      - EMAIL=ssl@swarmation.com
