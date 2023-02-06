@@ -1,7 +1,7 @@
 import * as WebSocket from 'ws';
 
-import {Direction} from '../client/directions';
-import {clientSend, clientListen, MessageType} from '../protocol';
+import {Direction} from '../client/directions.js';
+import {clientSend, clientListen, MessageType} from '../protocol.js';
 
 const [, , countS, websocketURL] = process.argv;
 

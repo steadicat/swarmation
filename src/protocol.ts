@@ -1,6 +1,6 @@
 import type * as ServerWebSocket from 'ws';
 
-import {Direction} from './client/directions';
+import {Direction} from './client/directions.js';
 
 export type SaveData = {
   score: number;

@@ -62,7 +62,7 @@ function parse(file: string): FormationDefinition[] {
 }
 
 export function getFormations(): Formation[] {
-  return parse(fs.readFileSync(path.join(__dirname, '../formations.txt'), 'utf-8'))
+  return parse(fs.readFileSync('./formations.txt', 'utf-8'))
     .map(({name, diagram, time}): Formation | null => {
       const map: boolean[][] = [];
       let points;

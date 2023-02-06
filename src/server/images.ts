@@ -1,8 +1,8 @@
 import {Canvas, Image} from 'canvas';
 import * as fs from 'fs';
 
-import * as Formations from '../formations';
-import {Formation} from '../formations';
+import * as Formations from '../formations.js';
+import {Formation} from '../formations.js';
 
 const PIXEL = new Image();
 PIXEL.src = fs.readFileSync('public/images/pixel.png');

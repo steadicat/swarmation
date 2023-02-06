@@ -1,27 +1,26 @@
 import Bugsnag from '@bugsnag/js';
 import BugsnagPluginExpress from '@bugsnag/plugin-express';
-import * as express from 'express';
+import express from 'express';
 import * as http from 'http';
-import * as WebSocket from 'ws';
+import {WebSocketServer} from 'ws';
 
-import {directions} from '../client/directions';
-import {getFormations} from '../formations';
-import * as map from '../map';
-import {serverListen, serverSend, MessageType} from '../protocol';
+import {directions} from '../client/directions.js';
+import {getFormations} from '../formations.js';
+import * as map from '../map.js';
+import {serverListen, serverSend, MessageType} from '../protocol.js';
 import {
   addSubscriber,
   removeSubscriber,
   sendNotification,
   getSubscribers,
   updateSubscriber,
-} from './notifications';
-import {validate, sign} from './signing';
+} from './notifications.js';
+import {validate, sign} from './signing.js';
 
 if (process.env.NODE_ENV === 'production') {
   Bugsnag.start({
     apiKey: '598a6c87f69350bfffd18829c6e8a87c',
     plugins: [BugsnagPluginExpress],
-    // @ts-expect-error
     onUncaughtException(e: Error) {
       console.log(e.stack);
     },
@@ -66,7 +65,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const server = http.createServer(app);
-const wss = new WebSocket.Server({server, path: '/ws'});
+const wss = new WebSocketServer({server, path: '/ws'});
 
 app.use('/', express.static('public'));
 app.use(express.urlencoded({extended: true}));
@@ -387,5 +386,5 @@ setTimeout(endTurn, nextFormation.time * 1000);
 // Only listen on $ node server.js
 const port = parseInt(process.argv[2] ?? '3000', 10);
 
-if (!module.parent) server.listen(port);
+server.listen(port);
 console.log(`Server now listening on port ${port}...`);

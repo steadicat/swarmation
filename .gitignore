@@ -1,6 +1,7 @@
 /node_modules
 /public/main.js
 /public/main.*.js
+/public/main.css
 /public/formation
 /public/index.html
 /server

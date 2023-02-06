@@ -4,9 +4,19 @@
     "target": "es5",
     "module": "es2015",
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "lib": ["es2015", "es2016", "es2017", "es2017.object", "dom"],
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/server/server.ts",
+    "src/client/directions.ts",
+    "src/formations.ts",
+    "src/map.ts",
+    "src/protocol.ts",
+    "src/server/notifications.ts",
+    "src/server/signing.ts"
+  ]
 }

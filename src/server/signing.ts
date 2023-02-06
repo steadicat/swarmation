@@ -1,7 +1,7 @@
 import Bugsnag from '@bugsnag/js';
 import * as crypto from 'crypto';
 
-import {SaveData} from '../protocol';
+import {SaveData} from '../protocol.js';
 
 export function sign(value: SaveData) {
   if (process.env.SECRET === undefined) throw new Error('Missing SECRET environment variable');

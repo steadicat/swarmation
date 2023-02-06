@@ -1,9 +1,9 @@
 import 'core-js/es/array/find';
 import 'core-js/es/array/find-index';
 
-import {clientSend, clientListen, MessageType} from '../protocol';
+import {clientSend, clientListen, MessageType} from '../protocol.js';
 import {initializeControls} from './controls';
-import {directions} from './directions';
+import {directions} from './directions.js';
 
 import Game from './Game.svelte';
 import type {GameProps} from './Game.svelte';

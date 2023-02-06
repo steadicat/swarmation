@@ -1,4 +1,4 @@
-NODE=ts-node -T -O '{"module": "commonjs"}'
+NODE=ts-node --esm -T
 
 PORT=243
 USER=root
@@ -7,6 +7,10 @@ DEPLOY_TARGET=/opt/swarmation
 REMOTE_COPY=rsync -e "ssh -p $(PORT)" -a --delete
 
 include Secrets
+
+node_modules:
+	yarn install
+	touch node_modules
 
 public/formation/*.png: node_modules formations.txt src/server/images.ts
 	mkdir -p public/formation
@@ -26,8 +30,10 @@ devjs: node_modules
 		--plugin node-resolve \
 		--plugin typescript \
 		--plugin svelte \
-		--file public/main.js \
+		--plugin css-only \
 		--format iife \
+		--file public/main.js \
+		--assetFileNames main.css \
 		./src/client/client.ts
 .PHONY: devjs
 
@@ -45,14 +51,5 @@ bots: node_modules
 profileserver: buildserver
 	SECRET=$(SECRET) AIRTABLE_KEY=$(AIRTABLE_KEY) AIRTABLE_BASE=$(AIRTABLE_BASE) POSTMARK=$(POSTMARK) node --inspect server/server/server.js
 .PHONY: profileserver
-
-buildjs: public/main.prod.js | buildserver
-	@set -e ;\
-		HASH=$$(shasum public/main.prod.js | awk '{ print $$1; }' | cut -c37-40) ;\
-		test -n "$$HASH" || (echo "Hash of public/main.prod.js empty. Aborting."; rm public/main.prod.js ; exit 1) ;\
-		echo "public/main.prod.js → public/main.$$HASH.js..." ;\
-		mv public/main.prod.js public/main.$$HASH.js ;\
-		cat src/index.html | sed "s/main.js/main.$$HASH.js/g" > public/index.html 
-.PHONY: buildjs
 
 

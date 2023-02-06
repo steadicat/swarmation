@@ -6,11 +6,7 @@ Arrow keys to move, "s" to lock into place, spacebar to flash with color. Move i
 
 ## Getting Started for Developers
 
-Install yarn:
-
-```shell
-$ brew install yarn
-```
+Make sure you have the latest Node and Yarn installed.
 
 Run it:
 
@@ -19,3 +15,11 @@ $ make dev
 ```
 
 Visit http://localhost:3000/
+
+## Troubleshooting
+
+If `yarn install` fails trying to compile `canvas`, install these native dependencies:
+
+```shell
+$ brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
+```

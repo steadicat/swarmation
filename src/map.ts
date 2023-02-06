@@ -1,4 +1,4 @@
-import {Formation} from './formations';
+import {Formation} from './formations.js';
 
 const MAP: {[x: number]: {[y: number]: Player | undefined}} = {};
 
