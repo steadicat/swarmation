@@ -1,11 +1,5 @@
 NODE=ts-node --esm -T
 
-PORT=243
-USER=root
-DEPLOY_FILES=etc public server Makefile Secrets package.json formations.txt
-DEPLOY_TARGET=/opt/swarmation
-REMOTE_COPY=rsync -e "ssh -p $(PORT)" -a --delete
-
 include Secrets
 
 node_modules:

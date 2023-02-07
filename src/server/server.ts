@@ -2,6 +2,7 @@ import Bugsnag from '@bugsnag/js';
 import BugsnagPluginExpress from '@bugsnag/plugin-express';
 import express from 'express';
 import * as http from 'http';
+import * as path from 'path';
 import {WebSocketServer} from 'ws';
 
 import {directions} from '../client/directions.js';
@@ -67,7 +68,24 @@ if (process.env.NODE_ENV === 'production') {
 const server = http.createServer(app);
 const wss = new WebSocketServer({server, path: '/ws'});
 
-app.use('/', express.static('public'));
+app.use(
+  '/',
+  express.static('public', {
+    setHeaders(res, path) {
+      if (process.env.NODE_ENV !== 'production') return;
+      const mime = express.static.mime.lookup(path);
+      if (mime === 'application/javascript') {
+        res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+      } else if (mime === 'text/css') {
+        res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+      } else if (mime !== 'text/html') {
+        res.setHeader('Cache-Control', 'public, max-age=360');
+      } else {
+        res.setHeader('Cache-Control', 'public, max-age=60');
+      }
+    },
+  })
+);
 app.use(express.urlencoded({extended: true}));
 
 // Routes
@@ -108,10 +126,14 @@ app.post('/notify', async (req, res) => {
 
 // Error Handling
 
+app.get('*', async (req, res) => {
+  res.status(404).sendFile(path.resolve('public/404.html'));
+});
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error | null, _: express.Request, res: express.Response, _next: unknown) => {
   err && Bugsnag.notify(err);
-  res.status(500).send('Something broke!');
+  res.status(500).sendFile(path.resolve('public/500.html'));
 });
 
 if (process.env.NODE_ENV === 'production') {
