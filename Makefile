@@ -18,17 +18,7 @@ devserver: node_modules
 
 devjs: node_modules
 	cp src/index.html public/index.html
-	yarn run rollup \
-		--watch \
-		--plugin commonjs \
-		--plugin node-resolve \
-		--plugin typescript \
-		--plugin svelte \
-		--plugin css-only \
-		--format iife \
-		--file public/main.js \
-		--assetFileNames main.css \
-		./src/client/client.ts
+	yarn run rollup -c --watch
 .PHONY: devjs
 
 dev: public/formation/*.png

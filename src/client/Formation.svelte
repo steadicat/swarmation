@@ -1,7 +1,11 @@
-<script lang="ts">
-  export let formation;
+<svelte:options immutable={true} />
 
-  function formationWidth(map) {
+<script lang="ts">
+  import {Formation} from '../formations';
+
+  export let formation: Pick<Formation, 'name' | 'map'>;
+
+  function formationWidth(map: boolean[][]): number {
     if (map.length === 0) return unit;
     return Math.max(
       ...Object.values(map).map((row, y) =>
@@ -10,7 +14,7 @@
     );
   }
 
-  function formationHeight(map) {
+  function formationHeight(map: boolean[][]): number {
     if (map.length === 0) return unit;
     return Math.max(
       ...Object.values(map).map((row, y) =>
@@ -25,6 +29,27 @@
     Math.min(20, size / formationWidth(formation.map), size / formationHeight(formation.map))
   );
 </script>
+
+<div class="container">
+  <div class="box" style="width: {size}px; height: {size}px">
+    <div class="image">
+      {#each formation.map as row, y (y)}
+        <div class="row">
+          {#each row as cell, x (x)}
+            {#if cell}
+              <div class="pixel" style="width: {unit}px; height: {unit}px" />
+            {:else}
+              <div class="empty" style="width: {unit}px; height: {unit}px" />
+            {/if}
+          {:else}
+            <div class="empty" style="width: {unit}px; height: {unit}px" />
+          {/each}
+        </div>
+      {/each}
+    </div>
+  </div>
+  <div class="name">{formation.name}</div>
+</div>
 
 <style>
   .container {
@@ -69,25 +94,3 @@
     padding-top: 6px;
   }
 </style>
-
-<svelte:options immutable={true} />
-<div class="container">
-  <div class="box" style="width: {size}px; height: {size}px">
-    <div class="image">
-      {#each formation.map as row, y (y)}
-        <div class="row">
-          {#each row as cell, x (x)}
-            {#if cell}
-              <div class="pixel" style="width: {unit}px; height: {unit}px" />
-            {:else}
-              <div class="empty" style="width: {unit}px; height: {unit}px" />
-            {/if}
-          {:else}
-            <div class="empty" style="width: {unit}px; height: {unit}px" />
-          {/each}
-        </div>
-      {/each}
-    </div>
-  </div>
-  <div class="name">{formation.name}</div>
-</div>

@@ -1,13 +1,20 @@
-<script lang="ts">
-  export let self;
+<svelte:options immutable={true} />
 
-  function getSuccessRate({total, succeeded}) {
+<script lang="ts">
+  export let self: {total: number; succeeded: number};
+
+  function getSuccessRate({total, succeeded}: {total: number; succeeded: number}) {
     if (total === 0) return 100;
     return Math.round((1000.0 * succeeded) / total) / 10;
   }
 
   $: successRate = self ? getSuccessRate(self) : 100;
 </script>
+
+<div class="box">
+  <span class="text">{successRate}%</span>
+  success
+</div>
 
 <style>
   .box {
@@ -26,10 +33,3 @@
     line-height: 35px;
   }
 </style>
-
-<svelte:options immutable={true} />
-
-<div class="box">
-  <span class="text">{successRate}%</span>
-  success
-</div>

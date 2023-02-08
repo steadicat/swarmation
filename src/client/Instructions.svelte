@@ -1,10 +1,20 @@
+<svelte:options immutable={true} />
+
 <script lang="ts">
-  import {onDestroy, createEventDispatcher} from 'svelte';
+  import {createEventDispatcher} from 'svelte';
   import {fly} from 'svelte/transition';
   import Close from './Close.svelte';
 
   const dispatch = createEventDispatcher();
 </script>
+
+<div class="wrapper" transition:fly={{y: 100}}>
+  <div class="banner">
+    Get into formation before the time runs out.
+    <button class="button" on:click={() => dispatch('showAbout')}>Learn more</button>
+    <Close on:click={() => dispatch('hide')} />
+  </div>
+</div>
 
 <style>
   .wrapper {
@@ -58,13 +68,3 @@
     font-weight: bold;
   }
 </style>
-
-<svelte:options immutable={true} />
-
-<div class="wrapper" transition:fly={{y: 100}}>
-  <div class="banner">
-    Get into formation before the time runs out.
-    <button class="button" on:click={() => dispatch('showAbout')}>Learn more</button>
-    <Close on:click={() => dispatch('hide')} />
-  </div>
-</div>

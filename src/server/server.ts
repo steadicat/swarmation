@@ -1,9 +1,9 @@
-import Bugsnag from '@bugsnag/js';
 import BugsnagPluginExpress from '@bugsnag/plugin-express';
-import express from 'express';
+import express, {Response} from 'express';
 import * as http from 'http';
 import * as path from 'path';
 import {WebSocketServer} from 'ws';
+import WebSocket from 'ws';
 
 import {directions} from '../client/directions.js';
 import {getFormations} from '../formations.js';
@@ -17,6 +17,7 @@ import {
   updateSubscriber,
 } from './notifications.js';
 import {validate, sign} from './signing.js';
+import Bugsnag from '@bugsnag/node';
 
 if (process.env.NODE_ENV === 'production') {
   Bugsnag.start({
@@ -49,8 +50,8 @@ const MAX_POINTS = 26;
 const MAX_IDLE = 120;
 const IDLE_AFTER_TURNS = 2;
 
-const CLIENTS: {[id: string]: WebSocket | undefined} = {};
-const PLAYERS: {[id: number]: Player | undefined} = {};
+const CLIENTS: {[id: string]: WebSocket} = {};
+const PLAYERS: {[id: number]: Player} = {};
 
 const formations = Object.values(getFormations());
 
@@ -58,11 +59,11 @@ const formations = Object.values(getFormations());
 
 const app = express();
 
-let middleware;
+let middleware: ReturnType<(typeof Bugsnag)['getPlugin']> | undefined;
 
 if (process.env.NODE_ENV === 'production') {
   middleware = Bugsnag.getPlugin('express');
-  app.use(middleware.requestHandler);
+  app.use(middleware!.requestHandler);
 }
 
 const server = http.createServer(app);
@@ -71,7 +72,7 @@ const wss = new WebSocketServer({server, path: '/ws'});
 app.use(
   '/',
   express.static('public', {
-    setHeaders(res, path) {
+    setHeaders(res: Response, path: string) {
       if (process.env.NODE_ENV !== 'production') return;
       const mime = express.static.mime.lookup(path);
       if (mime === 'application/javascript') {
@@ -115,7 +116,7 @@ app.post('/notify', async (req, res) => {
       await sendNotification(id, email);
       await updateSubscriber(id);
     } catch (err) {
-      Bugsnag.notify(err);
+      Bugsnag.notify(err as Error);
       console.error(err);
       continue;
     }
@@ -137,11 +138,11 @@ app.use((err: Error | null, _: express.Request, res: express.Response, _next: un
 });
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(middleware.errorHandler);
+  app.use(middleware!.errorHandler);
 }
 
 function shutdown() {
-  serverSend(Object.values(CLIENTS) as WebSocket[], [MessageType.Restart]);
+  serverSend(Object.values(CLIENTS), [MessageType.Restart]);
   setTimeout(() => {
     process.exit();
   }, 2000);
@@ -183,7 +184,7 @@ let nextFormationTimestamp = Date.now() + nextFormation.time * 1000;
 
 let nextId = 0;
 
-wss.on('connection', (client) => {
+wss.on('connection', (client: WebSocket) => {
   const id = ++nextId;
   let left;
   let top;
@@ -222,10 +223,10 @@ wss.on('connection', (client) => {
     ]
   );
 
-  serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
-    MessageType.Player,
-    player,
-  ]);
+  serverSend(
+    Object.values(CLIENTS).filter((c) => c !== client),
+    [MessageType.Player, player]
+  );
 
   client.on('close', () => {
     delete CLIENTS[player.id];
@@ -233,7 +234,7 @@ wss.on('connection', (client) => {
       map.unset(PLAYERS[player.id]!.left, PLAYERS[player.id]!.top);
       delete PLAYERS[player.id];
     }
-    serverSend(Object.values(CLIENTS) as WebSocket[], [MessageType.Disconnected, id]);
+    serverSend(Object.values(CLIENTS), [MessageType.Disconnected, id]);
   });
 
   serverListen(client, (message) => {
@@ -253,7 +254,7 @@ wss.on('connection', (client) => {
           player.succeeded += succeeded;
           player.total += total;
           player.name = name;
-          serverSend(Object.values(CLIENTS) as WebSocket[], [MessageType.Player, player]);
+          serverSend(Object.values(CLIENTS), [MessageType.Player, player]);
         }
         break;
       }
@@ -268,7 +269,7 @@ wss.on('connection', (client) => {
           player.left = newLeft;
           player.top = newTop;
         }
-        serverSend(Object.values(CLIENTS) as WebSocket[], [
+        serverSend(Object.values(CLIENTS), [
           MessageType.Position,
           id,
           player.left,
@@ -280,29 +281,29 @@ wss.on('connection', (client) => {
 
       case MessageType.StartFlash: {
         player.active = true;
-        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
-          MessageType.StartFlash,
-          player.id,
-        ]);
+        serverSend(
+          Object.values(CLIENTS).filter((c) => c !== client),
+          [MessageType.StartFlash, player.id]
+        );
         break;
       }
 
       case MessageType.StopFlash: {
         player.active = true;
-        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
-          MessageType.StopFlash,
-          player.id,
-        ]);
+        serverSend(
+          Object.values(CLIENTS).filter((c) => c !== client),
+          [MessageType.StopFlash, player.id]
+        );
         break;
       }
 
       case MessageType.LockIn: {
         player.active = true;
         player.lockedIn = true;
-        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
-          MessageType.LockIn,
-          player.id,
-        ]);
+        serverSend(
+          Object.values(CLIENTS).filter((c) => c !== client),
+          [MessageType.LockIn, player.id]
+        );
         break;
       }
 
@@ -379,14 +380,14 @@ function endTurn() {
       player.idleTurns++;
       if (player.idleTurns === IDLE_AFTER_TURNS) {
         player.active = false;
-        serverSend(Object.values(CLIENTS) as WebSocket[], [MessageType.Idle, player.id]);
+        serverSend(Object.values(CLIENTS), [MessageType.Idle, player.id]);
       }
       if (player.idleTurns > MAX_IDLE) {
         serverSend([client], [MessageType.Kick, 'idle']);
-        serverSend(Object.values(CLIENTS).filter((c) => c !== client) as WebSocket[], [
-          MessageType.Disconnected,
-          player.id,
-        ]);
+        serverSend(
+          Object.values(CLIENTS).filter((c) => c !== client),
+          [MessageType.Disconnected, player.id]
+        );
         client.close();
         if (PLAYERS[player.id]) {
           map.unset(PLAYERS[player.id]!.left, PLAYERS[player.id]!.top);

@@ -1,9 +1,11 @@
+<svelte:options immutable={true} />
+
 <script lang="ts">
   import {fly} from 'svelte/transition';
   import {createEventDispatcher} from 'svelte';
   import Close from './Close.svelte';
 
-  function getNextGame(now) {
+  function getNextGame(now: number) {
     const nextGame = new Date(now);
     nextGame.setUTCDate(nextGame.getUTCDate() + 6 - nextGame.getUTCDay());
     nextGame.setUTCHours(1);
@@ -18,12 +20,12 @@
     }
   }
 
-  function formatTime(t) {
+  function formatTime(t: Date) {
     const h = t.getHours();
     return `${h % 12}${h >= 12 ? 'pm' : 'am'}`;
   }
 
-  const nextGame = getNextGame(new Date());
+  const nextGame = getNextGame(Date.now());
 
   let showEmail = false;
   let hasError = false;
@@ -44,6 +46,28 @@
     dispatch('hide');
   }
 </script>
+
+<form transition:fly={{y: -100}} on:submit|preventDefault={onSubmit} class:shake={hasError}>
+  {#if showEmail}
+    <input
+      type="text"
+      autofocus
+      placeholder="Email address"
+      bind:value={email}
+      on:keydown|stopPropagation
+      on:keyup|stopPropagation
+    />
+    <button class="button" on:click={() => (showEmail = true)}>Subscribe</button>
+  {:else}
+    <span>
+      Play with us every Friday day at
+      <strong>{formatTime(nextGame)}</strong>
+      your time.
+    </span>
+    <button class="button" on:click={() => (showEmail = true)}>Remind me</button>
+  {/if}
+  <Close on:click={() => dispatch('hide')} color="#ad7f28" />
+</form>
 
 <style>
   form {
@@ -123,26 +147,3 @@
     }
   }
 </style>
-
-<svelte:options immutable={true} />
-
-<form transition:fly={{y: -100}} on:submit|preventDefault={onSubmit} class:shake={hasError}>
-  {#if showEmail}
-    <input
-      type="text"
-      autofocus
-      placeholder="Email address"
-      bind:value={email}
-      on:keydown|stopPropagation
-      on:keyup|stopPropagation />
-    <button class="button" on:click={() => (showEmail = true)}>Subscribe</button>
-  {:else}
-    <span>
-      Play with us every Friday day at
-      <strong>{formatTime(nextGame)}</strong>
-      your time.
-    </span>
-    <button class="button" on:click={() => (showEmail = true)}>Remind me</button>
-  {/if}
-  <Close on:click={() => dispatch('hide')} backgroundColor="var(--yellow)" color="#ad7f28" />
-</form>

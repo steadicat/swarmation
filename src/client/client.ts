@@ -6,9 +6,9 @@ import {initializeControls} from './controls';
 import {directions} from './directions.js';
 
 import Game from './Game.svelte';
-import type {GameProps} from './Game.svelte';
+import {ComponentProps} from 'svelte';
 
-let state: Readonly<GameProps> = {
+let state: Readonly<ComponentProps<Game>> = {
   players: [],
   selfID: null,
 
@@ -27,7 +27,7 @@ if (!target) throw new Error('Element #game not found');
 const game = new Game({target, props: state});
 
 let updateScheduled = false;
-function updateGame(props: Partial<GameProps>) {
+function updateGame(props: Partial<ComponentProps<Game>>) {
   state = {...state, ...props};
   if (updateScheduled) return;
   updateScheduled = true;

@@ -1,6 +1,13 @@
+<svelte:options immutable={true} />
+
 <script lang="ts">
-  export let score;
+  export let score: number;
 </script>
+
+<div class="box">
+  <span class="text">{score}</span>
+  points
+</div>
 
 <style>
   .box {
@@ -19,10 +26,3 @@
     line-height: 50px;
   }
 </style>
-
-<svelte:options immutable={true} />
-
-<div class="box">
-  <span class="text">{score}</span>
-  points
-</div>

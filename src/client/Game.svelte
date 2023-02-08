@@ -1,6 +1,8 @@
+<svelte:options immutable={true} />
+
 <script lang="ts">
   import Board from './Board.svelte';
-  import Formation from './Formation.svelte';
+  import FormationComponent from './Formation.svelte';
   import Countdown from './Countdown.svelte';
   import Score from './Score.svelte';
   import SuccessRate from './SuccessRate.svelte';
@@ -9,16 +11,17 @@
   import Message from './Message.svelte';
   import Instructions from './Instructions.svelte';
   import {createEventDispatcher} from 'svelte';
+  import {Formation} from '../formations';
 
-  export let message = null;
+  export let message: string | null = null;
 
-  export let players = [];
-  export let selfID = null;
-  export let activeIds = [];
+  export let players: Player[];
+  export let selfID: number | null = null;
+  export let activeIds: number[] = [];
   export let hasMoved = false;
-  export let formation;
+  export let formation: Pick<Formation, 'time' | 'name' | 'map'>;
 
-  export let scoreChanges = [];
+  export let scoreChanges: number[];
 
   let showAbout = false;
   let showInstructions = true;
@@ -26,7 +29,7 @@
   let subscribeShown = false;
   let width = 800;
 
-  $: self = players.find((player) => player.id === selfID);
+  $: self = players.find((player) => player.id === selfID)!;
   $: score = self ? self.score : 0;
 
   $: {
@@ -40,6 +43,43 @@
 
   const dispatch = createEventDispatcher();
 </script>
+
+<svelte:window bind:innerWidth={width} />
+
+<Board {players} {self} {activeIds} {hasMoved} {scoreChanges} />
+
+<FormationComponent {formation} />
+<Countdown {formation} />
+<Score {score} />
+<SuccessRate {self} />
+
+<div class="header">
+  <h1 style="font-size: {20 + width / 40}px" on:click={() => (showAbout = true)}>Swarmation</h1>
+  {#if showSubscribe && hasMoved}
+    <Subscribe
+      on:hide={() => (showSubscribe = false)}
+      on:subscribe={(event) => {
+        showSubscribe = false;
+        dispatch('subscribe', event.detail);
+      }}
+    />
+  {/if}
+</div>
+
+{#if showInstructions && hasMoved}
+  <Instructions
+    on:hide={() => (showInstructions = false)}
+    on:showAbout={() => (showAbout = true)}
+  />
+{/if}
+
+{#if message}
+  <Message {message} />
+{/if}
+
+{#if showAbout}
+  <About on:click={() => (showAbout = false)} />
+{/if}
 
 <style>
   :global(:root) {
@@ -121,39 +161,3 @@
     pointer-events: auto;
   }
 </style>
-
-<svelte:options immutable={true} />
-<svelte:window bind:innerWidth={width} />
-
-<Board {players} {self} {activeIds} {hasMoved} {scoreChanges} />
-
-<Formation {formation} />
-<Countdown {formation} />
-<Score {score} />
-<SuccessRate {self} />
-
-<div class="header">
-  <h1 style="font-size: {20 + width / 40}px" on:click={() => (showAbout = true)}>Swarmation</h1>
-  {#if showSubscribe && hasMoved}
-    <Subscribe
-      on:hide={() => (showSubscribe = false)}
-      on:subscribe={(event) => {
-        showSubscribe = false;
-        dispatch('subscribe', event.detail);
-      }} />
-  {/if}
-</div>
-
-{#if showInstructions && hasMoved}
-  <Instructions
-    on:hide={() => (showInstructions = false)}
-    on:showAbout={() => (showAbout = true)} />
-{/if}
-
-{#if message}
-  <Message {message} />
-{/if}
-
-{#if showAbout}
-  <About on:click={() => (showAbout = false)} />
-{/if}

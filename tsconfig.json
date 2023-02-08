@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "server/",
-    "target": "es5",
+    "target": "ES6",
     "module": "es2015",
     "moduleResolution": "node",
     "esModuleInterop": true,

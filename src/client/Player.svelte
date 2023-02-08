@@ -1,12 +1,27 @@
+<svelte:options immutable={true} />
+
 <script lang="ts">
-  export let left;
-  export let top;
-  export let self;
-  export let flashing;
-  export let lockedIn;
-  export let idle;
-  export let active;
+  export let left: number;
+  export let top: number;
+  export let self: boolean;
+  export let flashing: boolean;
+  export let lockedIn: boolean;
+  export let idle: boolean;
+  export let active: boolean;
 </script>
+
+<div
+  class="player"
+  style="left: {left}px; top: {top}px"
+  class:flashing
+  class:lockedIn
+  class:idle
+  class:self
+  class:active
+  on:mouseover
+  on:mouseout
+  on:click
+/>
 
 <style>
   .player {
@@ -58,17 +73,3 @@
     }
   }
 </style>
-
-<svelte:options immutable={true} />
-
-<div
-  class="player"
-  style="left: {left}px; top: {top}px"
-  class:flashing
-  class:lockedIn
-  class:idle
-  class:self
-  class:active
-  on:mouseover
-  on:mouseout
-  on:click />

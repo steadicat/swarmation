@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as path from 'path';
 
 function getPoints(diagram: string[], y: number, x: number): Array<[number, number]> {
   const points: [number, number][] = [];

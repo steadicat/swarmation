@@ -1,6 +1,5 @@
-import type * as ServerWebSocket from 'ws';
-
-import {Direction} from './client/directions.js';
+import NodeWebSocket from 'ws';
+import type {Direction} from './client/directions.js';
 
 export type SaveData = {
   score: number;
@@ -67,7 +66,7 @@ type ServerMessage =
   | [MessageType.Disconnected, /* id */ number];
 
 export function clientListen(
-  socket: WebSocket | ServerWebSocket,
+  socket: WebSocket | NodeWebSocket,
   listener: (message: ServerMessage) => void
 ) {
   (socket as WebSocket).addEventListener('message', (event) =>
@@ -75,15 +74,17 @@ export function clientListen(
   );
 }
 
-export function clientSend(socket: WebSocket | ServerWebSocket, message: ClientMessage) {
+export function clientSend(socket: WebSocket | NodeWebSocket, message: ClientMessage) {
   socket.send(JSON.stringify(message));
 }
 
-export function serverListen(socket: ServerWebSocket, listener: (message: ClientMessage) => void) {
-  socket.addEventListener('message', (event) => listener(JSON.parse(event.data) as ClientMessage));
+export function serverListen(socket: NodeWebSocket, listener: (message: ClientMessage) => void) {
+  socket.addEventListener('message', (event) =>
+    listener(JSON.parse(event.data.toString()) as ClientMessage)
+  );
 }
 
-export function serverSend(sockets: ServerWebSocket[], message: ServerMessage) {
+export function serverSend(sockets: NodeWebSocket[], message: ServerMessage) {
   for (const socket of sockets) {
     socket.send(JSON.stringify(message));
   }

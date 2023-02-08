@@ -19,7 +19,7 @@ export function validate(signedValue: string) {
   try {
     parsedValue = JSON.parse(json) as SaveData;
   } catch (err) {
-    Bugsnag.notify(err);
+    Bugsnag.notify(err as Error);
     console.error(err, json);
     return null;
   }

@@ -1,10 +1,16 @@
+<svelte:options immutable={true} />
+
 <script lang="ts">
   import {fade} from 'svelte/transition';
 
-  export let left;
-  export let top;
-  export let style;
+  export let left: number;
+  export let top: number;
+  export let style = '';
 </script>
+
+<div transition:fade class="tooltip" style="left: {left + 6}px; top: {top - 14}px; {style}">
+  <slot />
+</div>
 
 <style>
   .tooltip {
@@ -31,9 +37,3 @@
     margin-left: -12px;
   }
 </style>
-
-<svelte:options immutable={true} />
-
-<div transition:fade class="tooltip" style="left: {left + 6}px; top: {top - 14}px; {style}">
-  <slot />
-</div>

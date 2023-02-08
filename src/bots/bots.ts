@@ -1,5 +1,4 @@
-import * as WebSocket from 'ws';
-
+import WebSocket from 'ws';
 import {Direction} from '../client/directions.js';
 import {clientSend, clientListen, MessageType} from '../protocol.js';
 
@@ -85,7 +84,7 @@ function createBot() {
     }
   });
 
-  ws.addEventListener('error', (err) => {
+  ws.addEventListener('error', (err: WebSocket.ErrorEvent) => {
     console.log(`[${id}] Disconnected because of an error`, err);
     connected = false;
   });

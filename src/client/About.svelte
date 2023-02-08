@@ -1,7 +1,65 @@
+<svelte:options immutable={true} />
+
 <script lang="ts">
   import Close from './Close.svelte';
   let touch = 'ontouchstart' in window;
 </script>
+
+<div class="about">
+  <h1 on:click>Swarmation</h1>
+  <Close on:click top={40} right={16} width={32} height={32} color="var(--medium-blue)" />
+  <div class="inner">
+    <h2>How to play</h2>
+
+    <p>
+      {#if touch}
+        Swipe anywhere to move.
+      {:else}
+        Use your
+        <img class="arrow-keys" src="/images/arrow-keys.svg" alt="arrow keys" />
+        {@html `<span class="text">to move</span>.`}
+      {/if}
+    </p>
+
+    <p>
+      <span class="key">S</span>
+      to lock into position.
+    </p>
+    <p>
+      <span class="key wide">Spacebar</span>
+      to flash with color.
+    </p>
+
+    <p>Get into formation with other players before the countdown runs out.</p>
+
+    <h2 style="margin-top: 40px">About</h2>
+
+    <p>
+      {@html `
+      A game by
+      <a href="http://twitter.com/steadicat">Stefano J. Attardi</a>,
+      <a href="http://twitter.com/findjoey">Zach Bialecki</a> &
+      <a href="http://twitter.com/ollerac">David Miranda</a>.`}
+    </p>
+
+    <p>
+      {@html `
+      The original version of the game was built in a weekend in 2010 and won
+      <a href="https://techcrunch.com/2010/09/01/nodejs-knockout/">
+        the first ever Node.js Knockout
+      </a>.`}
+    </p>
+
+    <p>
+      {@html `The source code is available on
+        <a href="https://github.com/steadicat/swarmation">GitHub</a>.`}
+    </p>
+
+    <p>
+      {@html `Follow us on Twitter: <a href="https://twitter.com/swarmation">@swarmation</a>.`}
+    </p>
+  </div>
+</div>
 
 <style>
   .about {
@@ -69,61 +127,3 @@
     padding: 0 24px;
   }
 </style>
-
-<svelte:options immutable={true} />
-<div class="about">
-  <h1 on:click>Swarmation</h1>
-  <Close on:click top={40} right={16} width={32} height={32} color="var(--medium-blue)" />
-  <div class="inner">
-
-    <h2>How to play</h2>
-
-    <p>
-      {#if touch}
-        Swipe anywhere to move.
-      {:else}
-        Use your
-        <img class="arrow-keys" src="/images/arrow-keys.svg" alt="arrow keys" />
-        {@html `<span class="text">to move</span>.`}
-      {/if}
-    </p>
-
-    <p>
-      <span class="key">S</span>
-      to lock into position.
-    </p>
-    <p>
-      <span class="key wide">Spacebar</span>
-      to flash with color.
-    </p>
-
-    <p>Get into formation with other players before the countdown runs out.</p>
-
-    <h2 style="margin-top: 40px">About</h2>
-
-    <p>
-      {@html `
-      A game by
-      <a href="http://twitter.com/steadicat">Stefano J. Attardi</a>,
-      <a href="http://twitter.com/findjoey">Zach Bialecki</a> &
-      <a href="http://twitter.com/ollerac">David Miranda</a>.`}
-    </p>
-
-    <p>
-      {@html `
-      The original version of the game was built in a weekend in 2010 and won
-      <a href="https://techcrunch.com/2010/09/01/nodejs-knockout/">
-        the first ever Node.js Knockout
-      </a>.`}
-    </p>
-
-    <p>
-      {@html `The source code is available on
-        <a href="https://github.com/steadicat/swarmation">GitHub</a>.`}
-    </p>
-
-    <p>
-      {@html `Follow us on Twitter: <a href="https://twitter.com/swarmation">@swarmation</a>.`}
-    </p>
-  </div>
-</div>
